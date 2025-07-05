@@ -475,28 +475,29 @@
             });
 
             // --- Gemini API Integration ---
-            const callGeminiAPI = async (payload) => {
-                const apiKey = ""; // Handled by environment
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-                try {
-                    const response = await fetch(apiUrl, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-                    if (!response.ok) throw new Error(`API Error: ${response.status}`);
-                    const result = await response.json();
-                    if (result.candidates?.[0]?.content?.parts?.[0]?.text) {
-                        return result.candidates[0].content.parts[0].text;
-                    }
-                    console.error("Unexpected API response:", result);
-                    return null;
-                } catch (error) {
-                    console.error("Error calling Gemini API:", error);
-                    showAlert(`Yapay zeka ile iletişimde bir hata oluştu: ${error.message}`);
-                    return null;
-                }
-            };
+           // YENİ: Artık kendi sunucu endpoint'ine istek atıyoruz
+const callGeminiAPI = async (payload) => {
+    try {
+        const response = await fetch("/api/gemini", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ payload })
+        });
+        if (!response.ok) throw new Error(`API Error: ${response.status}`);
+        const result = await response.json();
+        // Gemini response formatı aşağıdakine göre parse ediliyor
+        if (result.candidates?.[0]?.content?.parts?.[0]?.text) {
+            return result.candidates[0].content.parts[0].text;
+        }
+        // Hatalı ya da beklenmeyen response
+        console.error("Unexpected API response:", result);
+        return null;
+    } catch (error) {
+        console.error("Error calling Gemini API:", error);
+        showAlert(`Yapay zeka ile iletişimde bir hata oluştu: ${error.message}`);
+        return null;
+    }
+};
 
             const getGeminiSizeRecommendation = async () => {
                 let prompt;
