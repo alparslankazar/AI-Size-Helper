@@ -31,7 +31,7 @@
             border-color: var(--border-color);
         }
         .product-card-image-bg {
-            background-color: #f9f9f9;
+             background-color: #f9f9f9;
         }
 
         #size-wizard-modal {
@@ -147,10 +147,10 @@
         }
 
         .value-display {
-            font-size: clamp(4rem, 12vw, 5rem);
-            font-weight: 900;
-            color: var(--text-primary);
-            margin-bottom: 1rem; /* Boşluk azaltıldı */
+             font-size: clamp(4rem, 12vw, 5rem);
+             font-weight: 900;
+             color: var(--text-primary);
+             margin-bottom: 1rem; /* Boşluk azaltıldı */
         }
 
         .value-display-medium {
@@ -201,8 +201,8 @@
             font-size: clamp(0.7rem, 4vw, 1.125rem);
         }
         .action-button:hover {
-            background-color: #333;
-            transform: translateY(-2px);
+             background-color: #333;
+             transform: translateY(-2px);
         }
         .prev-btn {
             background-color: transparent;
@@ -215,7 +215,8 @@
 
         button:disabled{opacity:0.5;cursor:not-allowed;}
 
-        /* Orijinal AI Chat stilleri kaldırıldı */
+        .input-dark { background: var(--bg-secondary); color: var(--text-primary); border: 1.5px solid var(--border-color); }
+        .input-dark:focus { border-color: var(--brand-color); background: var(--bg-primary); }
         
         /* DÜZELTME: Uyarı yazısı stili */
         .modal-alert { 
@@ -234,7 +235,7 @@
         }
 
         @media (max-width:480px) {
-            #wizard-content { max-width: 95vw; }
+             #wizard-content { max-width: 95vw; }
         }
     </style>
 </head>
@@ -268,6 +269,7 @@
 
 <div id="size-wizard-modal" class="fixed inset-0 flex items-center justify-center p-4 z-50 hidden">
     <div id="wizard-content">
+        <!-- DÜZELTME: Başlık ortalandı -->
         <div class="flex-shrink-0 flex justify-center items-center p-4 border-b border-[var(--border-color)] relative">
             <h2 class="text-base font-bold flex items-center gap-2">
                 <i data-lucide="badge-check" class="w-6 h-6 text-gray-800"></i> Akıllı Beden Danışmanı
@@ -391,20 +393,25 @@
                 <p id="result-size" class="text-7xl font-black text-gray-800 my-4">L</p>
                 <div class="bg-gray-100 rounded-lg p-4 text-sm text-left mb-3 border border-gray-200">
                     <p id="result-description"></p>
-                    
-                    <!-- DEĞİŞİKLİK BAŞLANGICI: Orijinal AI Chat HTML bölümü kaldırıldı -->
                     <div id="ai-fit-preview-section" class="mt-6 text-left">
-                        <h4 class="text-lg font-bold text-gray-800 mb-2">AI Destekli Fit Önizlemesi</h4>
-                        <div id="fit-preview-container" class="w-full aspect-square bg-gray-200 rounded-lg flex items-center justify-center border border-gray-300 overflow-hidden relative">
-                            <div id="fit-preview-loader" class="text-center flex flex-col items-center justify-center absolute inset-0">
-                                <div class="loader"></div>
-                                <p class="text-sm text-gray-600 mt-2">Önizleme oluşturuluyor...</p>
+                        <h4 class="text-lg font-bold text-gray-800 mb-3">AI Destekli Fit Önizlemesi</h4>
+                        <div id="fit-preview-container" class="relative bg-gray-50 rounded-lg border border-gray-200 min-h-[200px] flex items-center justify-center">
+                            <div id="preview-placeholder" class="text-center">
+                                <i data-lucide="image" class="w-12 h-12 text-gray-400 mx-auto mb-2"></i>
+                                <p class="text-gray-500 text-sm">Fit önizlemesi oluşturmak için<br>butona tıklayın</p>
                             </div>
-                            <img id="fit-preview-image" src="" alt="AI Destekli Fit Önizlemesi" class="w-full h-full object-cover hidden">
+                            <img id="fit-preview-image" class="hidden w-full h-auto rounded-lg max-h-[300px] object-contain" alt="AI Fit Önizlemesi">
+                            <div id="preview-loader" class="hidden absolute inset-0 bg-gray-50 bg-opacity-90 rounded-lg flex flex-col items-center justify-center">
+                                <div class="loader"></div>
+                                <p class="text-gray-600 text-sm mt-3">Fit önizlemesi oluşturuluyor...</p>
+                            </div>
                         </div>
-                        <p class="text-[11px] text-gray-500 mt-2 ml-1">Görsel, yapay zeka tarafından ölçülerinize özel olarak oluşturulmuştur.</p>
+                        <button id="generate-preview-btn" class="w-full mt-3 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition">
+                            <i data-lucide="camera" class="w-4 h-4 inline mr-2"></i>
+                            Fit Önizlemesi Oluştur
+                        </button>
+                        <p class="text-[11px] text-gray-500 mt-2 text-center">Verilerinize göre kişiselleştirilmiş fit görseli</p>
                     </div>
-                    <!-- DEĞİŞİKLİK SONU -->
                 </div>
                 <div class="mt-6">
                     <button id="add-to-cart-btn" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition">Bu Bedeni Sepete Ekle</button>
@@ -434,20 +441,20 @@
 document.addEventListener('DOMContentLoaded', () => {
     // Türkçeleştirme Map'leri (sadece bodyType/shoulder için)
     const trBodyTypes = {
-        'skinny': 'İnce Yapılı',
-        'average': 'Standart Yapılı',
-        'chubby': 'İri Yapılı',
-        'İnce Yapılı': 'İnce Yapılı',
-        'Standart Yapılı': 'Standart Yapılı',
-        'İri Yapılı': 'İri Yapılı'
+        'skinny': 'İnce yapılı',
+        'average': 'Standart yapılı',
+        'chubby': 'İri yapılı',
+        'İnce Yapılı': 'İnce yapılı',
+        'Standart Yapılı': 'Standart yapılı',
+        'İri Yapılı': 'İri yapılı'
     };
     const trShoulderWidths = {
-        'narrow': 'Dar Omuz',
-        'average': 'Normal Omuz',
-        'broad': 'Geniş Omuz',
-        'Dar Omuz': 'Dar Omuz',
-        'Normal Omuz': 'Normal Omuz',
-        'Geniş Omuz': 'Geniş Omuz'
+        'narrow': 'Dar omuz',
+        'average': 'Normal omuz',
+        'broad': 'Geniş omuz',
+        'Dar Omuz': 'Dar omuz',
+        'Normal Omuz': 'Normal omuz',
+        'Geniş Omuz': 'Geniş omuz'
     };
 
     // Element Selections
@@ -465,10 +472,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const teeWidthDisplay = document.getElementById('tee-width-display');
     const teeLengthSlider = document.getElementById('tee-length-slider');
     const teeLengthDisplay = document.getElementById('tee-length-display');
-    // DEĞİŞİKLİK: Orijinal kodda olmayan ama yeni HTML'de olan elementleri ekliyoruz.
-    const fitPreviewLoader = document.getElementById('fit-preview-loader');
+    const generatePreviewBtn = document.getElementById('generate-preview-btn');
     const fitPreviewImage = document.getElementById('fit-preview-image');
-    // Orijinal kodda olanlar korunuyor
+    const previewPlaceholder = document.getElementById('preview-placeholder');
+    const previewLoader = document.getElementById('preview-loader');
     const bodyTypeAlert = document.getElementById('bodytype-alert');
     const shoulderAlert = document.getElementById('shoulder-alert');
     const resultDescription = document.getElementById('result-description');
@@ -476,7 +483,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // State Variables
     let currentStepId = 'step-1';
     let userData = {};
-    // DEĞİŞİKLİK: aiChatHistory kaldırıldı.
+    let seedNumber = 500097;
     // GÜNCEL BEDEN TABLOSU
     const TEE_SIZE_CHART = {
         'S': { width: 60, length: 70 },
@@ -593,33 +600,43 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // GEMINI AI PROMPT & CALL
     const getGeminiSizeRecommendation = async () => {
+        // Türkçeleştirme:
         userData.bodyTypeTr = trBodyTypes[userData.bodyType] || userData.bodyType || '';
         userData.shoulderWidthTr = trShoulderWidths[userData.shoulderWidth] || userData.shoulderWidth || '';
+
+        // Format örneği prompta gömülü:
         const explanationSample = `
 Genel Yorum:
 182 cm boy, 70 kg genellikle fit/zayıf veya ortalama vücut tipine karşılık gelir.
 Tee oversized boxy kalıba sahip (En ölçüsü geniş), yani vücudu sarmayacak, rahat bir duruş verecek şekilde üretilmiş.
+
 Beden Önerisi:
 MEDIUM
 Sana en çok Medium yakışır.
-Medium’da A: 70 cm (uzunluk), B: 62 cm (göğüs genişliği).
+
+Medium'da A: 70 cm (uzunluk), B: 62 cm (göğüs genişliği).
 Bu ölçüler, tişörtün sana hafif oversize, rahat bir şekilde oturmasını sağlar.
 Ne çok uzun ne de çok bol durur, hem şık hem rahat olur.
+
 LARGE
 Eğer gerçekten oversize ve salaş (moda çekimlerinde olduğu gibi, omuzdan daha da düşük, bol bir görüntü) istersen Large da giyebilirsin.
-Large’ın A: 72, B: 64. 1-2 cm'lik bu fark yandan ve omuzdan daha bol duruş verir.
+Large'ın A: 72, B: 64. 1-2 cm'lik bu fark yandan ve omuzdan daha bol duruş verir.
 Boyun uzun olduğu için L da seni boğmaz, fakat Medium daha dengeli olur.
+
 SMALL
 Zayıf ve çok dar bir fit istiyorsan, small da olur ama bu kalıpta small genellikle kısa ve fazla slim olur, sana dar gelebilir.
+
 Sonuç:
 Senin boy/kilo için en güvenli ve estetik önerim:
 MEDIUM (rahat oversize fit; modaya uygun, iyi durur)
 Daha bol, salaş isteyenler için:
 LARGE (ama çok zayıf değilsen veya iyice oversize istemiyorsan L gerekmez)
 Kısa/dar durmasın istiyorsan small asla önerilmez.
+
 Ekstra:
 Omuzların çok geniş, gövden uzun, kol uzunluğun fazlaysa Large da tercih edebilirsin, ama çoğu durumda Medium idealdir.
         `;
+
         const personaAndProductContext = `
 Sen bir "fit uzmanısın". Reklam, marka övgüsü yapma. 
 Ürün: Oversized Boxy Fit Tee, 220 GSM ağır pamuk, geniş ve modern kalıp.
@@ -633,6 +650,7 @@ Açıklama bölümünü aşağıdaki örnek ile NEREDEYSE AYNI FORMATTA YAZ:
 ${explanationSample}
 Başka format veya anlatım kullanma.
         `;
+
         let userSpecifics;
         if (userData.mode === 'wizard') {
             userSpecifics = `
@@ -666,7 +684,7 @@ Beden tablosuyla kıyasla, ideal ve alternatif bedenleri yukarıdaki gibi açık
         return resultText ? JSON.parse(resultText) : null;
     };
 
-    // Gemini API Call (Orijinal fonksiyon korunuyor)
+    // Gemini API Call
     const callGeminiAPI = async (payload) => {
         try {
             const response = await fetch("/api/gemini", {
@@ -686,67 +704,85 @@ Beden tablosuyla kıyasla, ideal ve alternatif bedenleri yukarıdaki gibi açık
         }
     };
 
-    // DEĞİŞİKLİK BAŞLANGICI: AI Chat ile ilgili tüm fonksiyonlar kaldırıldı.
-    // handleAskAI, updateChatHistory ve ilgili event listener'lar silindi.
-    
-    // YENİ: AI Destekli Görsel Oluşturma Fonksiyonu
-    const generateFitPreviewImage = async () => {
-        const { height, weight, bodyTypeTr, shoulderWidthTr, recommendedSize } = userData;
-        const imagePrompt = `Create a single, hyper-realistic 3D technical illustration in a split-panel (diptych) format. The subject is a featureless male mannequin with a matte neutral-gray skin texture. The mannequin wears a black, oversized, boxy-fit t-shirt and pale light-blue, baggy denim shorts. The background is solid pure white. The following text elements must be rendered: Top Center: LOS SURENOS. Upper Left Corner (Front View Panel): Height: ${height} cm, Weight: ${weight} kg, Body Type: ${bodyTypeTr}, Shoulder: ${shoulderWidthTr}, Size: ${recommendedSize}. Front View Measurement: A thin, horizontal, gray dashed line across the chest, labeled Chest Width: ${TEE_SIZE_CHART[recommendedSize].width} cm. Side View Measurement: A thin, vertical, gray dashed line from shoulder to hem, labeled Length: ${TEE_SIZE_CHART[recommendedSize].length} cm. Crucial Negative Prompts: Do NOT include any text other than what is specified.`;
-        const payload = {
-            prompt: imagePrompt,
-            seed: 500097,
-            reference_image_url: "https://cdn.myikas.com/images/theme-images/ee1f88b6-84cb-45e6-868e-825587a1beda/image_1080.webp"
-        };
+    // Generate Fit Preview
+    const generateFitPreview = async () => {
+        previewLoader.classList.remove('hidden');
+        generatePreviewBtn.disabled = true;
         
+        // Vücut tipi ve omuz genişliği çevirisi
+        const bodyTypeEn = {
+            'İnce yapılı': 'skinny',
+            'Standart yapılı': 'standard', 
+            'İri yapılı': 'chubby'
+        }[userData.bodyTypeTr] || 'standard';
+        
+        const shoulderEn = {
+            'Dar omuz': 'narrow',
+            'Normal omuz': 'average',
+            'Geniş omuz': 'broad'
+        }[userData.shoulderWidthTr] || 'average';
+
+        const prompt = `A hyper-realistic 3D technical illustration in a split-panel (diptych) format. The scene is rendered with bright, diffuse, 3-point studio lighting against a solid, pure white (#FFFFFF) background. An orthographic camera view is used. The subject is a featureless male mannequin with a matte neutral-gray skin texture and a bald head, standing in a neutral, upright pose. The left panel shows the front view; the right panel shows the side view, separated by a thin vertical line. The mannequin wears a black, oversized, boxy-fit t-shirt with a visible, heavy PBR cotton fabric texture, and pale light-blue, baggy denim shorts.
+Text elements, rendered in a clean, bold, sans-serif font:
+Top Center: LOS SURENOS
+Upper Left Corner (Front View Panel):
+Height: ${userData.height} cm
+Weight: ${userData.weight} kg
+Body Type: ${bodyTypeEn.charAt(0).toUpperCase() + bodyTypeEn.slice(1)}
+Shoulder: ${shoulderEn.charAt(0).toUpperCase() + shoulderEn.slice(1)}
+Size: ${userData.recommendedSize}
+Front View Measurement: A thin, horizontal, gray dashed line across the chest, labeled Chest Width: ${TEE_SIZE_CHART[userData.recommendedSize].width} cm.
+Side View Measurement: A thin, vertical, gray dashed line from shoulder to hem, labeled Tshirt Length: ${TEE_SIZE_CHART[userData.recommendedSize].length} cm.
+No shadows, no logos, no human features, no signatures, no watermarks, no text like "Information" or "Apparel Details". Avoid photographic realism, motion blur, lens flares, chromatic aberration, grain, or jpeg artifacts.`;
+
         try {
-            const response = await fetch("/api/generate-image", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ payload })
+            const response = await fetch('/api/imagen', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    prompt: prompt,
+                    seed: seedNumber 
+                })
             });
-            if (!response.ok) throw new Error(`Image API Hatası: ${response.status}`);
-            const result = await response.json();
-            
-            if (result.imageUrl) {
-                fitPreviewImage.src = result.imageUrl;
-                fitPreviewImage.onload = () => {
-                    fitPreviewLoader.style.display = 'none';
-                    fitPreviewImage.classList.remove('hidden');
-                };
-            } else {
-                 throw new Error("Görsel URL'i alınamadı.");
+
+            if (!response.ok) {
+                throw new Error(`Görsel oluşturma hatası: ${response.status}`);
             }
+
+            const blob = await response.blob();
+            const imageUrl = URL.createObjectURL(blob);
+            
+            previewPlaceholder.classList.add('hidden');
+            fitPreviewImage.src = imageUrl;
+            fitPreviewImage.classList.remove('hidden');
+            
+            seedNumber++; // Bir sonraki görsel için seed arttır
+            
         } catch (error) {
             showAlert(`Görsel oluşturulamadı: ${error.message}`);
-            fitPreviewLoader.innerHTML = `<p class="text-red-500 text-xs p-4">Önizleme oluşturulamadı.</p>`;
+        } finally {
+            previewLoader.classList.add('hidden');
+            generatePreviewBtn.disabled = false;
         }
     };
-    // DEĞİŞİKLİK SONU
 
-    // Analysis (HATA DÜZELTİLDİ)
+    generatePreviewBtn.addEventListener('click', generateFitPreview);
+
+    // Analysis
     const runAnalysis = async () => {
+        showStep('step-loader');
         userData.height = heightSlider.value;
         userData.weight = weightSlider.value;
         if (userData.mode === 'measure') {
             userData.teeWidth = teeWidthSlider.value;
             userData.teeLength = teeLengthSlider.value;
         }
-
-        // HATA DÜZELTMESİ: Yükleme ekranını göstermeden ÖNCE doğrulamaları yap
-        if (userData.mode === 'wizard' && !userData.shoulderWidth) {
-            shoulderAlert.style.display = "block";
-            setTimeout(() => shoulderAlert.style.display = "none", 1800);
-            return; // Fonksiyonu durdur, adımı değiştirme.
+        if (!userData.height || !userData.weight || !userData.mode ||
+            (userData.mode === 'wizard' && (!userData.bodyType || !userData.shoulderWidth))) {
+            showAlert("Tüm adımları ve seçimleri doldurun.");
+            showStep('step-3');
+            return;
         }
-        if (userData.mode === 'wizard' && !userData.bodyType) {
-            bodyTypeAlert.style.display = "block";
-            setTimeout(() => bodyTypeAlert.style.display = "none", 1800);
-            return; 
-        }
-        
-        showStep('step-loader');
-
         let result = await getGeminiSizeRecommendation();
         if (!result) {
             let localSize = localSizeEstimate(userData.height, userData.weight, userData.bodyTypeTr);
@@ -760,45 +796,26 @@ Beden tablosuyla kıyasla, ideal ve alternatif bedenleri yukarıdaki gibi açık
         document.getElementById('result-size').textContent = result.recommendedSize;
         document.getElementById('add-to-cart-btn').textContent = `Beden ${result.recommendedSize} Sepete Ekle`;
         resultDescription.textContent = result.explanation;
-        
         showStep('step-result');
-
-        if (userData.mode === 'wizard') {
-             generateFitPreviewImage();
-        } else {
-            document.getElementById('ai-fit-preview-section').style.display = 'none';
-        }
     };
 
     const resetWizard = () => {
         userData = {};
-        // Orijinal kodda bu satırlar vardı, korunuyor.
-        aiChatHistory = [];
-        // Orijinal kodda bu element null olabileceğinden kontrol eklemek daha güvenli.
-        if(document.getElementById('ai-chat-history')) {
-            document.getElementById('ai-chat-history').innerHTML = ''; 
+        seedNumber = 500097;
+        previewPlaceholder.classList.remove('hidden');
+        fitPreviewImage.classList.add('hidden');
+        if (fitPreviewImage.src) {
+            URL.revokeObjectURL(fitPreviewImage.src);
+            fitPreviewImage.src = '';
         }
-
         showStep('step-1');
-        
-        const previewSection = document.getElementById('ai-fit-preview-section');
-        if (previewSection) {
-            previewSection.style.display = 'block';
-        }
-        if (fitPreviewLoader) {
-            fitPreviewLoader.style.display = 'flex';
-            fitPreviewLoader.innerHTML = '<div class="loader"></div><p class="text-sm text-gray-600 mt-2">Önizleme oluşturuluyor...</p>';
-        }
-        if (fitPreviewImage) {
-            fitPreviewImage.classList.add('hidden');
-            fitPreviewImage.src = "";
-        }
     };
 
     lucide.createIcons();
     resetWizard();
 });
 </script>
+
 
 </body>
 </html>
