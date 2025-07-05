@@ -442,11 +442,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const wizardModal = document.getElementById('size-wizard-modal');
     const steps = document.querySelectorAll('.wizard-step');
     const progressBar = document.getElementById('progress-bar');
-    
     const navPrev = document.getElementById('nav-prev');
     const navNext = document.getElementById('nav-next');
     const navAnalyze = document.getElementById('nav-analyze');
-
     const heightSlider = document.getElementById('height-slider');
     const heightValueDisplay = document.getElementById('height-value-display');
     const weightSlider = document.getElementById('weight-slider');
@@ -455,20 +453,25 @@ document.addEventListener('DOMContentLoaded', () => {
     const teeWidthDisplay = document.getElementById('tee-width-display');
     const teeLengthSlider = document.getElementById('tee-length-slider');
     const teeLengthDisplay = document.getElementById('tee-length-display');
-    
     const askAiBtn = document.getElementById('ask-ai-btn');
     const aiQuestionInput = document.getElementById('ai-question-input');
     const aiChatHistoryDiv = document.getElementById('ai-chat-history');
     const aiChatLoader = document.getElementById('ai-chat-loader');
-    
     const bodyTypeAlert = document.getElementById('bodytype-alert');
     const shoulderAlert = document.getElementById('shoulder-alert');
+    const resultDescription = document.getElementById('result-description');
 
     // State Variables
     let currentStepId = 'step-1';
     let userData = {};
     let aiChatHistory = [];
-    const TEE_SIZE_CHART = { 'S': { width: 55, length: 70 }, 'M': { width: 58, length: 72 }, 'L': { width: 61, length: 74 }, 'XL': { width: 64, length: 76 } };
+    // --- UPDATED SIZE CHART ---
+    const TEE_SIZE_CHART = {
+        'S': { width: 60, length: 70 },
+        'M': { width: 62, length: 72 },
+        'L': { width: 64, length: 74 },
+        'XL': { width: 66, length: 76 }
+    };
 
     // Modal & Alert Logic
     const openModal = () => { wizardModal.classList.remove('hidden'); resetWizard(); };
@@ -479,6 +482,7 @@ document.addEventListener('DOMContentLoaded', () => {
     wizardModal.addEventListener('click', (e) => e.target === wizardModal && closeModal());
     document.getElementById('custom-alert-close-btn').addEventListener('click', () => { document.getElementById('custom-alert-modal').classList.add('hidden'); });
 
+    // Navigation config
     const stepConfig = {
         'step-1': { prev: null, next: null, hideNav: true },
         'step-2': { prev: 'step-1', next: 'step-3' },
@@ -495,20 +499,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const config = stepConfig[stepId];
         const navContainer = document.querySelector('.wizard-nav');
         if (!config) return;
-
-        if (config.hideNav) {
-            navContainer.style.display = 'none';
-            return;
-        }
+        if (config.hideNav) { navContainer.style.display = 'none'; return; }
         navContainer.style.display = 'block';
-        
         navPrev.style.display = config.prev ? 'block' : 'none';
         if(config.prev) navPrev.dataset.targetStep = config.prev;
-
         const nextTarget = typeof config.next === 'function' ? config.next(userData) : config.next;
         navNext.style.display = nextTarget ? 'block' : 'none';
         if(nextTarget) navNext.dataset.targetStep = nextTarget;
-        
         const showAnalyze = typeof config.isAnalyze === 'function' ? config.isAnalyze(userData) : config.isAnalyze;
         navAnalyze.style.display = showAnalyze ? 'block' : 'none';
         if(showAnalyze) navNext.style.display = 'none';
@@ -521,14 +518,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (currentStepId === 'step-5' && stepId.startsWith('step-loader') && !userData.shoulderWidth) {
             shoulderAlert.style.display = "block"; setTimeout(() => shoulderAlert.style.display = "none", 1800); return;
         }
-
         currentStepId = stepId;
         steps.forEach(step => step.classList.remove('active'));
         const activeStep = document.getElementById(stepId);
         if (activeStep) activeStep.classList.add('active');
-        
         document.querySelector('.wizard-inner-scroll').scrollTop = 0;
-        
         updateProgressBar();
         updateNavigation(stepId);
     };
@@ -559,6 +553,7 @@ document.addEventListener('DOMContentLoaded', () => {
     navAnalyze.addEventListener('click', () => runAnalysis());
     document.querySelector('.restart-btn').addEventListener('click', () => resetWizard());
 
+    // Sliders
     heightSlider.addEventListener('input', (e) => heightValueDisplay.textContent = `${e.target.value} cm`);
     weightSlider.addEventListener('input', (e) => weightValueDisplay.textContent = `${e.target.value} kg`);
     teeWidthSlider.addEventListener('input', (e) => teeWidthDisplay.textContent = `${e.target.value} cm`);
@@ -573,6 +568,62 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // Local fallback tahmin
+    function localSizeEstimate(height, weight, bodyType) {
+        height = Number(height); weight = Number(weight);
+        if (!height || !weight) return "M";
+        if (height < 170 && weight < 65) return "S";
+        if (height < 180 && weight < 75) return (bodyType === "chubby" ? "L" : "M");
+        if (height >= 180 && weight < 90) return "L";
+        if (height >= 180 && weight >= 90) return "XL";
+        return "M";
+    }
+
+    // AI prompt (ENGLISH PROMPT, TURKISH ANSWER)
+    const getGeminiSizeRecommendation = async () => {
+        const personaAndProductContext = `
+You are a "fit expert" (not a sales advisor). Never use advertising or branding language, do not praise the brand.
+Product: Premium Unisex Boxy Fit Tee, made of heavy cotton, modern oversize fit.
+Available sizes: S, M, L, XL. Chest width and length: S(60/70), M(62/72), L(64/74), XL(66/76).
+`;
+        const explanationInstructions = `
+Respond ONLY in Turkish.
+Follow this structure in your response (as JSON: {"recommendedSize":"...", "explanation":"..."}):
+- State the most suitable size in ALL CAPS, with technical measurements (e.g. "MEDIUM: Width 62 cm, Length 72 cm").
+- Briefly and technically describe how this size will fit the user’s body (e.g. "slightly oversize, drops from the shoulders, loose at the waist").
+- For 1 size up and down, compare measurement differences and how fit changes (e.g. "If you want much looser, pick L; if you want a shorter/tighter fit, S").
+- Finish with a short, technical summary of your final recommendation (e.g. "Safest and most aesthetic fit for you: MEDIUM, ideal for modern oversize style.").
+- Do not include brand praise or unnecessary compliments. Be concise, technical, and clear.
+- Answer in Turkish only.
+`;
+        let userSpecifics;
+        if (userData.mode === 'wizard') {
+            userSpecifics = `
+User data: Height: ${userData.height}cm, Weight: ${userData.weight}kg, Body Type: '${userData.bodyType}', Shoulder Width: '${userData.shoulderWidth}'.
+Explain your logic, give both primary and alternative options, and always justify your choice based on fit.
+            `;
+        } else {
+            const sizeChartString = JSON.stringify(TEE_SIZE_CHART);
+            userSpecifics = `
+The size chart for the product is: ${sizeChartString}.
+The user measured their favorite t-shirt:
+Width: ${userData.teeWidth}cm, Length: ${userData.teeLength}cm, Height: ${userData.height}cm, Weight: ${userData.weight}kg.
+Compare with the product chart, recommend the ideal and alternative sizes, and explain using the template above.
+            `;
+        }
+        const finalPrompt = `${personaAndProductContext}\n${userSpecifics}\n${explanationInstructions}`;
+        const payload = {
+            contents: [{ role: "user", parts: [{ text: finalPrompt }] }],
+            generationConfig: {
+                responseMimeType: "application/json",
+                responseSchema: { type: "OBJECT", properties: { "recommendedSize": { "type": "STRING", "enum": ["S", "M", "L", "XL"] }, "explanation": { "type": "STRING" } }, required: ["recommendedSize", "explanation"] }
+            }
+        };
+        const resultText = await callGeminiAPI(payload);
+        return resultText ? JSON.parse(resultText) : null;
+    };
+
+    // Gemini API
     const callGeminiAPI = async (payload) => {
         try {
             const response = await fetch("/api/gemini", {
@@ -585,35 +636,14 @@ document.addEventListener('DOMContentLoaded', () => {
             if (result.candidates?.[0]?.content?.parts?.[0]?.text) {
                 return result.candidates[0].content.parts[0].text;
             }
-            throw new Error("API'den geçerli bir cevap alınamadı.");
+            throw new Error("No valid response from AI API.");
         } catch (error) {
-            showAlert(`Yapay zeka ile iletişimde bir hata oluştu: ${error.message}`);
+            showAlert(`AI Error: ${error.message}`);
             return null;
         }
     };
 
-    const getGeminiSizeRecommendation = async () => {
-        const personaAndProductContext = `You are 'Surenos Style AI', a friendly and expert fashion advisor for the LOS SURENOS brand. The product is a 'Premium Unisex Boxy Fit Tee'. This t-shirt is made from heavy cotton and is intentionally designed for a loose, draped, and modern oversized look. Your tone should be cool, confident, and helpful. Available sizes are S, M, L, XL.`;
-        const explanationInstructions = `In your "explanation" field (in Turkish), first explain WHY the recommended size is suitable. Then, describe HOW it will fit on their body (e.g., 'omuzları dökümlü duracak', 'kalçanın üzerinde modern bir bitiş sağlayacak'). Finish with a positive and encouraging sentence.`;
-        let userSpecifics;
-        if (userData.mode === 'wizard') {
-            userSpecifics = `User data: Height: ${userData.height}cm, Weight: ${userData.weight}kg, Body Type: '${userData.bodyType}', Shoulder Width: '${userData.shoulderWidth}'. Based on this, recommend the best size for the perfect oversized look.`;
-        } else {
-            const sizeChartString = JSON.stringify(TEE_SIZE_CHART);
-            userSpecifics = `The product's size chart (width x length) is: ${sizeChartString}. A user provided their favorite T-shirt's measurements and their body stats. User data: Favorite Tee Width: ${userData.teeWidth}cm, Favorite Tee Length: ${userData.teeLength}cm, User Height: ${userData.height}cm, User Weight: ${userData.weight}kg. Compare the user's tee to our chart and recommend the best size for a similar or slightly more pronounced oversized fit.`;
-        }
-        const finalPrompt = `${personaAndProductContext} ${userSpecifics} ${explanationInstructions} Respond in a JSON object with keys "recommendedSize" and "explanation".`;
-        const payload = {
-            contents: [{ role: "user", parts: [{ text: finalPrompt }] }],
-            generationConfig: {
-                responseMimeType: "application/json",
-                responseSchema: { type: "OBJECT", properties: { "recommendedSize": { "type": "STRING", "enum": ["S", "M", "L", "XL"] }, "explanation": { "type": "STRING" } }, required: ["recommendedSize", "explanation"] }
-            }
-        };
-        const resultText = await callGeminiAPI(payload);
-        return resultText ? JSON.parse(resultText) : null;
-    };
-    
+    // AI Chat
     const handleAskAI = async () => {
         const question = aiQuestionInput.value.trim();
         if (!question) return;
@@ -622,8 +652,18 @@ document.addEventListener('DOMContentLoaded', () => {
         askAiBtn.disabled = true;
         updateChatHistory('user', question);
         aiChatHistory.push({ role: 'user', parts: [{ text: question }] });
-        const systemContext = `You are a helpful AI size and fit expert for a "Premium Oversize Tee". You have already provided an initial recommendation. Now, answer the user's follow-up questions concisely and helpfully in Turkish, maintaining the context. Initial User Data: ${JSON.stringify(userData)}. Initial Recommendation: Size ${userData.recommendedSize}. Initial Explanation: ${userData.explanation}.`;
-        const payload = { contents: [ { role: "user", parts: [{ text: systemContext }] }, { role: "model", parts: [{ text: "Anladım, kullanıcının sorularını bu bağlamda yanıtlayacağım." }] }, ...aiChatHistory ] };
+        const systemContext = `
+You are a technical fit consultant for t-shirts. The previous AI recommendation was: ${userData.recommendedSize}.
+Always answer only in Turkish, be technical and clear, no marketing language.
+If extra explanation or fit comparison is needed, explain it using measurements.
+        `;
+        const payload = {
+            contents: [
+                { role: "user", parts: [{ text: systemContext }] },
+                { role: "model", parts: [{ text: "Understood, I will answer only with technical, concise suggestions in Turkish." }] },
+                ...aiChatHistory
+            ]
+        };
         const responseText = await callGeminiAPI(payload);
         if (responseText) {
             updateChatHistory('model', responseText);
@@ -638,6 +678,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     askAiBtn.addEventListener('click', handleAskAI);
     aiQuestionInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleAskAI(); });
+
     const updateChatHistory = (role, text) => {
         const p = document.createElement('p');
         p.classList.add(role === 'user' ? 'user-question' : 'ai-answer');
@@ -646,6 +687,7 @@ document.addEventListener('DOMContentLoaded', () => {
         aiChatHistoryDiv.scrollTop = aiChatHistoryDiv.scrollHeight;
     };
 
+    // Analysis
     const runAnalysis = async () => {
         showStep('step-loader');
         userData.height = heightSlider.value;
@@ -654,18 +696,26 @@ document.addEventListener('DOMContentLoaded', () => {
             userData.teeWidth = teeWidthSlider.value;
             userData.teeLength = teeLengthSlider.value;
         }
-        const result = await getGeminiSizeRecommendation();
-        if (result) {
-            userData.recommendedSize = result.recommendedSize;
-            userData.explanation = result.explanation;
-            document.getElementById('result-size').textContent = result.recommendedSize;
-            document.getElementById('add-to-cart-btn').textContent = `Beden ${result.recommendedSize} Sepete Ekle`;
-            document.getElementById('result-description').textContent = result.explanation;
-            showStep('step-result');
-        } else {
-            showAlert('Beden önerisi alınırken bir hata oluştu. Lütfen önceki adıma dönüp tekrar deneyin.');
-            showStep(userData.mode === 'wizard' ? 'step-5' : 'step-3');
+        if (!userData.height || !userData.weight || !userData.mode ||
+            (userData.mode === 'wizard' && (!userData.bodyType || !userData.shoulderWidth))) {
+            showAlert("Tüm adımları ve seçimleri doldurun.");
+            showStep('step-3');
+            return;
         }
+        let result = await getGeminiSizeRecommendation();
+        if (!result) {
+            let localSize = localSizeEstimate(userData.height, userData.weight, userData.bodyType);
+            result = {
+                recommendedSize: localSize,
+                explanation: `${localSize} senin boy/kilo ve vücut tipine göre en mantıklı tercih. Bir beden küçük alırsan daha kısa ve daha fit oturur, bir beden büyük alırsan daha salaş, çok bol ve dökümlü olur. Göğüs genişliği/uzunluk: ${TEE_SIZE_CHART[localSize].width} cm / ${TEE_SIZE_CHART[localSize].length} cm.`
+            };
+        }
+        userData.recommendedSize = result.recommendedSize;
+        userData.explanation = result.explanation;
+        document.getElementById('result-size').textContent = result.recommendedSize;
+        document.getElementById('add-to-cart-btn').textContent = `Beden ${result.recommendedSize} Sepete Ekle`;
+        resultDescription.textContent = result.explanation;
+        showStep('step-result');
     };
 
     const resetWizard = () => {
@@ -679,5 +729,6 @@ document.addEventListener('DOMContentLoaded', () => {
     resetWizard();
 });
 </script>
+
 </body>
 </html>
