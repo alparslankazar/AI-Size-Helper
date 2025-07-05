@@ -588,10 +588,11 @@ Available sizes: S, M, L, XL. Chest width and length: S(60/70), M(62/72), L(64/7
 `;
         const explanationInstructions = `
 Respond ONLY in Turkish.
+IMPORTANT: The ONLY available sizes for this product are: S, M, L, XL. Never mention, compare, or suggest any size other than these four. Do not invent or refer to XXL, XS, XXS, or any other sizes, even as an alternative or example.
 Follow this structure in your response (as JSON: {"recommendedSize":"...", "explanation":"..."}):
 - State the most suitable size in ALL CAPS, with technical measurements (e.g. "MEDIUM: Width 62 cm, Length 72 cm").
 - Briefly and technically describe how this size will fit the user’s body (e.g. "slightly oversize, drops from the shoulders, loose at the waist").
-- For 1 size up and down, compare measurement differences and how fit changes (e.g. "If you want much looser, pick L; if you want a shorter/tighter fit, S").
+- For 1 size up and down, compare measurement differences and how fit changes, ONLY if these sizes exist.
 - Finish with a short, technical summary of your final recommendation (e.g. "Safest and most aesthetic fit for you: MEDIUM, ideal for modern oversize style.").
 - Do not include brand praise or unnecessary compliments. Be concise, technical, and clear.
 - Answer in Turkish only.
@@ -655,6 +656,7 @@ Compare with the product chart, recommend the ideal and alternative sizes, and e
         const systemContext = `
 You are a technical fit consultant for t-shirts. The previous AI recommendation was: ${userData.recommendedSize}.
 Always answer only in Turkish, be technical and clear, no marketing language.
+IMPORTANT: The ONLY available sizes for this product are: S, M, L, XL. Never mention, compare, or suggest any size other than these four. Do not invent or refer to XXL, XS, XXS, or any other sizes, even as an alternative or example.
 If extra explanation or fit comparison is needed, explain it using measurements.
         `;
         const payload = {
