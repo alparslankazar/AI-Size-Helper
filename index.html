@@ -31,7 +31,7 @@
             border-color: var(--border-color);
         }
         .product-card-image-bg {
-             background-color: #f9f9f9;
+            background-color: #f9f9f9;
         }
 
         #size-wizard-modal {
@@ -147,10 +147,10 @@
         }
 
         .value-display {
-             font-size: clamp(4rem, 12vw, 5rem);
-             font-weight: 900;
-             color: var(--text-primary);
-             margin-bottom: 1rem; /* Boşluk azaltıldı */
+            font-size: clamp(4rem, 12vw, 5rem);
+            font-weight: 900;
+            color: var(--text-primary);
+            margin-bottom: 1rem; /* Boşluk azaltıldı */
         }
 
         .value-display-medium {
@@ -201,8 +201,8 @@
             font-size: clamp(0.7rem, 4vw, 1.125rem);
         }
         .action-button:hover {
-             background-color: #333;
-             transform: translateY(-2px);
+            background-color: #333;
+            transform: translateY(-2px);
         }
         .prev-btn {
             background-color: transparent;
@@ -215,11 +215,7 @@
 
         button:disabled{opacity:0.5;cursor:not-allowed;}
 
-        #ai-chat-history { background-color: var(--bg-secondary); border-color: var(--border-color); }
-        #ai-chat-history p.user-question{font-weight:600;color: var(--brand-color);}
-        #ai-chat-history p.ai-answer{color: var(--text-primary);}
-        .input-dark { background: var(--bg-secondary); color: var(--text-primary); border: 1.5px solid var(--border-color); }
-        .input-dark:focus { border-color: var(--brand-color); background: var(--bg-primary); }
+        /* Orijinal AI Chat stilleri kaldırıldı */
         
         /* DÜZELTME: Uyarı yazısı stili */
         .modal-alert { 
@@ -238,7 +234,7 @@
         }
 
         @media (max-width:480px) {
-             #wizard-content { max-width: 95vw; }
+            #wizard-content { max-width: 95vw; }
         }
     </style>
 </head>
@@ -272,7 +268,6 @@
 
 <div id="size-wizard-modal" class="fixed inset-0 flex items-center justify-center p-4 z-50 hidden">
     <div id="wizard-content">
-        <!-- DÜZELTME: Başlık ortalandı -->
         <div class="flex-shrink-0 flex justify-center items-center p-4 border-b border-[var(--border-color)] relative">
             <h2 class="text-base font-bold flex items-center gap-2">
                 <i data-lucide="badge-check" class="w-6 h-6 text-gray-800"></i> Akıllı Beden Danışmanı
@@ -326,15 +321,15 @@
             <div id="step-4" class="wizard-step">
                 <h3 class="wizard-title text-center">Vücut tipin hangisi?</h3>
                 <div class="grid grid-cols-3 gap-2 mb-1" data-group="bodyType">
-                    <div class="visual-selector-card text-center" data-value="flat">
+                    <div class="visual-selector-card text-center" data-value="İnce Yapılı">
                         <div class="image-wrapper"><img src="https://cdn.myikas.com/images/theme-images/fe980448-a30c-47fd-8c65-05ec05b27034/image_1080.webp" alt="[İnce yapılı vücut tipi]"></div>
                         <h4 class="text-sm mt-2">İnce Yapılı</h4>
                     </div>
-                    <div class="visual-selector-card text-center" data-value="average">
+                    <div class="visual-selector-card text-center" data-value="Standart Yapılı">
                         <div class="image-wrapper"><img src="https://cdn.myikas.com/images/theme-images/0db45a1b-030c-4c18-aee7-36e80cc89c40/image_1080.webp" alt="[Standart yapılı vücut tipi]"></div>
                         <h4 class="text-sm mt-2">Standart Yapılı</h4>
                     </div>
-                    <div class="visual-selector-card text-center" data-value="chubby">
+                    <div class="visual-selector-card text-center" data-value="İri Yapılı">
                         <div class="image-wrapper"><img src="https://cdn.myikas.com/images/theme-images/c4b2e1b1-488c-408c-a388-3feedaa53955/image_1080.webp" alt="[İri yapılı vücut tipi]"></div>
                         <h4 class="text-sm mt-2">İri Yapılı</h4>
                     </div>
@@ -346,15 +341,15 @@
             <div id="step-5" class="wizard-step">
                 <h3 class="wizard-title text-center">Omuz genişliğin nasıl?</h3>
                 <div class="grid grid-cols-3 gap-2 mb-1" data-group="shoulderWidth">
-                    <div class="visual-selector-card text-center" data-value="narrow">
+                    <div class="visual-selector-card text-center" data-value="Dar Omuz">
                         <div class="image-wrapper"><img src="https://cdn.myikas.com/images/theme-images/0a00cb0e-637c-41d8-84ac-63d19065b16b/image_1080.webp" alt="[Dar omuzlu vücut tipi]"></div>
                         <h4 class="text-sm mt-2">Dar Omuz</h4>
                     </div>
-                    <div class="visual-selector-card text-center" data-value="average">
+                    <div class="visual-selector-card text-center" data-value="Normal Omuz">
                         <div class="image-wrapper"><img src="https://cdn.myikas.com/images/theme-images/75e11e3b-a7ae-4205-9c9f-44ad00c208ac/image_1080.webp" alt="[Normal omuzlu vücut tipi]"></div>
                         <h4 class="text-sm mt-2">Normal Omuz</h4>
                     </div>
-                    <div class="visual-selector-card text-center" data-value="broad">
+                    <div class="visual-selector-card text-center" data-value="Geniş Omuz">
                         <div class="image-wrapper"><img src="https://cdn.myikas.com/images/theme-images/24c35eb8-abfb-4ab6-a33d-4f887ac3ab1a/image_1080.webp" alt="[Geniş omuzlu vücut tipi]"></div>
                         <h4 class="text-sm mt-2">Geniş Omuz</h4>
                     </div>
@@ -396,21 +391,20 @@
                 <p id="result-size" class="text-7xl font-black text-gray-800 my-4">L</p>
                 <div class="bg-gray-100 rounded-lg p-4 text-sm text-left mb-3 border border-gray-200">
                     <p id="result-description"></p>
-                    <div id="ask-ai-section" class="mt-6 text-left">
-                        <h4 class="text-lg font-bold text-gray-800 mb-1">Yapay Zekaya Sor</h4>
-                        <div id="ai-chat-history" class="p-3 min-h-[52px] max-h-[115px] overflow-y-auto mb-2 rounded-lg"></div>
-                        <div id="ai-chat-loader" class="hidden my-2 flex items-center justify-center space-x-2 text-xs text-gray-500">
-                            <div class="loader loader-small"></div>
-                            <span>Yapay zeka düşünüyor...</span>
+                    
+                    <!-- DEĞİŞİKLİK BAŞLANGICI: Orijinal AI Chat HTML bölümü kaldırıldı -->
+                    <div id="ai-fit-preview-section" class="mt-6 text-left">
+                        <h4 class="text-lg font-bold text-gray-800 mb-2">AI Destekli Fit Önizlemesi</h4>
+                        <div id="fit-preview-container" class="w-full aspect-square bg-gray-200 rounded-lg flex items-center justify-center border border-gray-300 overflow-hidden relative">
+                            <div id="fit-preview-loader" class="text-center flex flex-col items-center justify-center absolute inset-0">
+                                <div class="loader"></div>
+                                <p class="text-sm text-gray-600 mt-2">Önizleme oluşturuluyor...</p>
+                            </div>
+                            <img id="fit-preview-image" src="" alt="AI Destekli Fit Önizlemesi" class="w-full h-full object-cover hidden">
                         </div>
-                        <div class="flex space-x-2 mt-1">
-                            <input type="text" id="ai-question-input" placeholder="Ekstra sorunu yaz..." class="w-full input-dark rounded-lg shadow-sm focus:ring-gray-800 focus:border-gray-800 text-sm">
-                            <button id="ask-ai-btn" class="action-button font-bold py-2 px-4 rounded-lg flex items-center justify-center">
-                                <i data-lucide="send" class="w-4 h-4"></i>
-                            </button>
-                        </div>
-                        <p class="text-[11px] text-gray-500 mt-2 ml-1">Ekstra bilgi almak için buraya yazabilirsin.</p>
+                        <p class="text-[11px] text-gray-500 mt-2 ml-1">Görsel, yapay zeka tarafından ölçülerinize özel olarak oluşturulmuştur.</p>
                     </div>
+                    <!-- DEĞİŞİKLİK SONU -->
                 </div>
                 <div class="mt-6">
                     <button id="add-to-cart-btn" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition">Bu Bedeni Sepete Ekle</button>
@@ -438,6 +432,24 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
+    // Türkçeleştirme Map'leri (sadece bodyType/shoulder için)
+    const trBodyTypes = {
+        'skinny': 'İnce Yapılı',
+        'average': 'Standart Yapılı',
+        'chubby': 'İri Yapılı',
+        'İnce Yapılı': 'İnce Yapılı',
+        'Standart Yapılı': 'Standart Yapılı',
+        'İri Yapılı': 'İri Yapılı'
+    };
+    const trShoulderWidths = {
+        'narrow': 'Dar Omuz',
+        'average': 'Normal Omuz',
+        'broad': 'Geniş Omuz',
+        'Dar Omuz': 'Dar Omuz',
+        'Normal Omuz': 'Normal Omuz',
+        'Geniş Omuz': 'Geniş Omuz'
+    };
+
     // Element Selections
     const wizardModal = document.getElementById('size-wizard-modal');
     const steps = document.querySelectorAll('.wizard-step');
@@ -453,10 +465,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const teeWidthDisplay = document.getElementById('tee-width-display');
     const teeLengthSlider = document.getElementById('tee-length-slider');
     const teeLengthDisplay = document.getElementById('tee-length-display');
-    const askAiBtn = document.getElementById('ask-ai-btn');
-    const aiQuestionInput = document.getElementById('ai-question-input');
-    const aiChatHistoryDiv = document.getElementById('ai-chat-history');
-    const aiChatLoader = document.getElementById('ai-chat-loader');
+    // DEĞİŞİKLİK: Orijinal kodda olmayan ama yeni HTML'de olan elementleri ekliyoruz.
+    const fitPreviewLoader = document.getElementById('fit-preview-loader');
+    const fitPreviewImage = document.getElementById('fit-preview-image');
+    // Orijinal kodda olanlar korunuyor
     const bodyTypeAlert = document.getElementById('bodytype-alert');
     const shoulderAlert = document.getElementById('shoulder-alert');
     const resultDescription = document.getElementById('result-description');
@@ -464,8 +476,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // State Variables
     let currentStepId = 'step-1';
     let userData = {};
-    let aiChatHistory = [];
-    // --- UPDATED SIZE CHART ---
+    // DEĞİŞİKLİK: aiChatHistory kaldırıldı.
+    // GÜNCEL BEDEN TABLOSU
     const TEE_SIZE_CHART = {
         'S': { width: 60, length: 70 },
         'M': { width: 62, length: 72 },
@@ -573,61 +585,88 @@ document.addEventListener('DOMContentLoaded', () => {
         height = Number(height); weight = Number(weight);
         if (!height || !weight) return "M";
         if (height < 170 && weight < 65) return "S";
-        if (height < 180 && weight < 75) return (bodyType === "chubby" ? "L" : "M");
+        if (height < 180 && weight < 75) return (bodyType === "İri yapılı" ? "L" : "M");
         if (height >= 180 && weight < 90) return "L";
         if (height >= 180 && weight >= 90) return "XL";
         return "M";
     }
 
-    // AI prompt (ENGLISH PROMPT, TURKISH ANSWER)
-const getGeminiSizeRecommendation = async () => {
-    const personaAndProductContext = `
-You are a "fit expert" (not a sales advisor). Never use advertising or branding language, do not praise the brand.
-Product: Oversized Boxy Fit Tee, made of heavy cotton, 220 GSM.
-Available sizes: S, M, L, XL. Chest width and length: S(60/70), M(62/72), L(64/74), XL(66/76).
-`;
-    const explanationInstructions = `
-Respond ONLY in Turkish.
-IMPORTANT: Use only these size codes in your response: S, M, L, XL. Never translate or replace them with Turkish or any other language! Do NOT write BÜYÜK, ORTA, EKSTRA BÜYÜK, KÜÇÜK, etc. Just use S, M, L, XL as the size codes.
-Start your answer by stating the user's height and weight with exact values, e.g.: "185 cm boyunuz ve 76 kg kilonuz göz önüne alındığında..."
-Follow this structure (as JSON: {"recommendedSize":"...", "explanation":"..."}):
-- Write the most suitable size in ALL CAPS with technical measurements (e.g. "L: Göğüs genişliği 64 cm, uzunluk 74 cm").
-- Briefly and technically describe how this size will fit the user’s body (e.g. "Hafif oversize, omuzdan dökümlü, belde bol").
-- ONLY mention size codes S, M, L, XL. Do not reference any other sizes, not even as examples. Do not invent or translate sizes.
-- When comparing, refer ONLY to these four codes, and always use English codes (S, M, L, XL) in the response, never Turkish equivalents.
-- End with a technical and concise summary of your final recommendation (e.g. "Senin için en güvenli ve modern oversize fit: L").
-- Do not include brand praise or unnecessary compliments. Be concise, technical, and clear.
-- Answer in Turkish only.
-`;
-    let userSpecifics;
-    if (userData.mode === 'wizard') {
-        userSpecifics = `
-User data: Height: ${userData.height}cm, Weight: ${userData.weight}kg, Body Type: '${userData.bodyType}', Shoulder Width: '${userData.shoulderWidth}'.
-Explain your logic, give both primary and alternative options, and always justify your choice based on fit.
+    // GEMINI AI PROMPT & CALL
+    const getGeminiSizeRecommendation = async () => {
+        userData.bodyTypeTr = trBodyTypes[userData.bodyType] || userData.bodyType || '';
+        userData.shoulderWidthTr = trShoulderWidths[userData.shoulderWidth] || userData.shoulderWidth || '';
+        const explanationSample = `
+Genel Yorum:
+182 cm boy, 70 kg genellikle fit/zayıf veya ortalama vücut tipine karşılık gelir.
+Tee oversized boxy kalıba sahip (En ölçüsü geniş), yani vücudu sarmayacak, rahat bir duruş verecek şekilde üretilmiş.
+Beden Önerisi:
+MEDIUM
+Sana en çok Medium yakışır.
+Medium’da A: 70 cm (uzunluk), B: 62 cm (göğüs genişliği).
+Bu ölçüler, tişörtün sana hafif oversize, rahat bir şekilde oturmasını sağlar.
+Ne çok uzun ne de çok bol durur, hem şık hem rahat olur.
+LARGE
+Eğer gerçekten oversize ve salaş (moda çekimlerinde olduğu gibi, omuzdan daha da düşük, bol bir görüntü) istersen Large da giyebilirsin.
+Large’ın A: 72, B: 64. 1-2 cm'lik bu fark yandan ve omuzdan daha bol duruş verir.
+Boyun uzun olduğu için L da seni boğmaz, fakat Medium daha dengeli olur.
+SMALL
+Zayıf ve çok dar bir fit istiyorsan, small da olur ama bu kalıpta small genellikle kısa ve fazla slim olur, sana dar gelebilir.
+Sonuç:
+Senin boy/kilo için en güvenli ve estetik önerim:
+MEDIUM (rahat oversize fit; modaya uygun, iyi durur)
+Daha bol, salaş isteyenler için:
+LARGE (ama çok zayıf değilsen veya iyice oversize istemiyorsan L gerekmez)
+Kısa/dar durmasın istiyorsan small asla önerilmez.
+Ekstra:
+Omuzların çok geniş, gövden uzun, kol uzunluğun fazlaysa Large da tercih edebilirsin, ama çoğu durumda Medium idealdir.
         `;
-    } else {
-        const sizeChartString = JSON.stringify(TEE_SIZE_CHART);
-        userSpecifics = `
-The size chart for the product is: ${sizeChartString}.
-The user measured their favorite t-shirt:
-Width: ${userData.teeWidth}cm, Length: ${userData.teeLength}cm, Height: ${userData.height}cm, Weight: ${userData.weight}kg.
-Compare with the product chart, recommend the ideal and alternative sizes, and explain using the template above.
+        const personaAndProductContext = `
+Sen bir "fit uzmanısın". Reklam, marka övgüsü yapma. 
+Ürün: Oversized Boxy Fit Tee, 220 GSM ağır pamuk, geniş ve modern kalıp.
+Bedenler: S, M, L, XL. Ölçüler: S(60/70), M(62/72), L(64/74), XL(66/76).
+YASAK: XS, XXL, XXS, XXXL gibi hiçbir şekilde alternatif ya da örnek beden yazma, önerme, anma! SADECE S, M, L, XL kodlarını kullan. Küçük, büyük, large, medium, small, xlarge gibi Türkçeleştirerek ya da başka bir dilde de ASLA YAZMA!
+Vücut tipi ve omuz genişliği olarak SADECE şu ifadeleri kullan: 'İnce yapılı', 'Standart yapılı', 'İri yapılı', 'Dar omuz', 'Normal omuz', 'Geniş omuz'. Başka ifade türetme, çevirmeye çalışma.
+Asla marka veya ürün övgüsü yapma, sadece teknik ve sade bilgi ver. "En iyi", "çok yakışır" gibi ifadeler kullanma. Yalnızca teknik, ölçü ve fit açıklaması.
+Her yanıtına "${userData.height} cm boy ve ${userData.weight} kg için:" ile başla.
+Yanıtını SADECE şu JSON şablonda ver: {"recommendedSize":"L","explanation":"(aşağıdaki örneğe benzer açıklama)"}
+Açıklama bölümünü aşağıdaki örnek ile NEREDEYSE AYNI FORMATTA YAZ:
+${explanationSample}
+Başka format veya anlatım kullanma.
         `;
-    }
-    const finalPrompt = `${personaAndProductContext}\n${userSpecifics}\n${explanationInstructions}`;
-    const payload = {
-        contents: [{ role: "user", parts: [{ text: finalPrompt }] }],
-        generationConfig: {
-            responseMimeType: "application/json",
-            responseSchema: { type: "OBJECT", properties: { "recommendedSize": { "type": "STRING", "enum": ["S", "M", "L", "XL"] }, "explanation": { "type": "STRING" } }, required: ["recommendedSize", "explanation"] }
+        let userSpecifics;
+        if (userData.mode === 'wizard') {
+            userSpecifics = `
+Kullanıcı verileri: Boy: ${userData.height}cm, Kilo: ${userData.weight}kg, Vücut Tipi: '${userData.bodyTypeTr}', Omuz Genişliği: '${userData.shoulderWidthTr}'.
+Önerinin gerekçesini ve teknik kıyasını ver, sadece yukarıdaki bedenlerden alternatif öner. Açıklama kısmı verdiğim örnekle birebir benzer ve bölüm başlıklı olsun.
+            `;
+        } else {
+            const sizeChartString = JSON.stringify(TEE_SIZE_CHART);
+            userSpecifics = `
+Ürün beden tablosu: ${sizeChartString}.
+Kullanıcı favori tişörtünü ölçtü:
+En: ${userData.teeWidth}cm, Boy: ${userData.teeLength}cm, Boy: ${userData.height}cm, Kilo: ${userData.weight}kg.
+Beden tablosuyla kıyasla, ideal ve alternatif bedenleri yukarıdaki gibi açıkla.
+            `;
         }
+        const payload = {
+            contents: [{ role: "user", parts: [{ text: `${personaAndProductContext}\n${userSpecifics}` }] }],
+            generationConfig: {
+                responseMimeType: "application/json",
+                responseSchema: {
+                    type: "OBJECT",
+                    properties: {
+                        "recommendedSize": { "type": "STRING", "enum": ["S", "M", "L", "XL"] },
+                        "explanation": { "type": "STRING" }
+                    },
+                    required: ["recommendedSize", "explanation"]
+                }
+            }
+        };
+        const resultText = await callGeminiAPI(payload);
+        return resultText ? JSON.parse(resultText) : null;
     };
-    const resultText = await callGeminiAPI(payload);
-    return resultText ? JSON.parse(resultText) : null;
-};
 
-
-    // Gemini API
+    // Gemini API Call (Orijinal fonksiyon korunuyor)
     const callGeminiAPI = async (payload) => {
         try {
             const response = await fetch("/api/gemini", {
@@ -647,69 +686,70 @@ Compare with the product chart, recommend the ideal and alternative sizes, and e
         }
     };
 
-    // AI Chat
-    const handleAskAI = async () => {
-        const question = aiQuestionInput.value.trim();
-        if (!question) return;
-        aiQuestionInput.value = '';
-        aiChatLoader.classList.remove('hidden');
-        askAiBtn.disabled = true;
-        updateChatHistory('user', question);
-        aiChatHistory.push({ role: 'user', parts: [{ text: question }] });
-        const systemContext = `
-You are a technical fit consultant for t-shirts. The previous AI recommendation was: ${userData.recommendedSize}.
-Always answer only in Turkish, be technical and clear, no marketing language.
-IMPORTANT: The ONLY available sizes for this product are: S, M, L, XL. Never mention, compare, or suggest any size other than these four. Do not invent or refer to XXL, XS, XXS, or any other sizes, even as an alternative or example.
-If extra explanation or fit comparison is needed, explain it using measurements.
-        `;
+    // DEĞİŞİKLİK BAŞLANGICI: AI Chat ile ilgili tüm fonksiyonlar kaldırıldı.
+    // handleAskAI, updateChatHistory ve ilgili event listener'lar silindi.
+    
+    // YENİ: AI Destekli Görsel Oluşturma Fonksiyonu
+    const generateFitPreviewImage = async () => {
+        const { height, weight, bodyTypeTr, shoulderWidthTr, recommendedSize } = userData;
+        const imagePrompt = `Create a single, hyper-realistic 3D technical illustration in a split-panel (diptych) format. The subject is a featureless male mannequin with a matte neutral-gray skin texture. The mannequin wears a black, oversized, boxy-fit t-shirt and pale light-blue, baggy denim shorts. The background is solid pure white. The following text elements must be rendered: Top Center: LOS SURENOS. Upper Left Corner (Front View Panel): Height: ${height} cm, Weight: ${weight} kg, Body Type: ${bodyTypeTr}, Shoulder: ${shoulderWidthTr}, Size: ${recommendedSize}. Front View Measurement: A thin, horizontal, gray dashed line across the chest, labeled Chest Width: ${TEE_SIZE_CHART[recommendedSize].width} cm. Side View Measurement: A thin, vertical, gray dashed line from shoulder to hem, labeled Length: ${TEE_SIZE_CHART[recommendedSize].length} cm. Crucial Negative Prompts: Do NOT include any text other than what is specified.`;
         const payload = {
-            contents: [
-                { role: "user", parts: [{ text: systemContext }] },
-                { role: "model", parts: [{ text: "Understood, I will answer only with technical, concise suggestions in Turkish." }] },
-                ...aiChatHistory
-            ]
+            prompt: imagePrompt,
+            seed: 500097,
+            reference_image_url: "https://cdn.myikas.com/images/theme-images/ee1f88b6-84cb-45e6-868e-825587a1beda/image_1080.webp"
         };
-        const responseText = await callGeminiAPI(payload);
-        if (responseText) {
-            updateChatHistory('model', responseText);
-            aiChatHistory.push({ role: 'model', parts: [{ text: responseText }] });
-        } else {
-            updateChatHistory('model', 'Üzgünüm, bir sorun oluştu. Lütfen tekrar dene.');
+        
+        try {
+            const response = await fetch("/api/generate-image", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ payload })
+            });
+            if (!response.ok) throw new Error(`Image API Hatası: ${response.status}`);
+            const result = await response.json();
+            
+            if (result.imageUrl) {
+                fitPreviewImage.src = result.imageUrl;
+                fitPreviewImage.onload = () => {
+                    fitPreviewLoader.style.display = 'none';
+                    fitPreviewImage.classList.remove('hidden');
+                };
+            } else {
+                 throw new Error("Görsel URL'i alınamadı.");
+            }
+        } catch (error) {
+            showAlert(`Görsel oluşturulamadı: ${error.message}`);
+            fitPreviewLoader.innerHTML = `<p class="text-red-500 text-xs p-4">Önizleme oluşturulamadı.</p>`;
         }
-        aiChatLoader.classList.add('hidden');
-        askAiBtn.disabled = false;
-        aiQuestionInput.focus();
     };
+    // DEĞİŞİKLİK SONU
 
-    askAiBtn.addEventListener('click', handleAskAI);
-    aiQuestionInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleAskAI(); });
-
-    const updateChatHistory = (role, text) => {
-        const p = document.createElement('p');
-        p.classList.add(role === 'user' ? 'user-question' : 'ai-answer');
-        p.textContent = text;
-        aiChatHistoryDiv.appendChild(p);
-        aiChatHistoryDiv.scrollTop = aiChatHistoryDiv.scrollHeight;
-    };
-
-    // Analysis
+    // Analysis (HATA DÜZELTİLDİ)
     const runAnalysis = async () => {
-        showStep('step-loader');
         userData.height = heightSlider.value;
         userData.weight = weightSlider.value;
         if (userData.mode === 'measure') {
             userData.teeWidth = teeWidthSlider.value;
             userData.teeLength = teeLengthSlider.value;
         }
-        if (!userData.height || !userData.weight || !userData.mode ||
-            (userData.mode === 'wizard' && (!userData.bodyType || !userData.shoulderWidth))) {
-            showAlert("Tüm adımları ve seçimleri doldurun.");
-            showStep('step-3');
-            return;
+
+        // HATA DÜZELTMESİ: Yükleme ekranını göstermeden ÖNCE doğrulamaları yap
+        if (userData.mode === 'wizard' && !userData.shoulderWidth) {
+            shoulderAlert.style.display = "block";
+            setTimeout(() => shoulderAlert.style.display = "none", 1800);
+            return; // Fonksiyonu durdur, adımı değiştirme.
         }
+        if (userData.mode === 'wizard' && !userData.bodyType) {
+            bodyTypeAlert.style.display = "block";
+            setTimeout(() => bodyTypeAlert.style.display = "none", 1800);
+            return; 
+        }
+        
+        showStep('step-loader');
+
         let result = await getGeminiSizeRecommendation();
         if (!result) {
-            let localSize = localSizeEstimate(userData.height, userData.weight, userData.bodyType);
+            let localSize = localSizeEstimate(userData.height, userData.weight, userData.bodyTypeTr);
             result = {
                 recommendedSize: localSize,
                 explanation: `${localSize} senin boy/kilo ve vücut tipine göre en mantıklı tercih. Bir beden küçük alırsan daha kısa ve daha fit oturur, bir beden büyük alırsan daha salaş, çok bol ve dökümlü olur. Göğüs genişliği/uzunluk: ${TEE_SIZE_CHART[localSize].width} cm / ${TEE_SIZE_CHART[localSize].length} cm.`
@@ -720,14 +760,39 @@ If extra explanation or fit comparison is needed, explain it using measurements.
         document.getElementById('result-size').textContent = result.recommendedSize;
         document.getElementById('add-to-cart-btn').textContent = `Beden ${result.recommendedSize} Sepete Ekle`;
         resultDescription.textContent = result.explanation;
+        
         showStep('step-result');
+
+        if (userData.mode === 'wizard') {
+             generateFitPreviewImage();
+        } else {
+            document.getElementById('ai-fit-preview-section').style.display = 'none';
+        }
     };
 
     const resetWizard = () => {
         userData = {};
+        // Orijinal kodda bu satırlar vardı, korunuyor.
         aiChatHistory = [];
-        aiChatHistoryDiv.innerHTML = '';
+        // Orijinal kodda bu element null olabileceğinden kontrol eklemek daha güvenli.
+        if(document.getElementById('ai-chat-history')) {
+            document.getElementById('ai-chat-history').innerHTML = ''; 
+        }
+
         showStep('step-1');
+        
+        const previewSection = document.getElementById('ai-fit-preview-section');
+        if (previewSection) {
+            previewSection.style.display = 'block';
+        }
+        if (fitPreviewLoader) {
+            fitPreviewLoader.style.display = 'flex';
+            fitPreviewLoader.innerHTML = '<div class="loader"></div><p class="text-sm text-gray-600 mt-2">Önizleme oluşturuluyor...</p>';
+        }
+        if (fitPreviewImage) {
+            fitPreviewImage.classList.add('hidden');
+            fitPreviewImage.src = "";
+        }
     };
 
     lucide.createIcons();
@@ -737,3 +802,4 @@ If extra explanation or fit comparison is needed, explain it using measurements.
 
 </body>
 </html>
+
