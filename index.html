@@ -580,49 +580,52 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // AI prompt (ENGLISH PROMPT, TURKISH ANSWER)
-    const getGeminiSizeRecommendation = async () => {
-        const personaAndProductContext = `
+const getGeminiSizeRecommendation = async () => {
+    const personaAndProductContext = `
 You are a "fit expert" (not a sales advisor). Never use advertising or branding language, do not praise the brand.
-Product: Premium Unisex Boxy Fit Tee, made of heavy cotton, modern oversize fit.
+Product: Oversized Boxy Fit Tee, made of heavy cotton, 220 GSM.
 Available sizes: S, M, L, XL. Chest width and length: S(60/70), M(62/72), L(64/74), XL(66/76).
 `;
-        const explanationInstructions = `
+    const explanationInstructions = `
 Respond ONLY in Turkish.
-IMPORTANT: The ONLY available sizes for this product are: S, M, L, XL. Never mention, compare, or suggest any size other than these four. Do not invent or refer to XXL, XS, XXS, or any other sizes, even as an alternative or example.
-Follow this structure in your response (as JSON: {"recommendedSize":"...", "explanation":"..."}):
-- State the most suitable size in ALL CAPS, with technical measurements (e.g. "MEDIUM: Width 62 cm, Length 72 cm").
-- Briefly and technically describe how this size will fit the user’s body (e.g. "slightly oversize, drops from the shoulders, loose at the waist").
-- For 1 size up and down, compare measurement differences and how fit changes, ONLY if these sizes exist.
-- Finish with a short, technical summary of your final recommendation (e.g. "Safest and most aesthetic fit for you: MEDIUM, ideal for modern oversize style.").
+IMPORTANT: Use only these size codes in your response: S, M, L, XL. Never translate or replace them with Turkish or any other language! Do NOT write BÜYÜK, ORTA, EKSTRA BÜYÜK, KÜÇÜK, etc. Just use S, M, L, XL as the size codes.
+Start your answer by stating the user's height and weight with exact values, e.g.: "185 cm boyunuz ve 76 kg kilonuz göz önüne alındığında..."
+Follow this structure (as JSON: {"recommendedSize":"...", "explanation":"..."}):
+- Write the most suitable size in ALL CAPS with technical measurements (e.g. "L: Göğüs genişliği 64 cm, uzunluk 74 cm").
+- Briefly and technically describe how this size will fit the user’s body (e.g. "Hafif oversize, omuzdan dökümlü, belde bol").
+- ONLY mention size codes S, M, L, XL. Do not reference any other sizes, not even as examples. Do not invent or translate sizes.
+- When comparing, refer ONLY to these four codes, and always use English codes (S, M, L, XL) in the response, never Turkish equivalents.
+- End with a technical and concise summary of your final recommendation (e.g. "Senin için en güvenli ve modern oversize fit: L").
 - Do not include brand praise or unnecessary compliments. Be concise, technical, and clear.
 - Answer in Turkish only.
 `;
-        let userSpecifics;
-        if (userData.mode === 'wizard') {
-            userSpecifics = `
+    let userSpecifics;
+    if (userData.mode === 'wizard') {
+        userSpecifics = `
 User data: Height: ${userData.height}cm, Weight: ${userData.weight}kg, Body Type: '${userData.bodyType}', Shoulder Width: '${userData.shoulderWidth}'.
 Explain your logic, give both primary and alternative options, and always justify your choice based on fit.
-            `;
-        } else {
-            const sizeChartString = JSON.stringify(TEE_SIZE_CHART);
-            userSpecifics = `
+        `;
+    } else {
+        const sizeChartString = JSON.stringify(TEE_SIZE_CHART);
+        userSpecifics = `
 The size chart for the product is: ${sizeChartString}.
 The user measured their favorite t-shirt:
 Width: ${userData.teeWidth}cm, Length: ${userData.teeLength}cm, Height: ${userData.height}cm, Weight: ${userData.weight}kg.
 Compare with the product chart, recommend the ideal and alternative sizes, and explain using the template above.
-            `;
+        `;
+    }
+    const finalPrompt = `${personaAndProductContext}\n${userSpecifics}\n${explanationInstructions}`;
+    const payload = {
+        contents: [{ role: "user", parts: [{ text: finalPrompt }] }],
+        generationConfig: {
+            responseMimeType: "application/json",
+            responseSchema: { type: "OBJECT", properties: { "recommendedSize": { "type": "STRING", "enum": ["S", "M", "L", "XL"] }, "explanation": { "type": "STRING" } }, required: ["recommendedSize", "explanation"] }
         }
-        const finalPrompt = `${personaAndProductContext}\n${userSpecifics}\n${explanationInstructions}`;
-        const payload = {
-            contents: [{ role: "user", parts: [{ text: finalPrompt }] }],
-            generationConfig: {
-                responseMimeType: "application/json",
-                responseSchema: { type: "OBJECT", properties: { "recommendedSize": { "type": "STRING", "enum": ["S", "M", "L", "XL"] }, "explanation": { "type": "STRING" } }, required: ["recommendedSize", "explanation"] }
-            }
-        };
-        const resultText = await callGeminiAPI(payload);
-        return resultText ? JSON.parse(resultText) : null;
     };
+    const resultText = await callGeminiAPI(payload);
+    return resultText ? JSON.parse(resultText) : null;
+};
+
 
     // Gemini API
     const callGeminiAPI = async (payload) => {
