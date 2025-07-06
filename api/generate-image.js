@@ -1,7 +1,6 @@
-// /api/generate-image.js - Basit Mock Test
+// /api/generate-image.js - Debug Version
 
 export default async function handler(req, res) {
-  // CORS ayarları
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -15,33 +14,137 @@ export default async function handler(req, res) {
   }
 
   try {
-    console.log('Mock API çağrıldı');
+    const { payload } = req.body;
     
-    // 1-2 saniye bekle (loading simülasyonu)
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    console.log('🔍 Request payload:', payload);
+
+    const GOOGLE_API_KEY = process.env.IMAGEN_API_KEY;
+    const GOOGLE_PROJECT_ID = process.env.GOOGLE_PROJECT_ID;
     
-    // Test için farklı görseller
-    const testImages = [
-      'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1516826957135-700dedea698c?w=400&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?w=400&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400&h=600&fit=crop'
-    ];
+    console.log('🔑 API Key exists:', !!GOOGLE_API_KEY);
+    console.log('🏗️ Project ID:', GOOGLE_PROJECT_ID);
     
-    const randomImage = testImages[Math.floor(Math.random() * testImages.length)];
+    if (!GOOGLE_API_KEY) {
+      return res.status(500).json({ error: 'IMAGEN_API_KEY eksik' });
+    }
+
+    // İlk test: Models endpoint
+    console.log('🧪 Models endpoint test ediliyor...');
     
-    console.log('Mock görsel gönderiliyor:', randomImage);
+    const modelsResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${GOOGLE_API_KEY}`, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' }
+    });
+
+    console.log('📊 Models response status:', modelsResponse.status);
+
+    if (!modelsResponse.ok) {
+      const errorText = await modelsResponse.text();
+      console.error('❌ Models endpoint hatası:', errorText);
+      return res.status(modelsResponse.status).json({ 
+        error: `Models API hatası: ${modelsResponse.status}`,
+        details: errorText
+      });
+    }
+
+    const modelsData = await modelsResponse.json();
+    console.log('✅ Available models:', modelsData.models?.length || 0);
     
+    // Imagen modellerini kontrol et
+    const imagenModels = modelsData.models?.filter(m => 
+      m.name.includes('imagen') || m.name.includes('image')
+    ) || [];
+    
+    console.log('🎨 Imagen models:', imagenModels.map(m => m.name));
+
+    if (imagenModels.length === 0) {
+      return res.status(400).json({ 
+        error: 'Imagen modelleri bulunamadı',
+        availableModels: modelsData.models?.map(m => m.name) || []
+      });
+    }
+
+    // En uygun Imagen modelini seç
+    const imagenModel = imagenModels.find(m => m.name.includes('imagen-3')) || 
+                       imagenModels.find(m => m.name.includes('imagen')) ||
+                       'models/imagen-3.0-generate-001';
+
+    console.log('🎯 Using model:', imagenModel.name || imagenModel);
+
+    // Görsel oluşturma API çağrısı
+    const generateEndpoint = `https://generativelanguage.googleapis.com/v1beta/${imagenModel.name || imagenModel}:generateImages?key=${GOOGLE_API_KEY}`;
+    
+    console.log('🚀 Generate endpoint:', generateEndpoint.replace(GOOGLE_API_KEY, 'HIDDEN'));
+
+    const requestPayload = {
+      prompt: payload.prompt || "A simple black t-shirt on white background",
+      generationConfig: {
+        aspectRatio: "1:1",
+        seed: payload.seed || 500097
+      }
+    };
+
+    console.log('📝 Request payload:', requestPayload);
+
+    const generateResponse = await fetch(generateEndpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(requestPayload),
+    });
+
+    console.log('📡 Generate response status:', generateResponse.status);
+
+    if (!generateResponse.ok) {
+      const errorText = await generateResponse.text();
+      console.error('❌ Generate hatası:', errorText);
+      return res.status(generateResponse.status).json({ 
+        error: `Görsel oluşturma hatası: ${generateResponse.status}`,
+        details: errorText,
+        endpoint: generateEndpoint.replace(GOOGLE_API_KEY, 'HIDDEN')
+      });
+    }
+
+    const generateData = await generateResponse.json();
+    console.log('✅ Generate response keys:', Object.keys(generateData));
+
+    const generatedImages = generateData?.generatedImages;
+    if (!generatedImages || generatedImages.length === 0) {
+      return res.status(500).json({ 
+        error: 'Görsel verisi bulunamadı',
+        responseData: generateData
+      });
+    }
+
+    const imageData = generatedImages[0];
+    const imageBase64 = imageData.bytesBase64Encoded || imageData.bytes;
+    
+    if (!imageBase64) {
+      return res.status(500).json({ 
+        error: 'Base64 verisi bulunamadı',
+        imageData: imageData
+      });
+    }
+    
+    console.log('🎨 Görsel başarıyla oluşturuldu!');
+    
+    const imageUrl = `data:image/png;base64,${imageBase64}`;
+
     return res.status(200).json({ 
-      imageUrl: randomImage,
+      imageUrl: imageUrl,
       success: true,
-      message: 'Test görseli başarıyla oluşturuldu'
+      message: 'Imagen API çalışıyor!',
+      model: imagenModel.name || imagenModel,
+      debug: {
+        modelsCount: modelsData.models?.length,
+        imagenModelsCount: imagenModels.length
+      }
     });
 
   } catch (error) {
-    console.error('Mock API hatası:', error);
+    console.error('💥 Catch bloğu hatası:', error);
     return res.status(500).json({ 
-      error: 'Mock API hatası: ' + error.message 
+      error: `Sistem hatası: ${error.message}`,
+      stack: error.stack
     });
   }
 }
