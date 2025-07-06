@@ -14,7 +14,7 @@
             --text-secondary: #555;
             --bg-primary: #ffffff;
             --bg-secondary: #f4f5f7;
-            --bg-selected: #e9e9ed; /* DÜZELTME: Daha koyu seçili arka plan */
+            --bg-selected: #e9e9ed;
             --border-color: #e5e7eb;
             --button-bg: #1c1c1e;
             --button-text: #ffffff;
@@ -97,7 +97,7 @@
             color: var(--text-secondary);
             font-weight: 600;
             transition: color 0.25s;
-            font-size: clamp(0.6rem, 2.5vw, 0.875rem); /* Akıcı font */
+            font-size: clamp(0.6rem, 2.5vw, 0.875rem);
         }
         .visual-selector-card:hover img {
             transform: scale(1.05);
@@ -105,7 +105,6 @@
         .visual-selector-card.selected { 
             background-color: var(--bg-selected);
             transform: translateY(-5px);
-            /* DÜZELTME: Outline eklendi */
             outline: 1px solid #d1d5db; 
         }
         .visual-selector-card.selected h4 {
@@ -150,14 +149,14 @@
             font-size: clamp(4rem, 12vw, 5rem);
             font-weight: 900;
             color: var(--text-primary);
-            margin-bottom: 1rem; /* Boşluk azaltıldı */
+            margin-bottom: 1rem;
         }
 
         .value-display-medium {
             font-size: clamp(3rem, 8vw, 4rem);
             font-weight: 800;
             color: var(--text-primary);
-            margin-bottom: 0.2rem; /* Boşluk azaltıldı */
+            margin-bottom: 0.2rem;
         }
         
         .modal-brand-footer {
@@ -179,12 +178,10 @@
         @keyframes fadeIn { from{opacity:0;transform:translateY(10px);} to{opacity:1;transform:translateY(0);} }
         .loader { border:4px solid var(--bg-secondary); border-top:4px solid var(--brand-color); border-radius:50%; width:46px; height:46px; animation:spin 1s linear infinite;}
         
-        /* DÜZELTME: Slider için pointer cursor */
         input[type="range"] { -webkit-appearance: none; appearance: none; width: 100%; height: 8px; background: var(--bg-secondary); border-radius: 5px; outline: none; transition: opacity .2s; cursor: pointer; }
         input[type="range"]::-webkit-slider-thumb { width: 24px; height: 24px; background: var(--bg-primary); cursor: pointer; border-radius: 50%; border: 2px solid var(--brand-color); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         input[type="range"]::-moz-range-thumb { width: 24px; height: 24px; background: var(--bg-primary); cursor: pointer; border-radius: 50%; border: 2px solid var(--brand-color); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         
-        /* DÜZELTME: Slider için etiket */
         .slider-label {
             font-size: clamp(0.7rem, 2vw, 0.75rem);
             color: var(--text-secondary);
@@ -213,7 +210,6 @@
 
         button:disabled{opacity:0.5;cursor:not-allowed;}
         
-        /* DÜZELTME: Uyarı yazısı stili */
         .modal-alert { 
             color: #c21c25; 
             font-weight: 500; 
@@ -427,7 +423,7 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    // Türkçe -> İngilizce çeviri haritaları
+    // Çeviri haritaları
     const enBodyTypes = {
         'İnce Yapılı': 'Slim build',
         'Standart Yapılı': 'Standard build',
@@ -565,34 +561,50 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Local fallback tahmin
-    function localSizeEstimate(height, weight, bodyType) {
-        height = Number(height); weight = Number(weight);
-        if (!height || !weight) return "M";
-        if (height < 170 && weight < 65) return "S";
-        if (height < 180 && weight < 75) return (bodyType === "İri Yapılı" ? "L" : "M");
-        if (height >= 180 && weight < 90) return "L";
-        if (height >= 180 && weight >= 90) return "XL";
-        return "M";
+    // KURAL TABANLI ÖN TAVSİYE (ASİSTANIN GÖREVİ)
+    function getPreliminaryRecommendation(height, weight, bodyType, shoulderWidth) {
+        const bmi = weight / ((height / 100) * (height / 100));
+        let baseSize;
+
+        // 1. Katman: Temel Beden Matrisi
+        if (height < 172) {
+            if (bmi < 19) baseSize = 'S';
+            else if (bmi < 25) baseSize = 'M';
+            else baseSize = 'L';
+        } else if (height <= 182) {
+            if (bmi < 19) baseSize = 'M';
+            else if (bmi < 30) baseSize = 'L';
+            else baseSize = 'XL';
+        } else if (height <= 190) {
+            if (bmi < 22) baseSize = 'L';
+            else baseSize = 'XL';
+        } else { // > 190
+            baseSize = 'XL';
+        }
+
+        // 2. Katman: İnce Ayar Mantığı
+        const modifier = (bodyType === 'İri Yapılı' || shoulderWidth === 'Geniş Omuz') ? 1 : 
+                         (bodyType === 'İnce Yapılı' || shoulderWidth === 'Dar Omuz') ? -1 : 0;
+
+        if (modifier > 0 && baseSize === 'L' && bmi > 27) {
+            return 'XL'; // Sınırdaki kilolu birini yukarı taşı
+        }
+        if (modifier > 0 && baseSize === 'M' && bmi > 23) {
+            return 'L'; // Sınırdaki normal birini yukarı taşı
+        }
+        if (modifier < 0 && baseSize === 'L' && bmi < 26) {
+            return 'M'; // Sınırdaki kilolu birini aşağı çek
+        }
+        
+        return baseSize;
     }
 
-    // GEMINI AI PROMPT & CALL (Hibrit Model)
-    const getGeminiSizeRecommendation = async () => {
-        const height = parseInt(userData.height);
-        const weight = parseInt(userData.weight);
-        const heightM = height / 100;
-        const bmi = weight / (heightM * heightM);
-        
-        let bmiCategory = 'Normal';
-        if (bmi < 18.5) bmiCategory = 'Zayıf';
-        else if (bmi >= 25 && bmi < 30) bmiCategory = 'Kilolu';
-        else if (bmi >= 30) bmiCategory = 'Obez';
-
-        const bodyTypeTr = userData.bodyType || 'Standart Yapılı';
-        const shoulderWidthTr = userData.shoulderWidth || 'Normal Omuz';
+    // GEMINI AI PROMPT & CALL (UZMANIN GÖREVİ)
+    const getGeminiFinalRecommendation = async (preliminaryData) => {
+        const { height, weight, bmiCategory, bodyType, shoulderWidth, preliminarySize } = preliminaryData;
         
         const personaAndProductContext = `
-Sen, LOS SURENOS markası için çalışan bir uzman fit danışmanısın. Amacın, kullanıcının verilerini analiz ederek ona en doğru beden önerisini sunmak ve bu öneriyi kişisel bir dille açıklamak.
+Sen, LOS SURENOS markasının baş stil danışmanısın. Bir asistan, müşteri için bir ön analiz raporu hazırladı. Senin görevin, bu raporu bir uzman gözüyle incelemek, tüm verileri değerlendirerek nihai ve en doğru beden kararını vermek ve bu kararını müşteriye açıklayan bir metin yazmak.
 - Ürün: Oversized Boxy Fit Tee, 220 GSM ağır pamuk, geniş ve modern kalıp.
 - Bedenler ve Ölçüler: S(Genişlik:60, Boy:70), M(62/72), L(64/74), XL(66/76).
 - KESİNLİKLE UYULMASI GEREKEN KURALLAR:
@@ -600,17 +612,16 @@ Sen, LOS SURENOS markası için çalışan bir uzman fit danışmanısın. Amac�
   2. SADECE S, M, L, XL bedenlerini kullan. Başka dilde veya başka bir kodla (XS, XXL vb.) asla bahsetme.
   3. Yanıtını SADECE şu JSON formatında ver: {"recommendedSize":"L", "explanation":"..."} Başka hiçbir metin ekleme.
 `;
-        const userSpecifics = `
-- OBJEKTİF VERİ: Kullanıcı ${height}cm boyunda, ${weight}kg ağırlığında. Bu, Vücut Kitle İndeksi'ne (BMI) göre '${bmiCategory}' kategorisine giriyor.
-- SUBJEKTİF VERİ (Kullanıcının Kendi Algısı): Kullanıcı vücut tipini '${bodyTypeTr}', omuz genişliğini ise '${shoulderWidthTr}' olarak seçti.
-- GÖREVİN:
-  1. Bu iki veriyi (objektif ve subjektif) birleştirerek en mantıklı nihai beden önerisini yap.
-  2. Eğer kullanıcının seçimi (örn: 'İri Yapılı') BMI sonucuyla ('Zayıf' gibi) çelişiyorsa, BMI'ı temel alarak karar ver ama açıklama kısmında bu çelişkiye nazikçe değin. Örneğin: "Vücut tipini 'iri yapılı' seçmiş olsan da, boy ve kilo oranın daha çok M bedenin ideal olacağını gösteriyor."
-  3. Eğer kullanıcının seçimi BMI ile uyumluysa, önerini daha da güçlü bir şekilde savun.
-  4. Açıklamanı kişisel, samimi ve teknik detaylar içeren bir dille yaz. Tişörtün bu bedende o kişinin üzerinde nasıl duracağını (dökümlü, tam oturan, gergin vb.) tarif et.
+        const assistantReport = `
+- **ASİSTAN RAPORU:**
+  - **Objektif Veriler:** Müşteri ${height}cm boyunda, ${weight}kg ağırlığında. Bu, Vücut Kitle İndeksi'ne (BMI) göre '${bmiCategory}' bir fizik anlamına geliyor.
+  - **Subjektif Veriler (Müşterinin Kendi Algısı):** Müşteri vücut tipini '${bodyType}', omuz genişliğini ise '${shoulderWidth}' olarak seçti.
+  - **Asistanın Ön Tavsiyesi:** Bizim kurallarımıza göre bu müşteri için **${preliminarySize}** beden uygun görünüyor.
+- **SENİN GÖREVİN (UZMAN GÖRÜŞÜ):**
+  Lütfen bu raporu incele. Asistanın ${preliminarySize} tavsiyesi sence de doğru mu? Yoksa müşterinin seçimleri, farklı bir bedenin daha iyi bir seçenek olabileceğine dair güçlü bir sinyal mi veriyor? Tüm bu verileri harmanlayarak **nihai kararını ver** ve \`recommendedSize\` olarak belirt. Ardından, bu nihai kararının arkasındaki mantığı, hem objektif verilere hem de müşterinin kendi algısına saygı gösteren kişisel bir dille \`explanation\` kısmında açıkla. Eğer müşterinin seçimi ile BMI arasında çelişki varsa, buna nazikçe değin.
 `;
         const payload = {
-            contents: [{ role: "user", parts: [{ text: `${personaAndProductContext}\n${userSpecifics}` }] }],
+            contents: [{ role: "user", parts: [{ text: `${personaAndProductContext}\n${assistantReport}` }] }],
             generationConfig: {
                 responseMimeType: "application/json",
                 responseSchema: {
@@ -623,29 +634,10 @@ Sen, LOS SURENOS markası için çalışan bir uzman fit danışmanısın. Amac�
                 }
             }
         };
-        const resultText = await callGeminiAPI(payload);
+        const resultText = await callBackendAPI("/api/gemini", payload);
         return resultText ? JSON.parse(resultText) : null;
     };
 
-    const callGeminiAPI = async (payload) => {
-        try {
-            const response = await fetch("/api/gemini", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ payload })
-            });
-            if (!response.ok) throw new Error(`API Hatası: ${response.status}`);
-            const result = await response.json();
-            if (result.candidates?.[0]?.content?.parts?.[0]?.text) {
-                return result.candidates[0].content.parts[0].text;
-            }
-            throw new Error("No valid response from AI API.");
-        } catch (error) {
-            showAlert(`AI Error: ${error.message}`);
-            return null;
-        }
-    };
-    
     const generateFitPreviewImage = async () => {
         const { height, weight, bodyType, shoulderWidth, recommendedSize } = userData;
 
@@ -656,62 +648,63 @@ Sen, LOS SURENOS markası için çalışan bir uzman fit danışmanısın. Amac�
         const bmi = parseInt(weight) / (heightM * heightM);
         
         let physiqueDescription = '';
-        
-        if (parseInt(height) < 170) physiqueDescription += 'a short stature, ';
+        if (parseInt(height) < 172) physiqueDescription += 'a short stature, ';
         else if (parseInt(height) > 185) physiqueDescription += 'a tall stature, ';
         else physiqueDescription += 'an average stature, ';
 
-        if (bmi < 18.5) physiqueDescription += 'and a noticeably underweight and slender body frame. Avoid any muscular or heavy appearance.';
-        else if (bmi >= 18.5 && bmi < 25) physiqueDescription += 'and a normal, athletic body frame. The physique should look balanced.';
+        if (bmi < 19) physiqueDescription += 'and a noticeably underweight and slender body frame. Avoid any muscular or heavy appearance.';
+        else if (bmi >= 19 && bmi < 25) physiqueDescription += 'and a normal, athletic body frame. The physique should look balanced.';
         else if (bmi >= 25 && bmi < 30) physiqueDescription += 'and a visibly overweight and stocky body frame. Emphasize a larger torso. Avoid a slim appearance.';
         else physiqueDescription += 'and a clearly obese and heavy body frame. The physique must be large and thick. Avoid any slim or athletic appearance.';
 
         const imagePrompt = `
-A hyper-realistic 3D technical illustration of a featureless male mannequin in a split-panel view (front and side).
-The mannequin's physique MUST visually represent a person with ${physiqueDescription}
-The t-shirt's drape and fit MUST accurately reflect how a size ${recommendedSize} garment would look on this specific body type. Show realistic fabric tension and looseness.
+(A hyper-realistic 3D render of a male mannequin with ${physiqueDescription}:1.5), in a split-panel view (front and side).
+The t-shirt's drape and fit MUST accurately reflect how a size ${recommendedSize} garment would look on this specific body type. Show realistic fabric tension where needed, and looseness elsewhere.
 The mannequin wears a black, oversized, boxy-fit t-shirt and pale light-blue, baggy denim shorts.
 The background is solid pure white.
-The following text elements, and only these elements, must be rendered in a clean, bold, sans-serif font (like Helvetica or Arial):
+The following text elements must be rendered in a clean, bold, sans-serif font:
 - Top Center: LOS SURENOS
-- Upper Left Corner (Front View):
-  - Height: ${height} cm
-  - Weight: ${weight} kg
-  - Body Type: ${bodyTypeEn}
-  - Shoulder: ${shoulderWidthEn}
-  - Size: ${recommendedSize}
+- Upper Left Corner (Front View): Height: ${height} cm, Weight: ${weight} kg, Body Type: ${bodyTypeEn}, Shoulder: ${shoulderWidthEn}, Size: ${recommendedSize}
 - Front View Measurement: A thin, horizontal, gray dashed line across the chest, labeled "Chest Width: ${TEE_SIZE_CHART[recommendedSize].width} cm".
 - Side View Measurement: A thin, vertical, gray dashed line from shoulder to hem, labeled "Length: ${TEE_SIZE_CHART[recommendedSize].length} cm".
-Crucial Negative Prompts: Do NOT include any Turkish characters or words. Do not add extra text, logos, watermarks, or shadows.
+Crucial Negative Prompts: Do NOT include any Turkish characters or words. no headless mannequin, no missing limbs, no extra text, logos, watermarks, or shadows.
 `;
         const payload = {
             prompt: imagePrompt,
+            seed: 500097, // Görsel tutarlılığı için sabit seed
+            reference_image_url: "https://cdn.myikas.com/images/theme-images/0591137d-8a0e-49da-98f0-cfb324d09223/image_1080.webp" // Kompozisyon tutarlılığı için referans görsel
         };
         
+        const result = await callBackendAPI("/api/generate-image", payload);
+        
+        if (result && result.imageUrl) {
+            fitPreviewImage.src = result.imageUrl;
+            fitPreviewImage.onload = () => {
+                fitPreviewLoader.style.display = 'none';
+                fitPreviewImage.classList.remove('hidden');
+            };
+        } else {
+            showAlert(`Görsel oluşturulamadı: ${result?.error || 'Bilinmeyen bir hata oluştu.'}`);
+            fitPreviewLoader.innerHTML = `<p class="text-red-500 text-xs p-4">Önizleme oluşturulamadı.</p>`;
+        }
+    };
+
+    const callBackendAPI = async (endpoint, payload) => {
         try {
-            const response = await fetch("/api/generate-image", {
+            const response = await fetch(endpoint, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ payload })
             });
             if (!response.ok) {
                  const err = await response.json();
-                 throw new Error(err.error || `Image API Hatası: ${response.status}`);
+                 throw new Error(err.error || `API Hatası: ${response.status}`);
             }
-            const result = await response.json();
-            
-            if (result.imageUrl) {
-                fitPreviewImage.src = result.imageUrl;
-                fitPreviewImage.onload = () => {
-                    fitPreviewLoader.style.display = 'none';
-                    fitPreviewImage.classList.remove('hidden');
-                };
-            } else {
-                 throw new Error("Görsel URL'i alınamadı.");
-            }
+            return await response.json();
         } catch (error) {
-            showAlert(`Görsel oluşturulamadı: ${error.message}`);
-            fitPreviewLoader.innerHTML = `<p class="text-red-500 text-xs p-4">Önizleme oluşturulamadı.</p>`;
+            console.error(`Hata (${endpoint}):`, error);
+            showAlert(`API Hatası: ${error.message}`);
+            return null;
         }
     };
 
@@ -723,27 +716,41 @@ Crucial Negative Prompts: Do NOT include any Turkish characters or words. Do not
             userData.teeLength = teeLengthSlider.value;
         }
 
-        if (userData.mode === 'wizard' && !userData.bodyType) {
-            bodyTypeAlert.style.display = "block";
-            setTimeout(() => bodyTypeAlert.style.display = "none", 1800);
-            return; 
-        }
-        if (userData.mode === 'wizard' && !userData.shoulderWidth) {
-            shoulderAlert.style.display = "block";
-            setTimeout(() => shoulderAlert.style.display = "none", 1800);
+        if (userData.mode === 'wizard' && (!userData.bodyType || !userData.shoulderWidth)) {
+            showAlert("Lütfen tüm adımları eksiksiz doldurun.");
             return;
         }
         
         showStep('step-loader');
 
-        let result = await getGeminiSizeRecommendation();
-        if (!result) {
-            let localSize = localSizeEstimate(userData.height, userData.weight, userData.bodyType);
+        // Asistan Raporu Hazırlığı
+        const height = parseInt(userData.height);
+        const weight = parseInt(userData.weight);
+        const bmi = weight / ((height / 100) * (height / 100));
+        let bmiCategory = 'Normal';
+        if (bmi < 19) bmiCategory = 'Zayıf';
+        else if (bmi >= 25 && bmi < 30) bmiCategory = 'Kilolu';
+        else if (bmi >= 30) bmiCategory = 'Obez';
+        
+        const preliminarySize = getPreliminaryRecommendation(height, weight, userData.bodyType, userData.shoulderWidth);
+
+        const preliminaryData = {
+            height, weight, bmiCategory, 
+            bodyType: userData.bodyType, 
+            shoulderWidth: userData.shoulderWidth, 
+            preliminarySize
+        };
+        
+        // Uzman Görüşü Alma
+        let result = await getGeminiFinalRecommendation(preliminaryData);
+
+        if (!result) { // Gemini'den cevap gelmezse, kural tabanlıyı kullan
             result = {
-                recommendedSize: localSize,
-                explanation: `${localSize} senin boy/kilo ve vücut tipine göre en mantıklı tercih.`
+                recommendedSize: preliminarySize,
+                explanation: `Vücut ölçülerinize göre sizin için en uygun bedenin ${preliminarySize} olduğunu düşünüyoruz. Bu beden, tişörtün üzerinizde modern ve rahat bir oversize duruş sergilemesini sağlayacaktır.`
             };
         }
+        
         userData.recommendedSize = result.recommendedSize;
         userData.explanation = result.explanation;
         document.getElementById('result-size').textContent = result.recommendedSize;
