@@ -21,8 +21,8 @@ export default async function handler(req, res) {
         return res.status(500).json({ error: 'Sunucu yapılandırması eksik: IMAGEN_API_KEY bulunamadı.' });
     }
 
-    // 3. DOĞRU IMAGEN 4.0 API URL'ini oluştur
-    const modelId = "imagen-4.0-generate-preview-06-06"; // Ekran görüntünüzdeki doğru model ID'si
+    // 3. DOĞRU IMAGEN 4.0 ULTRA API URL'ini oluştur
+    const modelId = "imagen-4.0-ultra-generate-preview-06-06"; // Model, "Ultra" olarak güncellendi.
     const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelId}:predict?key=${apiKey}`;
 
     // 4. Google'ın bu API için beklediği payload formatı
