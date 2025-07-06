@@ -714,7 +714,19 @@ Sen, LOS SURENOS markasının baş stil danışmanısın. Bir asistan, müşteri
         const heightM = parseInt(height) / 100;
         const bmi = parseInt(weight) / (heightM * heightM);
         
-        let physiqueDescription = `A hyper-realistic 3D render of a ${parseInt(age) < 18 ? 'teenage' : 'adult'} ${gender === 'Kadın' ? 'female' : 'male'} mannequin.`;
+        // Cinsiyete ve yaşa göre saç/sakal stili belirle
+        let appearanceDetails = '';
+        if(gender === 'Erkek') {
+            if(parseInt(age) < 18) appearanceDetails = 'and short, slightly messy dark hair.';
+            else if (bmi < 25) appearanceDetails = 'a short, wavy brown hair and light stubble.';
+            else appearanceDetails = 'a very short buzz cut and a short beard.';
+        } else { // Kadın
+            if (parseInt(age) < 18) appearanceDetails = 'and a long, straight brown ponytail.';
+            else if (bmi < 25) appearanceDetails = 'and a shoulder-length wavy blonde hair.';
+            else appearanceDetails = 'and a neat bun hairstyle.';
+        }
+        
+        let physiqueDescription = `A hyper-realistic 3D render of a standing adult ${gender === 'Kadın' ? 'female' : 'male'} mannequin with a natural light skin tone, realistic body details, ${appearanceDetails}`;
         
         let physiqueDetails = '';
         if (parseInt(height) < (gender === 'Kadın' ? 165 : 172)) physiqueDetails += 'a short stature, ';
@@ -734,19 +746,15 @@ Sen, LOS SURENOS markasının baş stil danışmanısın. Bir asistan, müşteri
             else physiqueDetails += 'and a visibly large, heavy-set body frame with a large torso and thick limbs.';
         }
         
-        physiqueDescription += ` The mannequin's physique MUST visually represent a person with ${physiqueDetails}`;
-
         const imagePrompt = `
-(${physiqueDescription}:1.5), in a split-panel view (front and side).
-The t-shirt's drape and fit MUST accurately reflect how a size ${recommendedSize} garment would look on this specific body type. Show realistic fabric tension where needed, and looseness elsewhere.
-The mannequin wears a black, oversized, boxy-fit t-shirt and pale light-blue, baggy denim shorts.
-The background is solid pure white.
-The following text elements, and only these elements, must be rendered in a clean, bold, sans-serif font:
-- Top Center: LOS SURENOS
-- Upper Left Corner (Front View): Height: ${height} cm, Weight: ${weight} kg, Body Type: ${bodyTypeEn}, Shoulder: ${shoulderWidthEn}, Size: ${recommendedSize}
-- Front View Measurement: A thin, horizontal, gray dashed line across the chest, labeled "Chest Width: ${TEE_SIZE_CHART[recommendedSize].width} cm".
-- Side View Measurement: A thin, vertical, gray dashed line from shoulder to hem, labeled "Tshirt Length: ${TEE_SIZE_CHART[recommendedSize].length} cm".
-Crucial Negative Prompts: Do NOT include any Turkish characters or words. no headless mannequin, no missing limbs, no extra text, logos, watermarks, or shadows.
+${physiqueDescription} The mannequin's physique MUST visually represent a person with ${physiqueDetails} Both arms fully visible, with hands resting straight down at the sides in a relaxed, natural pose. No missing limbs, no headless figure.
+The scene shows a split-panel view: left panel is a full front view, right panel is a full side profile. The mannequin is dressed in a black oversized boxy-fit t-shirt (size ${recommendedSize}) that drapes naturally over the frame (showing realistic fabric tension and looseness), and pale light-blue baggy denim shorts. The fit and proportions of the t-shirt must accurately reflect size ${recommendedSize} on this body type.
+Background is pure solid white. The following clean, bold, sans-serif text elements must be present (no extra text, no logos, no watermarks, no shadows):
+- Top center: "LOS SURENOS"
+- Upper left corner, front view: "Height: ${height} cm, Weight: ${weight} kg, Body Type: ${bodyTypeEn}, Shoulder: ${shoulderWidthEn}, Size: ${recommendedSize}"
+- Front view: a thin, horizontal gray dashed line across the chest, labeled "Chest Width: ${TEE_SIZE_CHART[recommendedSize].width} cm"
+- Side view: a thin, vertical gray dashed line from shoulder to hem, labeled "Tshirt Length: ${TEE_SIZE_CHART[recommendedSize].length} cm"
+Crucial negatives: no Turkish words, no headless mannequin, no missing limbs, no extra text, no shadows, no logos, no watermarks.
 `;
         const payload = {
             prompt: imagePrompt,
