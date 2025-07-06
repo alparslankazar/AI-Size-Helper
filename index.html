@@ -576,64 +576,39 @@ document.addEventListener('DOMContentLoaded', () => {
         return "M";
     }
 
-    // GEMINI AI PROMPT & CALL
+    // GEMINI AI PROMPT & CALL (Hibrit Model)
     const getGeminiSizeRecommendation = async () => {
+        const height = parseInt(userData.height);
+        const weight = parseInt(userData.weight);
+        const heightM = height / 100;
+        const bmi = weight / (heightM * heightM);
+        
+        let bmiCategory = 'Normal';
+        if (bmi < 18.5) bmiCategory = 'Zayıf';
+        else if (bmi >= 25 && bmi < 30) bmiCategory = 'Kilolu';
+        else if (bmi >= 30) bmiCategory = 'Obez';
+
         const bodyTypeTr = userData.bodyType || 'Standart Yapılı';
         const shoulderWidthTr = userData.shoulderWidth || 'Normal Omuz';
         
-        const explanationSample = `
-Genel Yorum:
-182 cm boy, 70 kg genellikle fit/zayıf veya ortalama vücut tipine karşılık gelir.
-Tee oversized boxy kalıba sahip (En ölçüsü geniş), yani vücudu sarmayacak, rahat bir duruş verecek şekilde üretilmiş.
-Beden Önerisi:
-MEDIUM
-Sana en çok Medium yakışır.
-Medium’da A: 70 cm (uzunluk), B: 62 cm (göğüs genişliği).
-Bu ölçüler, tişörtün sana hafif oversize, rahat bir şekilde oturmasını sağlar.
-Ne çok uzun ne de çok bol durur, hem şık hem rahat olur.
-LARGE
-Eğer gerçekten oversize ve salaş (moda çekimlerinde olduğu gibi, omuzdan daha da düşük, bol bir görüntü) istersen Large da giyebilirsin.
-Large’ın A: 72, B: 64. 1-2 cm'lik bu fark yandan ve omuzdan daha bol duruş verir.
-Boyun uzun olduğu için L da seni boğmaz, fakat Medium daha dengeli olur.
-SMALL
-Zayıf ve çok dar bir fit istiyorsan, small da olur ama bu kalıpta small genellikle kısa ve fazla slim olur, sana dar gelebilir.
-Sonuç:
-Senin boy/kilo için en güvenli ve estetik önerim:
-MEDIUM (rahat oversize fit; modaya uygun, iyi durur)
-Daha bol, salaş isteyenler için:
-LARGE (ama çok zayıf değilsen veya iyice oversize istemiyorsan L gerekmez)
-Kısa/dar durmasın istiyorsan small asla önerilmez.
-Ekstra:
-Omuzların çok geniş, gövden uzun, kol uzunluğun fazlaysa Large da tercih edebilirsin, ama çoğu durumda Medium idealdir.
-        `;
         const personaAndProductContext = `
-Sen bir "fit uzmanısın". Reklam, marka övgüsü yapma. 
-Ürün: Oversized Boxy Fit Tee, 220 GSM ağır pamuk, geniş ve modern kalıp.
-Bedenler: S, M, L, XL. Ölçüler: S(60/70), M(62/72), L(64/74), XL(66/76).
-YASAK: XS, XXL, XXS, XXXL gibi hiçbir şekilde alternatif ya da örnek beden yazma, önerme, anma! SADECE S, M, L, XL kodlarını kullan. Küçük, büyük, large, medium, small, xlarge gibi Türkçeleştirerek ya da başka bir dilde de ASLA YAZMA!
-Vücut tipi ve omuz genişliği olarak SADECE şu ifadeleri kullan: 'İnce yapılı', 'Standart yapılı', 'İri yapılı', 'Dar omuz', 'Normal omuz', 'Geniş omuz'. Başka ifade türetme, çevirmeye çalışma.
-Asla marka veya ürün övgüsü yapma, sadece teknik ve sade bilgi ver. "En iyi", "çok yakışır" gibi ifadeler kullanma. Yalnızca teknik, ölçü ve fit açıklaması.
-Her yanıtına "${userData.height} cm boy ve ${userData.weight} kg için:" ile başla.
-Yanıtını SADECE şu JSON şablonda ver: {"recommendedSize":"L","explanation":"(aşağıdaki örneğe benzer açıklama)"}
-Açıklama bölümünü aşağıdaki örnek ile NEREDEYSE AYNI FORMATTA YAZ:
-${explanationSample}
-Başka format veya anlatım kullanma.
-        `;
-        let userSpecifics;
-        if (userData.mode === 'wizard') {
-            userSpecifics = `
-Kullanıcı verileri: Boy: ${userData.height}cm, Kilo: ${userData.weight}kg, Vücut Tipi: '${bodyTypeTr}', Omuz Genişliği: '${shoulderWidthTr}'.
-Önerinin gerekçesini ve teknik kıyasını ver, sadece yukarıdaki bedenlerden alternatif öner. Açıklama kısmı verdiğim örnekle birebir benzer ve bölüm başlıklı olsun.
-            `;
-        } else {
-            const sizeChartString = JSON.stringify(TEE_SIZE_CHART);
-            userSpecifics = `
-Ürün beden tablosu: ${sizeChartString}.
-Kullanıcı favori tişörtünü ölçtü:
-En: ${userData.teeWidth}cm, Boy: ${userData.teeLength}cm, Boy: ${userData.height}cm, Kilo: ${userData.weight}kg.
-Beden tablosuyla kıyasla, ideal ve alternatif bedenleri yukarıdaki gibi açıkla.
-            `;
-        }
+Sen, LOS SURENOS markası için çalışan bir uzman fit danışmanısın. Amacın, kullanıcının verilerini analiz ederek ona en doğru beden önerisini sunmak ve bu öneriyi kişisel bir dille açıklamak.
+- Ürün: Oversized Boxy Fit Tee, 220 GSM ağır pamuk, geniş ve modern kalıp.
+- Bedenler ve Ölçüler: S(Genişlik:60, Boy:70), M(62/72), L(64/74), XL(66/76).
+- KESİNLİKLE UYULMASI GEREKEN KURALLAR:
+  1. ASLA reklam veya marka övgüsü yapma.
+  2. SADECE S, M, L, XL bedenlerini kullan. Başka dilde veya başka bir kodla (XS, XXL vb.) asla bahsetme.
+  3. Yanıtını SADECE şu JSON formatında ver: {"recommendedSize":"L", "explanation":"..."} Başka hiçbir metin ekleme.
+`;
+        const userSpecifics = `
+- OBJEKTİF VERİ: Kullanıcı ${height}cm boyunda, ${weight}kg ağırlığında. Bu, Vücut Kitle İndeksi'ne (BMI) göre '${bmiCategory}' kategorisine giriyor.
+- SUBJEKTİF VERİ (Kullanıcının Kendi Algısı): Kullanıcı vücut tipini '${bodyTypeTr}', omuz genişliğini ise '${shoulderWidthTr}' olarak seçti.
+- GÖREVİN:
+  1. Bu iki veriyi (objektif ve subjektif) birleştirerek en mantıklı nihai beden önerisini yap.
+  2. Eğer kullanıcının seçimi (örn: 'İri Yapılı') BMI sonucuyla ('Zayıf' gibi) çelişiyorsa, BMI'ı temel alarak karar ver ama açıklama kısmında bu çelişkiye nazikçe değin. Örneğin: "Vücut tipini 'iri yapılı' seçmiş olsan da, boy ve kilo oranın daha çok M bedenin ideal olacağını gösteriyor."
+  3. Eğer kullanıcının seçimi BMI ile uyumluysa, önerini daha da güçlü bir şekilde savun.
+  4. Açıklamanı kişisel, samimi ve teknik detaylar içeren bir dille yaz. Tişörtün bu bedende o kişinin üzerinde nasıl duracağını (dökümlü, tam oturan, gergin vb.) tarif et.
+`;
         const payload = {
             contents: [{ role: "user", parts: [{ text: `${personaAndProductContext}\n${userSpecifics}` }] }],
             generationConfig: {
@@ -677,16 +652,24 @@ Beden tablosuyla kıyasla, ideal ve alternatif bedenleri yukarıdaki gibi açık
         const bodyTypeEn = enBodyTypes[bodyType] || 'Standard build';
         const shoulderWidthEn = enShoulderWidths[shoulderWidth] || 'Standard shoulders';
 
-        let physiqueDescription = `The mannequin's physique MUST visually represent a person with a ${bodyTypeEn} and ${shoulderWidthEn} at ${height} cm and ${weight} kg.`;
-        if (parseInt(weight) >= 95 && parseInt(height) > 180) {
-            physiqueDescription += " Emphasize a visibly large, heavy, and stocky frame. Avoid a slim or athletic build.";
-        } else if (parseInt(weight) <= 70) {
-            physiqueDescription += " Emphasize a visibly slim and slender frame. Avoid a muscular or heavy build.";
-        }
+        const heightM = parseInt(height) / 100;
+        const bmi = parseInt(weight) / (heightM * heightM);
+        
+        let physiqueDescription = '';
+        
+        if (parseInt(height) < 170) physiqueDescription += 'a short stature, ';
+        else if (parseInt(height) > 185) physiqueDescription += 'a tall stature, ';
+        else physiqueDescription += 'an average stature, ';
+
+        if (bmi < 18.5) physiqueDescription += 'and a noticeably underweight and slender body frame. Avoid any muscular or heavy appearance.';
+        else if (bmi >= 18.5 && bmi < 25) physiqueDescription += 'and a normal, athletic body frame. The physique should look balanced.';
+        else if (bmi >= 25 && bmi < 30) physiqueDescription += 'and a visibly overweight and stocky body frame. Emphasize a larger torso. Avoid a slim appearance.';
+        else physiqueDescription += 'and a clearly obese and heavy body frame. The physique must be large and thick. Avoid any slim or athletic appearance.';
 
         const imagePrompt = `
 A hyper-realistic 3D technical illustration of a featureless male mannequin in a split-panel view (front and side).
-${physiqueDescription}
+The mannequin's physique MUST visually represent a person with ${physiqueDescription}
+The t-shirt's drape and fit MUST accurately reflect how a size ${recommendedSize} garment would look on this specific body type. Show realistic fabric tension and looseness.
 The mannequin wears a black, oversized, boxy-fit t-shirt and pale light-blue, baggy denim shorts.
 The background is solid pure white.
 The following text elements, and only these elements, must be rendered in a clean, bold, sans-serif font (like Helvetica or Arial):
