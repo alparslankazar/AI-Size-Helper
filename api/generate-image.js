@@ -1,46 +1,56 @@
-// Dosya Yolu: /api/generate-image.js
-// Bu kod, sadece API anahtarı kullanarak doğru Imagen endpoint'ine bağlanır.
+// Dosya: /api/generate-image.js
+
+import { GoogleAuth } from 'google-auth-library';
+import fetch from 'node-fetch';
+
+// Service Account JSON'u ortamdan oku
+const serviceAccount = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_JSON);
+
+const PROJECT = serviceAccount.project_id;
+const LOCATION = 'us-central1'; // Imagen sadece us-central1'de çalışıyor
+const MODEL = 'imagen-4.0-ultra'; // veya 'imagen-4.0'
+const ENDPOINT = `https://${LOCATION}-aiplatform.googleapis.com/v1/projects/${PROJECT}/locations/${LOCATION}/publishers/google/models/${MODEL}:predict`;
 
 export default async function handler(req, res) {
-  // Sadece POST isteklerini kabul et
   if (req.method !== 'POST') {
     res.setHeader('Allow', ['POST']);
     return res.status(405).end(`Method ${req.method} Not Allowed`);
   }
 
   try {
-    // 1. Frontend'den gelen payload'u al
+    // 1. Frontend'den gelen prompt'u al
     const { payload } = req.body;
     if (!payload || !payload.prompt) {
       return res.status(400).json({ error: 'Eksik veya geçersiz istek: prompt gerekli.' });
     }
 
-    // 2. API Key'i güvenli ortam değişkeninden al
-    const apiKey = process.env.IMAGEN_API_KEY;
-    if (!apiKey) {
-        return res.status(500).json({ error: 'Sunucu yapılandırması eksik: IMAGEN_API_KEY bulunamadı.' });
-    }
+    // 2. GoogleAuth ile JWT Token al
+    const auth = new GoogleAuth({
+      credentials: serviceAccount,
+      scopes: ['https://www.googleapis.com/auth/cloud-platform'],
+    });
+    const client = await auth.getClient();
+    const token = await client.getAccessToken();
 
-    // 3. DOĞRU Imagen API URL'ini oluştur (Gemini ile aynı platform)
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=${apiKey}`;
-
-    // 4. Google'ın bu API için beklediği payload formatı
-    const googleApiPayload = {
-      instances: [
-        { "prompt": payload.prompt }
-      ],
-      parameters: {
-        "sampleCount": 1
-      }
-    };
-
-    // 5. Google Imagen API'sine fetch isteği gönder
-    const apiResponse = await fetch(apiUrl, {
+    // 3. Vertex AI endpointine POST at
+    const apiResponse = await fetch(ENDPOINT, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token.token || token}`,
       },
-      body: JSON.stringify(googleApiPayload),
+      body: JSON.stringify({
+        instances: [
+          {
+            prompt: payload.prompt,
+            // referans image kullanacaksan ekle
+            ...(payload.reference_image_url ? { image: { imageUri: payload.reference_image_url } } : {})
+          }
+        ],
+        parameters: {
+          sampleCount: 1
+        }
+      }),
     });
 
     if (!apiResponse.ok) {
@@ -50,17 +60,9 @@ export default async function handler(req, res) {
     }
 
     const data = await apiResponse.json();
-
-    // 6. Gelen base64 verisini Data URL'e çevir ve frontend'e gönder
-    const imageBase64 = data?.predictions?.[0]?.bytesBase64Encoded;
-    if (!imageBase64) {
-      throw new Error("Google API'sinden geçerli bir görsel verisi alınamadı.");
-    }
-    
-    const imageUrl = `data:image/png;base64,${imageBase64}`;
-
-    // Frontend'in beklediği formatta cevabı gönder
-    res.status(200).json({ imageUrl: imageUrl });
+    const base64 = data?.predictions?.[0]?.bytesBase64Encoded;
+    if (!base64) throw new Error("Görsel üretilemedi.");
+    res.status(200).json({ imageUrl: `data:image/png;base64,${base64}` });
 
   } catch (error) {
     console.error('API rotasında hata:', error.message);
