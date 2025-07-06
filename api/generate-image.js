@@ -25,6 +25,7 @@ export default async function handler(req, res) {
     // 3. Google Vertex AI için doğru API endpoint'ini oluştur
     const API_ENDPOINT = `https://us-central1-aiplatform.googleapis.com/v1/projects/${GOOGLE_PROJECT_ID}/locations/us-central1/publishers/google/models/imagegeneration@006:predict`;
 
+    
     // 4. Google'ın beklediği payload formatını oluştur
     const googleApiPayload = {
       instances: [
