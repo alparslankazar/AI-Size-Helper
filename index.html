@@ -176,6 +176,7 @@
         .wizard-step.active { display: block; }
         #step-loader.active { display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 300px;}
         @keyframes fadeIn { from{opacity:0;transform:translateY(10px);} to{opacity:1;transform:translateY(0);} }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .loader { border:4px solid var(--bg-secondary); border-top:4px solid var(--brand-color); border-radius:50%; width:46px; height:46px; animation:spin 1s linear infinite;}
         
         input[type="range"] { -webkit-appearance: none; appearance: none; width: 100%; height: 8px; background: var(--bg-secondary); border-radius: 5px; outline: none; transition: opacity .2s; cursor: pointer; }
@@ -274,8 +275,40 @@
             </div>
         </div>
         <div class="wizard-inner-scroll">
+            <!-- YENİ Adım 0: Yaş ve Cinsiyet -->
+            <div id="step-0" class="wizard-step active text-center">
+                <h3 class="wizard-title">Seni Tanıyalım</h3>
+                <p class="wizard-label">Doğru öneri için bu iki bilgi önemli.</p>
+                <div class="space-y-6">
+                    <div>
+                        <h4 class="font-semibold mb-2 text-lg">Yaş Grubu</h4>
+                        <div class="grid grid-cols-2 gap-3" data-group="ageGroup">
+                            <div class="visual-selector-card p-4 text-center" data-value="Genç (14-17)">
+                                <h4>Genç (14-17)</h4>
+                            </div>
+                            <div class="visual-selector-card p-4 text-center" data-value="Yetişkin (18+)">
+                                <h4>Yetişkin (18+)</h4>
+                            </div>
+                        </div>
+                        <div id="age-alert" class="modal-alert">Lütfen bir yaş grubu seçiniz!</div>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold mb-2 text-lg">Cinsiyet</h4>
+                        <div class="grid grid-cols-2 gap-3" data-group="gender">
+                            <div class="visual-selector-card p-4 text-center" data-value="Erkek">
+                                <h4>Erkek</h4>
+                            </div>
+                            <div class="visual-selector-card p-4 text-center" data-value="Kadın">
+                                <h4>Kadın</h4>
+                            </div>
+                        </div>
+                         <div id="gender-alert" class="modal-alert">Lütfen bir cinsiyet seçiniz!</div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Adım 1: Yöntem Seçimi -->
-            <div id="step-1" class="wizard-step active text-center">
+            <div id="step-1" class="wizard-step text-center">
                 <h3 class="wizard-title">Sana en uygun bedeni nasıl bulalım?</h3>
                 <p class="wizard-label">İki farklı yöntemle sana özel önerimizi anında öğren.</p>
                 <div class="space-y-4">
@@ -376,47 +409,47 @@
                 <p class="text-gray-600 mt-2">✨ Yapay zeka, verilerinize göre en uygun bedeni ve kişisel yorumu hazırlıyor.</p>
             </div>
 
-<!-- Sonuç Ekranı - step-result içeriğini bu şekilde değiştirin -->
-<div id="step-result" class="wizard-step text-center">
-    <i data-lucide="party-popper" class="mx-auto w-16 h-16 text-green-500"></i>
-    <h3 class="wizard-title mt-4">Sana Özel Önerimiz:</h3>
-    <p id="result-size" class="text-7xl font-black text-gray-800 my-4">L</p>
-    
-    <!-- Güven Skoru -->
-    <div class="mb-2">
-        <span id="confidence-score" class="text-sm font-semibold"></span>
-    </div>
-    
-    <div class="bg-gray-100 rounded-lg p-4 text-sm text-left mb-3 border border-gray-200">
-        <p id="result-description"></p>
-        
-        <!-- Fit Analizi Konteyner -->
-        <div id="fit-analysis-container"></div>
-        
-        <!-- Alternatif Bedenler Konteyner -->
-        <div id="alternative-sizes-container"></div>
-        
-        <!-- Uyarılar Konteyner -->
-        <div id="warnings-container"></div>
-        
-        <div id="ai-fit-preview-section" class="mt-6 text-left">
-            <h4 class="text-lg font-bold text-gray-800 mb-2">AI Destekli Fit Önizlemesi</h4>
-            <div id="fit-preview-container" class="w-full aspect-square bg-gray-200 rounded-lg flex items-center justify-center border border-gray-300 overflow-hidden relative">
-                <div id="fit-preview-loader" class="text-center flex flex-col items-center justify-center absolute inset-0">
-                    <div class="loader"></div>
-                    <p class="text-sm text-gray-600 mt-2">Önizleme oluşturuluyor...</p>
+            <!-- Sonuç Ekranı - GELİŞMİŞ VERSİYON -->
+            <div id="step-result" class="wizard-step text-center">
+                <i data-lucide="party-popper" class="mx-auto w-16 h-16 text-green-500"></i>
+                <h3 class="wizard-title mt-4">Sana Özel Önerimiz:</h3>
+                <p id="result-size" class="text-7xl font-black text-gray-800 my-4">L</p>
+                
+                <!-- Güven Skoru -->
+                <div class="mb-2">
+                    <span id="confidence-score" class="text-sm font-semibold"></span>
                 </div>
-                <img id="fit-preview-image" src="" alt="AI Destekli Fit Önizlemesi" class="w-full h-full object-cover hidden">
+                
+                <div class="bg-gray-100 rounded-lg p-4 text-sm text-left mb-3 border border-gray-200">
+                    <p id="result-description"></p>
+                    
+                    <!-- Fit Analizi Konteyner -->
+                    <div id="fit-analysis-container"></div>
+                    
+                    <!-- Alternatif Bedenler Konteyner -->
+                    <div id="alternative-sizes-container"></div>
+                    
+                    <!-- Uyarılar Konteyner -->
+                    <div id="warnings-container"></div>
+                    
+                    <div id="ai-fit-preview-section" class="mt-6 text-left">
+                        <h4 class="text-lg font-bold text-gray-800 mb-2">AI Destekli Fit Önizlemesi</h4>
+                        <div id="fit-preview-container" class="w-full aspect-square bg-gray-200 rounded-lg flex items-center justify-center border border-gray-300 overflow-hidden relative">
+                            <div id="fit-preview-loader" class="text-center flex flex-col items-center justify-center absolute inset-0">
+                                <div class="loader"></div>
+                                <p class="text-sm text-gray-600 mt-2">Önizleme oluşturuluyor...</p>
+                            </div>
+                            <img id="fit-preview-image" src="" alt="AI Destekli Fit Önizlemesi" class="w-full h-full object-cover hidden">
+                        </div>
+                        <p class="text-[11px] text-gray-500 mt-2 ml-1">Görsel, yapay zeka tarafından ölçülerinize özel olarak oluşturulmuştur.</p>
+                    </div>
+                </div>
+                
+                <div class="mt-6">
+                    <button id="add-to-cart-btn" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition">Bu Bedeni Sepete Ekle</button>
+                    <button class="restart-btn mt-2 w-full text-gray-600 font-bold py-2 px-4 rounded-lg hover:bg-gray-200">Yeniden Başla</button>
+                </div>
             </div>
-            <p class="text-[11px] text-gray-500 mt-2 ml-1">Görsel, yapay zeka tarafından ölçülerinize özel olarak oluşturulmuştur.</p>
-        </div>
-    </div>
-    
-    <div class="mt-6">
-        <button id="add-to-cart-btn" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition">Bu Bedeni Sepete Ekle</button>
-        <button class="restart-btn mt-2 w-full text-gray-600 font-bold py-2 px-4 rounded-lg hover:bg-gray-200">Yeniden Başla</button>
-    </div>
-</div>
         </div>
         <div class="wizard-nav">
             <div class="flex justify-between">
@@ -467,12 +500,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const teeLengthDisplay = document.getElementById('tee-length-display');
     const bodyTypeAlert = document.getElementById('bodytype-alert');
     const shoulderAlert = document.getElementById('shoulder-alert');
+    const ageAlert = document.getElementById('age-alert');
+    const genderAlert = document.getElementById('gender-alert');
     const resultDescription = document.getElementById('result-description');
     const fitPreviewLoader = document.getElementById('fit-preview-loader');
     const fitPreviewImage = document.getElementById('fit-preview-image');
 
     // State Variables
-    let currentStepId = 'step-1';
+    let currentStepId = 'step-0';
     let userData = {};
     const TEE_SIZE_CHART = {
         'S': { width: 60, length: 70 },
@@ -492,7 +527,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Navigation config
     const stepConfig = {
-        'step-1': { prev: null, next: null, hideNav: true },
+        'step-0': { prev: null, next: 'step-1' },
+        'step-1': { prev: 'step-0', next: null, hideNav: true },
         'step-2': { prev: 'step-1', next: 'step-3' },
         'step-3': { prev: 'step-2', next: (data) => data.mode === 'wizard' ? 'step-4' : null, isAnalyze: (data) => data.mode === 'measure' },
         'step-4': { prev: 'step-3', next: 'step-5' },
@@ -520,6 +556,15 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     
     const showStep = (stepId) => {
+        // Yaş ve cinsiyet kontrolü
+        if (currentStepId === 'step-0' && stepId === 'step-1') {
+            if (!userData.ageGroup) {
+                ageAlert.style.display = "block"; setTimeout(() => ageAlert.style.display = "none", 1800); return;
+            }
+            if (!userData.gender) {
+                genderAlert.style.display = "block"; setTimeout(() => genderAlert.style.display = "none", 1800); return;
+            }
+        }
         if (currentStepId === 'step-4' && stepId === 'step-5' && !userData.bodyType) {
             bodyTypeAlert.style.display = "block"; setTimeout(() => bodyTypeAlert.style.display = "none", 1800); return;
         }
@@ -536,8 +581,8 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const updateProgressBar = () => {
-        const wizardFlow = ['step-2', 'step-3', 'step-4', 'step-5'];
-        const measureFlow = ['step-m1', 'step-m2', 'step-2', 'step-3'];
+        const wizardFlow = ['step-0', 'step-1', 'step-2', 'step-3', 'step-4', 'step-5'];
+        const measureFlow = ['step-0', 'step-1', 'step-m1', 'step-m2', 'step-2', 'step-3'];
         const currentFlow = userData.mode === 'wizard' ? wizardFlow : measureFlow;
         const stepIndex = currentFlow.indexOf(currentStepId);
         let progress = 0;
@@ -581,12 +626,17 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // GELİŞMİŞ BEDEN TAHMİNİ ALGORİTMASI
-    function getImprovedSizeRecommendation(height, weight, bodyType, shoulderWidth, teeWidth = null, teeLength = null) {
+    // GELİŞMİŞ BEDEN TAHMİNİ ALGORİTMASI - YAŞA VE CİNSİYETE GÖRE GÜNCELLENDİ
+    function getImprovedSizeRecommendation(height, weight, ageGroup, gender, bodyType, shoulderWidth, teeWidth = null, teeLength = null) {
         const bmi = weight / ((height / 100) * (height / 100));
-        const physiqueProfile = createPhysiqueProfile(height, weight, bmi, bodyType, shoulderWidth);
-        const productRequirements = calculateProductRequirements(physiqueProfile);
         
+        // Yaş ve cinsiyet bazlı fizik profili oluştur
+        const physiqueProfile = createEnhancedPhysiqueProfile(height, weight, bmi, ageGroup, gender, bodyType, shoulderWidth);
+        
+        // Ürün gereksinimlerini hesapla
+        const productRequirements = calculateEnhancedProductRequirements(physiqueProfile);
+        
+        // Eğer ölçü verisi varsa doğrula
         if (teeWidth && teeLength) {
             return validateWithMeasurements(productRequirements, teeWidth, teeLength);
         }
@@ -594,23 +644,82 @@ document.addEventListener('DOMContentLoaded', () => {
         return productRequirements;
     }
 
-    function createPhysiqueProfile(height, weight, bmi, bodyType, shoulderWidth) {
+    function createEnhancedPhysiqueProfile(height, weight, bmi, ageGroup, gender, bodyType, shoulderWidth) {
         return {
             height,
             weight,
             bmi,
+            ageGroup,
+            gender,
             bodyType,
             shoulderWidth,
-            heightCategory: getHeightCategory(height),
+            heightCategory: getGenderAwareHeightCategory(height, gender),
             weightCategory: getWeightCategory(bmi),
             bodyFrame: getBodyFrame(bodyType, shoulderWidth),
-            chestEstimate: estimateChestWidth(height, weight, bodyType, shoulderWidth),
+            chestEstimate: estimateGenderAwareChestWidth(height, weight, gender, bodyType, shoulderWidth),
             shoulderEstimate: estimateShoulderWidth(height, bodyType, shoulderWidth),
             torsoLength: estimateTorsoLength(height),
-            fitPreference: getFitPreference(bodyType, shoulderWidth)
+            fitPreference: getGenderAgeFitPreference(ageGroup, gender, bodyType, shoulderWidth)
         };
     }
 
+    function getGenderAwareHeightCategory(height, gender) {
+        const femaleThresholds = { very_short: 155, short: 160, average: 170, tall: 175, very_tall: 180 };
+        const maleThresholds = { very_short: 165, short: 170, average: 175, tall: 180, very_tall: 185 };
+        const thresholds = gender === 'Kadın' ? femaleThresholds : maleThresholds;
+        
+        if (height < thresholds.very_short) return 'very_short';
+        if (height < thresholds.short) return 'short';
+        if (height < thresholds.average) return 'average';
+        if (height < thresholds.tall) return 'tall';
+        if (height < thresholds.very_tall) return 'very_tall';
+        return 'extremely_tall';
+    }
+
+    function estimateGenderAwareChestWidth(height, weight, gender, bodyType, shoulderWidth) {
+        let baseChest = gender === 'Kadın' ? 0.26 * height : 0.28 * height;
+        
+        const bmi = weight / ((height / 100) * (height / 100));
+        const bmiAdjustment = (bmi - 22) * (gender === 'Kadın' ? 1.0 : 1.2);
+        
+        const bodyTypeAdjustment = {
+            'İnce Yapılı': gender === 'Kadın' ? -2 : -3,
+            'Standart Yapılı': 0,
+            'İri Yapılı': gender === 'Kadın' ? 3 : 4
+        };
+        
+        const shoulderAdjustment = {
+            'Dar Omuz': -2,
+            'Normal Omuz': 0,
+            'Geniş Omuz': gender === 'Kadın' ? 2 : 3
+        };
+        
+        return Math.round(baseChest + bmiAdjustment + 
+                         bodyTypeAdjustment[bodyType] + 
+                         shoulderAdjustment[shoulderWidth]);
+    }
+
+    function getGenderAgeFitPreference(ageGroup, gender, bodyType, shoulderWidth) {
+        // Genç kızlar ve kadınlar genelde daha rahat fit tercih eder
+        if (gender === 'Kadın') {
+            if (bodyType === 'İnce Yapılı') {
+                return ageGroup === 'Genç (14-17)' ? 'very_loose_fit' : 'loose_fit';
+            } else if (bodyType === 'İri Yapılı') {
+                return 'very_loose_fit';
+            }
+            return 'loose_fit';
+        } else {
+            // Erkekler için mevcut mantık
+            if (bodyType === 'İnce Yapılı') {
+                return shoulderWidth === 'Dar Omuz' ? 'loose_fit' : 'relaxed_fit';
+            } else if (bodyType === 'İri Yapılı') {
+                return shoulderWidth === 'Geniş Omuz' ? 'very_loose_fit' : 'loose_fit';
+            }
+            return ageGroup === 'Genç (14-17)' ? 'relaxed_fit' : 'standard_fit';
+        }
+    }
+
+    // Temel helper fonksiyonlar (önceki koddan)
     function getHeightCategory(height) {
         if (height < 165) return 'very_short';
         if (height < 170) return 'short';
@@ -652,29 +761,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return frameMap[bodyType][shoulderWidth] || 'medium_normal';
     }
 
-    function estimateChestWidth(height, weight, bodyType, shoulderWidth) {
-        let baseChest = 0.28 * height;
-        
-        const bmi = weight / ((height / 100) * (height / 100));
-        const bmiAdjustment = (bmi - 22) * 1.2;
-        
-        const bodyTypeAdjustment = {
-            'İnce Yapılı': -3,
-            'Standart Yapılı': 0,
-            'İri Yapılı': 4
-        };
-        
-        const shoulderAdjustment = {
-            'Dar Omuz': -2,
-            'Normal Omuz': 0,
-            'Geniş Omuz': 3
-        };
-        
-        return Math.round(baseChest + bmiAdjustment + 
-                         bodyTypeAdjustment[bodyType] + 
-                         shoulderAdjustment[shoulderWidth]);
-    }
-
     function estimateShoulderWidth(height, bodyType, shoulderWidth) {
         let baseShoulder = 0.25 * height;
         
@@ -699,18 +785,9 @@ document.addEventListener('DOMContentLoaded', () => {
         return Math.round(height * 0.535);
     }
 
-    function getFitPreference(bodyType, shoulderWidth) {
-        if (bodyType === 'İnce Yapılı') {
-            return shoulderWidth === 'Dar Omuz' ? 'loose_fit' : 'relaxed_fit';
-        } else if (bodyType === 'İri Yapılı') {
-            return shoulderWidth === 'Geniş Omuz' ? 'very_loose_fit' : 'loose_fit';
-        }
-        return 'standard_fit';
-    }
-
-    function calculateProductRequirements(profile) {
+    function calculateEnhancedProductRequirements(profile) {
         const requiredWidth = profile.chestEstimate + getComfortMargin(profile.fitPreference);
-        const requiredLength = Math.max(profile.torsoLength * 0.6, 65);
+        const requiredLength = Math.max(profile.torsoLength * (profile.gender === 'Kadın' ? 0.58 : 0.6), 65);
         
         let bestSize = 'S';
         let bestScore = -1;
@@ -729,7 +806,7 @@ document.addEventListener('DOMContentLoaded', () => {
             confidence: Math.min(Math.max(bestScore * 100, 60), 100),
             measurements: TEE_SIZE_CHART[bestSize],
             profile,
-            reasoning: generateReasoning(profile, bestSize, TEE_SIZE_CHART[bestSize])
+            reasoning: generateEnhancedReasoning(profile, bestSize, TEE_SIZE_CHART[bestSize])
         };
     }
 
@@ -777,28 +854,40 @@ document.addEventListener('DOMContentLoaded', () => {
         return score;
     }
 
-    function generateReasoning(profile, size, measurements) {
+    function generateEnhancedReasoning(profile, size, measurements) {
         const reasons = [];
         
+        // Yaş ve cinsiyet bazlı açıklamalar
+        if (profile.gender === 'Kadın') {
+            reasons.push(`Kadın kesimi için oversized fit tercihleriniz dikkate alındı`);
+        }
+        
+        if (profile.ageGroup === 'Genç (14-17)') {
+            reasons.push(`Genç yaş grubunuz için modern ve rahat bir kesim seçildi`);
+        }
+        
+        // Boy analizi
         if (profile.heightCategory === 'very_short' || profile.heightCategory === 'short') {
-            reasons.push(`Kısa boyunuz (${profile.height}cm) göz önünde bulunduruldu`);
+            reasons.push(`${profile.gender === 'Kadın' ? 'Kısa boyunuz' : 'Kısa boyunuz'} (${profile.height}cm) göz önünde bulunduruldu`);
         } else if (profile.heightCategory === 'very_tall' || profile.heightCategory === 'extremely_tall') {
             reasons.push(`Uzun boyunuz (${profile.height}cm) için uygun boy seçildi`);
         }
         
+        // Kilo analizi
         if (profile.weightCategory === 'underweight' || profile.weightCategory === 'severely_underweight') {
             reasons.push(`Zayıf yapınız için rahat bir kesim önerildi`);
         } else if (profile.weightCategory.includes('obese') || profile.weightCategory === 'overweight') {
             reasons.push(`Dolgun yapınız için yeterli genişlik sağlandı`);
         }
         
+        // Vücut tipi analizi
         if (profile.bodyFrame.includes('broad')) {
             reasons.push(`Geniş omuz yapınız için uygun genişlik seçildi`);
         } else if (profile.bodyFrame.includes('narrow')) {
             reasons.push(`Dar omuz yapınız için uygun proporsiyon sağlandı`);
         }
         
-        return reasons.length > 0 ? reasons.join(', ') : `Beden ${size}, vücut ölçülerinize uygun olarak seçildi`;
+        return reasons.length > 0 ? reasons.join(', ') : `Beden ${size}, tüm özelliklerinize uygun olarak seçildi`;
     }
 
     function validateWithMeasurements(recommendation, actualTeeWidth, actualTeeLength) {
@@ -823,7 +912,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
-    // GELİŞMİŞ GEMİNİ AI ANALİZİ
+    // GELİŞMİŞ GEMİNİ AI ANALİZİ - YAŞA VE CİNSİYETE GÖRE GÜNCELLENDİ
     const getAdvancedGeminiRecommendation = async (userData) => {
         try {
             const analysisReport = createComprehensiveAnalysisReport(userData);
@@ -892,7 +981,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     function createComprehensiveAnalysisReport(userData) {
-        const { height, weight, bodyType, shoulderWidth, teeWidth, teeLength, mode } = userData;
+        const { height, weight, ageGroup, gender, bodyType, shoulderWidth, teeWidth, teeLength, mode } = userData;
         const bmi = weight / ((height / 100) * (height / 100));
         
         const physicalProfile = {
@@ -900,18 +989,20 @@ document.addEventListener('DOMContentLoaded', () => {
             weight: parseInt(weight),
             bmi: Math.round(bmi * 10) / 10,
             bmiCategory: getBMICategory(bmi),
+            ageGroup,
+            gender,
             bodyType,
             shoulderWidth,
-            estimatedChest: estimateChestWidth(parseInt(height), parseInt(weight), bodyType, shoulderWidth),
+            estimatedChest: estimateGenderAwareChestWidth(parseInt(height), parseInt(weight), gender, bodyType, shoulderWidth),
             estimatedShoulder: estimateShoulderWidth(parseInt(height), bodyType, shoulderWidth),
-            bodyFrameType: getAdvancedBodyFrameType(bodyType, shoulderWidth, bmi)
+            bodyFrameType: getAdvancedBodyFrameType(bodyType, shoulderWidth, bmi, gender, ageGroup)
         };
         
         const productRequirements = {
             minimumChestWidth: physicalProfile.estimatedChest + getMinimumComfort(bodyType),
             idealChestWidth: physicalProfile.estimatedChest + getIdealComfort(bodyType),
-            minimumLength: getMinimumLength(parseInt(height)),
-            idealLength: getIdealLength(parseInt(height), bodyType)
+            minimumLength: getMinimumLength(parseInt(height), gender),
+            idealLength: getIdealLength(parseInt(height), bodyType, gender)
         };
         
         let currentGarmentAnalysis = null;
@@ -943,8 +1034,8 @@ document.addEventListener('DOMContentLoaded', () => {
         return 'Obez (3. Derece)';
     }
 
-    function getAdvancedBodyFrameType(bodyType, shoulderWidth, bmi) {
-        const frameTypes = {
+    function getAdvancedBodyFrameType(bodyType, shoulderWidth, bmi, gender, ageGroup) {
+        const baseFrameTypes = {
             'İnce Yapılı': {
                 'Dar Omuz': bmi < 19 ? 'Çok İnce Dar Omuz' : 'İnce Dar Omuz',
                 'Normal Omuz': bmi < 19 ? 'Çok İnce Normal' : 'İnce Normal',
@@ -962,7 +1053,17 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         };
         
-        return frameTypes[bodyType][shoulderWidth];
+        let frameType = baseFrameTypes[bodyType][shoulderWidth];
+        
+        // Cinsiyet ve yaş modifikasyonu
+        if (gender === 'Kadın') {
+            frameType += ' (Kadın)';
+        }
+        if (ageGroup === 'Genç (14-17)') {
+            frameType += ' (Genç)';
+        }
+        
+        return frameType;
     }
 
     function identifyRiskFactors(profile, bodyType, shoulderWidth) {
@@ -986,6 +1087,11 @@ document.addEventListener('DOMContentLoaded', () => {
             risks.push('Vücut tipi algısı ile BMI arasında çelişki');
         }
         
+        // Yaş ve cinsiyet bazlı riskler
+        if (profile.gender === 'Kadın' && profile.ageGroup === 'Genç (14-17)') {
+            risks.push('Genç kadın - büyüme devam edebilir');
+        }
+        
         return risks;
     }
 
@@ -1002,6 +1108,15 @@ document.addEventListener('DOMContentLoaded', () => {
             considerations.push('Zayıf yapı için rahat kesim tercih edilmeli');
         } else if (profile.bmi > 30) {
             considerations.push('Ağır yapı için yeterli genişlik sağlanmalı');
+        }
+        
+        // Cinsiyet ve yaş bazlı özel durumlar
+        if (profile.gender === 'Kadın') {
+            considerations.push('Kadın kesimi için oversized fit tercihleri dikkate alındı');
+        }
+        
+        if (profile.ageGroup === 'Genç (14-17)') {
+            considerations.push('Genç yaş grubu için büyüme potansiyeli göz önünde bulunduruldu');
         }
         
         return considerations;
@@ -1025,12 +1140,14 @@ document.addEventListener('DOMContentLoaded', () => {
         return idealMargins[bodyType] || 18;
     }
 
-    function getMinimumLength(height) {
-        return Math.max(height * 0.35, 65);
+    function getMinimumLength(height, gender = 'Erkek') {
+        const baseFactor = gender === 'Kadın' ? 0.34 : 0.35;
+        return Math.max(height * baseFactor, 65);
     }
 
-    function getIdealLength(height, bodyType) {
-        const baseLength = height * 0.38;
+    function getIdealLength(height, bodyType, gender = 'Erkek') {
+        const baseFactor = gender === 'Kadın' ? 0.37 : 0.38;
+        const baseLength = height * baseFactor;
         const typeAdjustment = {
             'İnce Yapılı': 2,
             'Standart Yapılı': 0,
@@ -1072,7 +1189,9 @@ document.addEventListener('DOMContentLoaded', () => {
 `;
 
         const physicalAnalysis = `
-**FİZİKSEL PROFİL:**
+**MÜŞTERİ PROFİLİ:**
+- Yaş Grubu: ${analysisReport.physicalProfile.ageGroup}
+- Cinsiyet: ${analysisReport.physicalProfile.gender}
 - Boy: ${analysisReport.physicalProfile.height}cm
 - Kilo: ${analysisReport.physicalProfile.weight}kg  
 - BMI: ${analysisReport.physicalProfile.bmi} (${analysisReport.physicalProfile.bmiCategory})
@@ -1114,20 +1233,20 @@ ${analysisReport.specialConsiderations.map(consideration => `- ${consideration}`
         const expertTask = `
 🎯 UZMAN GÖREVİN:
 
-1. **KAPSAMLI DEĞERLENDİRME**: Tüm veriyi analiz et, çelişkileri tespit et
+1. **KAPSAMLI DEĞERLENDİRME**: Tüm veriyi analiz et, yaş-cinsiyet kombinasyonunu özellikle dikkate al
 2. **NİHAİ KARAR**: En uygun bedeni belirle (S/M/L/XL)
 3. **GÜVEN SKORU**: Kararının güvenilirlik yüzdesini ver (0-100)
-4. **DETAYLI AÇIKLAMA**: Kararının mantığını müşteriye açıkla
+4. **DETAYLI AÇIKLAMA**: Yaş, cinsiyet, vücut özelliklerini harmanlayan açıklama yap
 5. **FIT ANALİZİ**: Göğüs, boy, omuz ve genel uyumu değerlendir
 6. **ALTERNATİFLER**: Varsa diğer seçenekleri ve nedenlerini belirt
-7. **UYARILAR**: Dikkat edilmesi gereken durumları belirt
+7. **UYARILAR**: Yaş ve cinsiyete özel dikkat edilmesi gereken durumlar
 
 ⚠️ MUTLAK KURALLAR:
 - SADECE S, M, L, XL kullan
 - Reklam yapma, marka övme
 - JSON formatında yanıtla
 - Kişisel ve samimi dil kullan
-- Fiziksel veriler ile algı arasındaki çelişkilere nazikçe değin
+- Yaş ve cinsiyet özelliklerini kararında dikkate al
 
 ${mode === 'measure' ? '📏 NOT: Müşteri mevcut ölçülerini verdi, bunu dikkate al.' : '🧙‍♂️ NOT: Müşteri wizard modunda, tahminlere dayalı karar ver.'}
 `;
@@ -1135,21 +1254,17 @@ ${mode === 'measure' ? '📏 NOT: Müşteri mevcut ölçülerini verdi, bunu dik
         return `${basePersona}${physicalAnalysis}${requirements}${currentGarmentSection}${riskSection}${considerationsSection}${expertTask}`;
     }
 
-    // GELİŞMİŞ GÖRSEL OLUŞTURMA SİSTEMİ
+    // GELİŞMİŞ GÖRSEL OLUŞTURMA SİSTEMİ - YAŞA VE CİNSİYETE GÖRE GÜNCELLENDİ
     const generateAdvancedFitPreview = async (userData) => {
         try {
-            const { height, weight, bodyType, shoulderWidth, recommendedSize } = userData;
+            const { height, weight, ageGroup, gender, bodyType, shoulderWidth, recommendedSize } = userData;
             
-            const physiqueProfile = createDetailedPhysiqueProfile(height, weight, bodyType, shoulderWidth);
+            const physiqueProfile = createDetailedPhysiqueProfile(height, weight, ageGroup, gender, bodyType, shoulderWidth);
             const imagePrompt = buildAdvancedImagePrompt(physiqueProfile, recommendedSize);
             
             const payload = {
                 prompt: imagePrompt,
-                negativePrompt: buildNegativePrompt(physiqueProfile),
-                seed: generateConsistentSeed(physiqueProfile),
-                guidance_scale: 8.5,
-                num_inference_steps: 30,
-                reference_image_url: "https://cdn.myikas.com/images/theme-images/0591137d-8a0e-49da-98f0-cfb324d09223/image_1080.webp"
+                seed: 500097 // Sabit seed kullanıyoruz
             };
             
             return await callBackendAPI("/api/generate-image", payload);
@@ -1159,34 +1274,35 @@ ${mode === 'measure' ? '📏 NOT: Müşteri mevcut ölçülerini verdi, bunu dik
         }
     };
 
-    function createDetailedPhysiqueProfile(height, weight, bodyType, shoulderWidth) {
+    function createDetailedPhysiqueProfile(height, weight, ageGroup, gender, bodyType, shoulderWidth) {
         const bmi = weight / ((height / 100) * (height / 100));
         
         return {
             height: parseInt(height),
             weight: parseInt(weight),
             bmi,
+            ageGroup,
+            gender,
             bodyType,
             shoulderWidth,
-            heightCategory: getDetailedHeightCategory(height),
+            heightCategory: getDetailedHeightCategory(height, gender),
             weightCategory: getDetailedWeightCategory(bmi),
             bodyFrame: getDetailedBodyFrame(bodyType, shoulderWidth, bmi),
-            torsoType: getTorsoType(bodyType, bmi),
-            limbProportions: getLimbProportions(height, weight),
-            postureType: getPostureType(bodyType, shoulderWidth),
-            visualDescriptors: getVisualDescriptors(height, weight, bmi, bodyType, shoulderWidth)
+            visualDescriptors: getEnhancedVisualDescriptors(height, weight, bmi, ageGroup, gender, bodyType, shoulderWidth)
         };
     }
 
-    function getDetailedHeightCategory(height) {
-        if (height < 160) return { category: 'very_short', intensity: 'extreme' };
-        if (height < 165) return { category: 'very_short', intensity: 'moderate' };
-        if (height < 170) return { category: 'short', intensity: 'noticeable' };
-        if (height < 175) return { category: 'average', intensity: 'standard' };
-        if (height < 180) return { category: 'tall', intensity: 'noticeable' };
-        if (height < 185) return { category: 'very_tall', intensity: 'moderate' };
-        if (height < 190) return { category: 'very_tall', intensity: 'significant' };
-        return { category: 'extremely_tall', intensity: 'extreme' };
+    function getDetailedHeightCategory(height, gender) {
+        const femaleThresholds = [155, 160, 170, 175, 180];
+        const maleThresholds = [165, 170, 175, 180, 185];
+        const thresholds = gender === 'Kadın' ? femaleThresholds : maleThresholds;
+        
+        if (height < thresholds[0]) return { category: 'very_short', intensity: 'extreme' };
+        if (height < thresholds[1]) return { category: 'very_short', intensity: 'moderate' };
+        if (height < thresholds[2]) return { category: 'short', intensity: 'noticeable' };
+        if (height < thresholds[3]) return { category: 'average', intensity: 'standard' };
+        if (height < thresholds[4]) return { category: 'tall', intensity: 'noticeable' };
+        return { category: 'very_tall', intensity: 'significant' };
     }
 
     function getDetailedWeightCategory(bmi) {
@@ -1223,49 +1339,34 @@ ${mode === 'measure' ? '📏 NOT: Müşteri mevcut ölçülerini verdi, bunu dik
         return frameMatrix[bodyType][shoulderWidth];
     }
 
-    function getTorsoType(bodyType, bmi) {
-        if (bodyType === 'İnce Yapılı') {
-            return bmi < 19 ? 'very_narrow_torso' : 'narrow_torso';
-        } else if (bodyType === 'İri Yapılı') {
-            return bmi > 28 ? 'very_wide_torso' : 'wide_torso';
-        }
-        return bmi < 23 ? 'balanced_torso' : 'fuller_torso';
-    }
-
-    function getLimbProportions(height, weight) {
-        const bmi = weight / ((height / 100) * (height / 100));
-        
-        if (bmi < 19) return 'thin_limbs';
-        if (bmi < 25) return 'proportioned_limbs';
-        if (bmi < 30) return 'fuller_limbs';
-        return 'thick_limbs';
-    }
-
-    function getPostureType(bodyType, shoulderWidth) {
-        if (bodyType === 'İnce Yapılı' && shoulderWidth === 'Dar Omuz') {
-            return 'slouched_posture';
-        } else if (bodyType === 'İri Yapılı' && shoulderWidth === 'Geniş Omuz') {
-            return 'broad_confident_posture';
-        }
-        return 'standard_posture';
-    }
-
-    function getVisualDescriptors(height, weight, bmi, bodyType, shoulderWidth) {
+    function getEnhancedVisualDescriptors(height, weight, bmi, ageGroup, gender, bodyType, shoulderWidth) {
         const descriptors = [];
         
-        if (height < 165) descriptors.push('noticeably short stature');
-        else if (height > 185) descriptors.push('tall and imposing stature');
+        // Yaş bazlı tanımlamalar
+        if (ageGroup === 'Genç (14-17)') {
+            descriptors.push(gender === 'Kadın' ? 'teenage female' : 'teenage male');
+        } else {
+            descriptors.push(gender === 'Kadın' ? 'adult female' : 'adult male');
+        }
         
+        // Boy tanımlamaları
+        const heightThreshold = gender === 'Kadın' ? 165 : 175;
+        if (height < heightThreshold - 10) descriptors.push('noticeably short stature');
+        else if (height > heightThreshold + 15) descriptors.push('tall and imposing stature');
+        
+        // Kilo tanımlamaları
         if (bmi < 18.5) descriptors.push('very lean and slender build');
         else if (bmi >= 30) descriptors.push('heavy-set and substantial build');
         else if (bmi >= 25) descriptors.push('fuller and stockier build');
         
+        // Vücut tipi tanımlamaları
         if (bodyType === 'İnce Yapılı') {
             descriptors.push('naturally thin frame');
         } else if (bodyType === 'İri Yapılı') {
             descriptors.push('naturally broad and thick frame');
         }
         
+        // Omuz tanımlamaları
         if (shoulderWidth === 'Dar Omuz') {
             descriptors.push('narrow and sloping shoulders');
         } else if (shoulderWidth === 'Geniş Omuz') {
@@ -1276,27 +1377,26 @@ ${mode === 'measure' ? '📏 NOT: Müşteri mevcut ölçülerini verdi, bunu dik
     }
 
     function buildAdvancedImagePrompt(profile, recommendedSize) {
-        const basePrompt = `Ultra-realistic 3D render of a male mannequin in a professional product photography setting.`;
+        const basePrompt = `Ultra-realistic 3D render of a ${profile.visualDescriptors.join(', ')} mannequin in a professional product photography setting.`;
         
         const physicalDescription = buildPhysicalDescription(profile);
         const clothingDescription = `wearing a black, oversized, boxy-fit cotton t-shirt (size ${recommendedSize}) and light blue relaxed-fit denim shorts`;
-        const poseDescription = getPoseDescription(profile.postureType);
         const technicalSpecs = `Split-panel view (front and side), studio lighting, white background, photorealistic rendering, high detail, 4K quality`;
         const measurementLines = `Include thin gray measurement lines: horizontal chest line labeled "Chest: ${TEE_SIZE_CHART[recommendedSize].width}cm", vertical length line labeled "Length: ${TEE_SIZE_CHART[recommendedSize].length}cm"`;
         const brandInfo = `"LOS SURENOS" text at top center in clean sans-serif font`;
         
-        return `${basePrompt} ${physicalDescription} ${clothingDescription}. ${poseDescription}. ${technicalSpecs}. ${measurementLines}. ${brandInfo}.`;
+        return `${basePrompt} ${physicalDescription} ${clothingDescription}. ${technicalSpecs}. ${measurementLines}. ${brandInfo}. Do NOT include any Turkish characters or words.`;
     }
 
     function buildPhysicalDescription(profile) {
         const parts = [];
         
         if (profile.heightCategory.category === 'very_short') {
-            parts.push(`A noticeably short male figure (${profile.height}cm)`);
+            parts.push(`A noticeably short figure (${profile.height}cm)`);
         } else if (profile.heightCategory.category === 'very_tall') {
-            parts.push(`A tall male figure (${profile.height}cm)`);
+            parts.push(`A tall figure (${profile.height}cm)`);
         } else {
-            parts.push(`A ${profile.heightCategory.category} height male figure (${profile.height}cm)`);
+            parts.push(`A ${profile.heightCategory.category} height figure (${profile.height}cm)`);
         }
         
         parts.push(`with ${profile.weightCategory.description}`);
@@ -1307,59 +1407,7 @@ ${mode === 'measure' ? '📏 NOT: Müşteri mevcut ölçülerini verdi, bunu dik
             parts.push('broad shoulders and wide torso');
         }
         
-        if (profile.visualDescriptors.length > 0) {
-            parts.push(`emphasizing ${profile.visualDescriptors.join(', ')}`);
-        }
-        
         return parts.join(' ');
-    }
-
-    function getPoseDescription(postureType) {
-        const poses = {
-            'slouched_posture': 'relaxed, slightly slouched posture',
-            'broad_confident_posture': 'confident, upright posture with shoulders back',
-            'standard_posture': 'natural, balanced posture'
-        };
-        
-        return poses[postureType] || 'natural standing pose';
-    }
-
-    function buildNegativePrompt(profile) {
-        const negatives = [
-            'headless mannequin',
-            'missing limbs',
-            'extra limbs',
-            'distorted proportions',
-            'unrealistic anatomy',
-            'blurry image',
-            'low quality',
-            'watermarks',
-            'text overlays',
-            'logos',
-            'shadows on background'
-        ];
-        
-        if (profile.weightCategory.category === 'severely_underweight') {
-            negatives.push('muscular build', 'heavy appearance', 'thick limbs');
-        } else if (profile.weightCategory.category.includes('obese')) {
-            negatives.push('thin build', 'lean appearance', 'muscular definition');
-        }
-        
-        if (profile.heightCategory.category === 'very_short') {
-            negatives.push('tall appearance', 'long limbs', 'elongated proportions');
-        } else if (profile.heightCategory.category === 'very_tall') {
-            negatives.push('short appearance', 'compact build', 'stocky proportions');
-        }
-        
-        return negatives.join(', ');
-    }
-
-    function generateConsistentSeed(profile) {
-        const seedBase = profile.height + profile.weight + 
-                         profile.bodyType.charCodeAt(0) + 
-                         profile.shoulderWidth.charCodeAt(0);
-        
-        return 500000 + (seedBase % 99999);
     }
 
     const callBackendAPI = async (endpoint, payload) => {
@@ -1398,10 +1446,12 @@ ${mode === 'measure' ? '📏 NOT: Müşteri mevcut ölçülerini verdi, bunu dik
         showStep('step-loader');
 
         try {
-            // Gelişmiş beden tahmini algoritması
+            // Gelişmiş beden tahmini algoritması (yaş ve cinsiyet dahil)
             const preliminaryResult = getImprovedSizeRecommendation(
                 parseInt(userData.height),
                 parseInt(userData.weight),
+                userData.ageGroup,
+                userData.gender,
                 userData.bodyType,
                 userData.shoulderWidth,
                 userData.mode === 'measure' ? parseInt(userData.teeWidth) : null,
@@ -1422,7 +1472,7 @@ ${mode === 'measure' ? '📏 NOT: Müşteri mevcut ölçülerini verdi, bunu dik
             } else {
                 // Fallback: Gelişmiş algoritma sonuçlarını kullan
                 userData.recommendedSize = preliminaryResult.recommendedSize;
-                userData.explanation = preliminaryResult.reasoning || 'Vücut ölçülerinize göre en uygun beden seçildi.';
+                userData.explanation = preliminaryResult.reasoning || 'Tüm özelliklerinize göre en uygun beden seçildi.';
                 userData.confidence = preliminaryResult.confidence;
             }
 
@@ -1578,7 +1628,7 @@ ${mode === 'measure' ? '📏 NOT: Müşteri mevcut ölçülerini verdi, bunu dik
     // RESET FONKSİYONU
     const resetWizard = () => {
         userData = {};
-        showStep('step-1');
+        showStep('step-0'); // Yaş/cinsiyet adımından başlat
         
         const previewSection = document.getElementById('ai-fit-preview-section');
         if (previewSection) {
