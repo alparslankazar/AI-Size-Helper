@@ -274,8 +274,23 @@
             </div>
         </div>
         <div class="wizard-inner-scroll">
-            <!-- Adım 0: Yaş ve Cinsiyet -->
-            <div id="step-0" class="wizard-step active text-center">
+            <!-- DEĞİŞİKLİK: Adım 1 artık ilk sırada -->
+            <div id="step-1" class="wizard-step active text-center">
+                <h3 class="wizard-title">Sana en uygun bedeni nasıl bulalım?</h3>
+                <p class="wizard-label">İki farklı yöntemle sana özel önerimizi anında öğren.</p>
+                <div class="space-y-4">
+                    <button data-target-step="step-0" data-mode="wizard" class="start-btn action-button w-full font-bold py-4 px-4 rounded-lg flex items-center justify-center">
+                        <i data-lucide="user-check" class="mr-3"></i> Vücut Ölçülerimle Bul
+                    </button>
+                    <button data-target-step="step-0" data-mode="measure" class="start-btn action-button w-full font-bold py-4 px-4 rounded-lg flex items-center justify-center">
+                        <i data-lucide="ruler" class="mr-3"></i> Favori Tişörtümü Ölçerek Bul
+                    </button>
+                </div>
+                <p class="text-xs mt-6 text-gray-500"><i data-lucide="lock" class="inline-block w-3 h-3 mr-1"></i>Bilgilerin sadece beden hesaplamak için kullanılır.</p>
+            </div>
+
+            <!-- DEĞİŞİKLİK: Adım 0 artık ikinci sırada -->
+            <div id="step-0" class="wizard-step text-center">
                 <h3 class="wizard-title">Seni Tanıyalım</h3>
                 <p class="wizard-label">Doğru öneri için bu iki bilgi önemli.</p>
                 <div class="space-y-8">
@@ -300,21 +315,6 @@
                          <div id="gender-alert" class="modal-alert">Lütfen bir cinsiyet seçiniz!</div>
                     </div>
                 </div>
-            </div>
-
-            <!-- Adım 1: Yöntem Seçimi -->
-            <div id="step-1" class="wizard-step text-center">
-                <h3 class="wizard-title">Sana en uygun bedeni nasıl bulalım?</h3>
-                <p class="wizard-label">İki farklı yöntemle sana özel önerimizi anında öğren.</p>
-                <div class="space-y-4">
-                    <button data-target-step="step-2" data-mode="wizard" class="start-btn action-button w-full font-bold py-4 px-4 rounded-lg flex items-center justify-center">
-                        <i data-lucide="user-check" class="mr-3"></i> Vücut Ölçülerimle Bul
-                    </button>
-                    <button data-target-step="step-m1" data-mode="measure" class="start-btn action-button w-full font-bold py-4 px-4 rounded-lg flex items-center justify-center">
-                        <i data-lucide="ruler" class="mr-3"></i> Favori Tişörtümü Ölçerek Bul
-                    </button>
-                </div>
-                <p class="text-xs mt-6 text-gray-500"><i data-lucide="lock" class="inline-block w-3 h-3 mr-1"></i>Bilgilerin sadece beden hesaplamak için kullanılır.</p>
             </div>
 
             <!-- Adım 2: Boy Seçimi -->
@@ -489,7 +489,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const fitPreviewImage = document.getElementById('fit-preview-image');
 
     // State Variables
-    let currentStepId = 'step-0';
+    let currentStepId = 'step-1'; // DÜZELTME 3: Başlangıç adımı step-1 oldu
     let userData = {};
     const TEE_SIZE_CHART = {
         'S': { width: 60, length: 70 },
@@ -509,13 +509,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Navigation config
     const stepConfig = {
-        'step-0': { prev: null, next: 'step-1' },
-        'step-1': { prev: 'step-0', next: null, hideNav: true },
-        'step-2': { prev: 'step-1', next: 'step-3' },
+        'step-0': { prev: 'step-1', next: (data) => data.mode === 'wizard' ? 'step-2' : 'step-m1' }, // DÜZELTME 2: Geri butonu eklendi
+        'step-1': { prev: null, next: null, hideNav: true },
+        'step-2': { prev: 'step-0', next: 'step-3' },
         'step-3': { prev: 'step-2', next: (data) => data.mode === 'wizard' ? 'step-4' : null, isAnalyze: (data) => data.mode === 'measure' },
         'step-4': { prev: 'step-3', next: 'step-5' },
         'step-5': { prev: 'step-4', next: null, isAnalyze: true },
-        'step-m1': { prev: 'step-1', next: 'step-m2' },
+        'step-m1': { prev: 'step-0', next: 'step-m2' },
         'step-m2': { prev: 'step-m1', next: 'step-2' },
         'step-loader': { hideNav: true },
         'step-result': { hideNav: true }
@@ -538,7 +538,8 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     
     const showStep = (stepId) => {
-        if (currentStepId === 'step-0' && stepId === 'step-1') {
+        // DÜZELTME 3: Adım geçiş kontrolleri yeni akışa göre güncellendi
+        if (currentStepId === 'step-0' && (stepId === 'step-2' || stepId === 'step-m1')) {
             if (!userData.age) {
                 userData.age = ageSlider.value;
             }
@@ -562,8 +563,8 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const updateProgressBar = () => {
-        const wizardFlow = ['step-0', 'step-1', 'step-2', 'step-3', 'step-4', 'step-5'];
-        const measureFlow = ['step-0', 'step-1', 'step-m1', 'step-m2', 'step-2', 'step-3'];
+        const wizardFlow = ['step-1', 'step-0', 'step-2', 'step-3', 'step-4', 'step-5'];
+        const measureFlow = ['step-1', 'step-0', 'step-m1', 'step-m2', 'step-2', 'step-3'];
         const currentFlow = userData.mode === 'wizard' ? wizardFlow : measureFlow;
         const stepIndex = currentFlow.indexOf(currentStepId);
         let progress = 0;
@@ -714,10 +715,9 @@ Sen, LOS SURENOS markasının baş stil danışmanısın. Bir asistan, müşteri
         const heightM = parseInt(height) / 100;
         const bmi = parseInt(weight) / (heightM * heightM);
         
-        // Cinsiyete ve yaşa göre saç/sakal stili belirle
         let appearanceDetails = '';
-        if(gender === 'Erkek') {
-            if(parseInt(age) < 18) appearanceDetails = 'and short, slightly messy dark hair.';
+        if (gender === 'Erkek') {
+            if (parseInt(age) < 18) appearanceDetails = 'and short, slightly messy dark hair.';
             else if (bmi < 25) appearanceDetails = 'a short, wavy brown hair and light stubble.';
             else appearanceDetails = 'a textured French crop haircut with a sharp fringe and a high skin fade, complemented by a clean-shaven look.';
         } else { // Kadın
@@ -725,8 +725,6 @@ Sen, LOS SURENOS markasının baş stil danışmanısın. Bir asistan, müşteri
             else if (bmi < 25) appearanceDetails = 'and a shoulder-length wavy blonde hair.';
             else appearanceDetails = 'and a neat bun hairstyle.';
         }
-        
-        let physiqueDescription = `A hyper-realistic 3D render of a standing adult ${gender === 'Kadın' ? 'female' : 'male'} mannequin with a natural light skin tone, realistic body details, ${appearanceDetails}`;
         
         let physiqueDetails = '';
         if (parseInt(height) < (gender === 'Kadın' ? 165 : 172)) physiqueDetails += 'a short stature, ';
@@ -747,7 +745,7 @@ Sen, LOS SURENOS markasının baş stil danışmanısın. Bir asistan, müşteri
         }
         
         const imagePrompt = `
-${physiqueDescription} The mannequin's physique MUST visually represent a person with ${physiqueDetails} Both arms fully visible, with hands resting straight down at the sides in a relaxed, natural pose. No missing limbs, no headless figure.
+A hyper-realistic 3D render of a standing adult ${gender === 'Kadın' ? 'female' : 'male'} mannequin with a natural light skin tone, realistic body details, ${appearanceDetails} The mannequin's physique MUST visually represent a person with ${physiqueDetails} Both arms fully visible, with hands resting straight down at the sides in a relaxed, natural pose. No missing limbs, no headless figure.
 The scene shows a split-panel view: left panel is a full front view, right panel is a full side profile. The mannequin is dressed in a black oversized boxy-fit t-shirt (size ${recommendedSize}) that drapes naturally over the frame (showing realistic fabric tension and looseness), and pale light-blue baggy denim shorts. The fit and proportions of the t-shirt must accurately reflect size ${recommendedSize} on this body type.
 Background is pure solid white. The following clean, bold, sans-serif text elements must be present (no extra text, no logos, no watermarks, no shadows):
 - Top center: "LOS SURENOS"
@@ -859,7 +857,10 @@ Crucial negatives: no Turkish words, no headless mannequin, no missing limbs, no
         userData.age = ageSlider.value;
         ageValueDisplay.textContent = ageSlider.value;
         
-        showStep('step-0');
+        // Düzeltme 3: Seçili kartların sıfırlanması
+        document.querySelectorAll('.visual-selector-card.selected').forEach(c => c.classList.remove('selected'));
+
+        showStep('step-1'); // DÜZELTME 3: Başlangıç adımı step-1 oldu
         
         const previewSection = document.getElementById('ai-fit-preview-section');
         if (previewSection) {
