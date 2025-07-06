@@ -178,8 +178,6 @@
         #step-loader.active { display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 300px;}
         @keyframes fadeIn { from{opacity:0;transform:translateY(10px);} to{opacity:1;transform:translateY(0);} }
         .loader { border:4px solid var(--bg-secondary); border-top:4px solid var(--brand-color); border-radius:50%; width:46px; height:46px; animation:spin 1s linear infinite;}
-        .loader-small {width:18px; height:18px; border-width:2px;}
-        @keyframes spin { 0%{transform:rotate(0deg);} 100%{transform:rotate(360deg);} }
         
         /* DÜZELTME: Slider için pointer cursor */
         input[type="range"] { -webkit-appearance: none; appearance: none; width: 100%; height: 8px; background: var(--bg-secondary); border-radius: 5px; outline: none; transition: opacity .2s; cursor: pointer; }
@@ -214,8 +212,6 @@
         }
 
         button:disabled{opacity:0.5;cursor:not-allowed;}
-
-        /* Orijinal AI Chat stilleri kaldırıldı */
         
         /* DÜZELTME: Uyarı yazısı stili */
         .modal-alert { 
@@ -392,7 +388,6 @@
                 <div class="bg-gray-100 rounded-lg p-4 text-sm text-left mb-3 border border-gray-200">
                     <p id="result-description"></p>
                     
-                    <!-- DEĞİŞİKLİK BAŞLANGICI: Orijinal AI Chat HTML bölümü, AI Fit Preview ile değiştirildi -->
                     <div id="ai-fit-preview-section" class="mt-6 text-left">
                         <h4 class="text-lg font-bold text-gray-800 mb-2">AI Destekli Fit Önizlemesi</h4>
                         <div id="fit-preview-container" class="w-full aspect-square bg-gray-200 rounded-lg flex items-center justify-center border border-gray-300 overflow-hidden relative">
@@ -404,7 +399,7 @@
                         </div>
                         <p class="text-[11px] text-gray-500 mt-2 ml-1">Görsel, yapay zeka tarafından ölçülerinize özel olarak oluşturulmuştur.</p>
                     </div>
-                    <!-- DEĞİŞİKLİK SONU -->
+
                 </div>
                 <div class="mt-6">
                     <button id="add-to-cart-btn" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition">Bu Bedeni Sepete Ekle</button>
@@ -432,22 +427,16 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    // Türkçeleştirme Map'leri (sadece bodyType/shoulder için)
-    const trBodyTypes = {
-        'skinny': 'İnce yapılı',
-        'average': 'Standart yapılı',
-        'chubby': 'İri yapılı',
-        'İnce Yapılı': 'İnce yapılı',
-        'Standart Yapılı': 'Standart yapılı',
-        'İri Yapılı': 'İri yapılı'
+    // Türkçe -> İngilizce çeviri haritaları
+    const enBodyTypes = {
+        'İnce Yapılı': 'Slim build',
+        'Standart Yapılı': 'Standard build',
+        'İri Yapılı': 'Heavy-set build'
     };
-    const trShoulderWidths = {
-        'narrow': 'Dar omuz',
-        'average': 'Normal omuz',
-        'broad': 'Geniş omuz',
-        'Dar Omuz': 'Dar omuz',
-        'Normal Omuz': 'Normal omuz',
-        'Geniş Omuz': 'Geniş omuz'
+    const enShoulderWidths = {
+        'Dar Omuz': 'Narrow shoulders',
+        'Normal Omuz': 'Standard shoulders',
+        'Geniş Omuz': 'Broad shoulders'
     };
 
     // Element Selections
@@ -468,15 +457,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const bodyTypeAlert = document.getElementById('bodytype-alert');
     const shoulderAlert = document.getElementById('shoulder-alert');
     const resultDescription = document.getElementById('result-description');
-    // DEĞİŞİKLİK: Yeni elementler eklendi
     const fitPreviewLoader = document.getElementById('fit-preview-loader');
     const fitPreviewImage = document.getElementById('fit-preview-image');
 
     // State Variables
     let currentStepId = 'step-1';
     let userData = {};
-    // DEĞİŞİKLİK: aiChatHistory kaldırıldı, artık kullanılmıyor.
-    // GÜNCEL BEDEN TABLOSU
     const TEE_SIZE_CHART = {
         'S': { width: 60, length: 70 },
         'M': { width: 62, length: 72 },
@@ -584,7 +570,7 @@ document.addEventListener('DOMContentLoaded', () => {
         height = Number(height); weight = Number(weight);
         if (!height || !weight) return "M";
         if (height < 170 && weight < 65) return "S";
-        if (height < 180 && weight < 75) return (bodyType === "İri yapılı" ? "L" : "M");
+        if (height < 180 && weight < 75) return (bodyType === "İri Yapılı" ? "L" : "M");
         if (height >= 180 && weight < 90) return "L";
         if (height >= 180 && weight >= 90) return "XL";
         return "M";
@@ -592,8 +578,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // GEMINI AI PROMPT & CALL
     const getGeminiSizeRecommendation = async () => {
-        userData.bodyTypeTr = trBodyTypes[userData.bodyType] || userData.bodyType || '';
-        userData.shoulderWidthTr = trShoulderWidths[userData.shoulderWidth] || userData.shoulderWidth || '';
+        const bodyTypeTr = userData.bodyType || 'Standart Yapılı';
+        const shoulderWidthTr = userData.shoulderWidth || 'Normal Omuz';
+        
         const explanationSample = `
 Genel Yorum:
 182 cm boy, 70 kg genellikle fit/zayıf veya ortalama vücut tipine karşılık gelir.
@@ -635,7 +622,7 @@ Başka format veya anlatım kullanma.
         let userSpecifics;
         if (userData.mode === 'wizard') {
             userSpecifics = `
-Kullanıcı verileri: Boy: ${userData.height}cm, Kilo: ${userData.weight}kg, Vücut Tipi: '${userData.bodyTypeTr}', Omuz Genişliği: '${userData.shoulderWidthTr}'.
+Kullanıcı verileri: Boy: ${userData.height}cm, Kilo: ${userData.weight}kg, Vücut Tipi: '${bodyTypeTr}', Omuz Genişliği: '${shoulderWidthTr}'.
 Önerinin gerekçesini ve teknik kıyasını ver, sadece yukarıdaki bedenlerden alternatif öner. Açıklama kısmı verdiğim örnekle birebir benzer ve bölüm başlıklı olsun.
             `;
         } else {
@@ -665,7 +652,6 @@ Beden tablosuyla kıyasla, ideal ve alternatif bedenleri yukarıdaki gibi açık
         return resultText ? JSON.parse(resultText) : null;
     };
 
-    // Gemini API Call
     const callGeminiAPI = async (payload) => {
         try {
             const response = await fetch("/api/gemini", {
@@ -684,17 +670,39 @@ Beden tablosuyla kıyasla, ideal ve alternatif bedenleri yukarıdaki gibi açık
             return null;
         }
     };
-
-    // DEĞİŞİKLİK BAŞLANGICI: AI Chat ile ilgili tüm fonksiyonlar ve event listener'lar kaldırıldı.
     
-    // YENİ: AI Destekli Görsel Oluşturma Fonksiyonu
     const generateFitPreviewImage = async () => {
-        const { height, weight, bodyTypeTr, shoulderWidthTr, recommendedSize } = userData;
-        const imagePrompt = `Create a single, hyper-realistic 3D technical illustration in a split-panel (diptych) format. The subject is a featureless male mannequin with a matte neutral-gray skin texture. The mannequin wears a black, oversized, boxy-fit t-shirt and pale light-blue, baggy denim shorts. The background is solid pure white. The following text elements must be rendered: Top Center: LOS SURENOS. Upper Left Corner (Front View Panel): Height: ${height} cm, Weight: ${weight} kg, Body Type: ${bodyTypeTr}, Shoulder: ${shoulderWidthTr}, Size: ${recommendedSize}. Front View Measurement: A thin, horizontal, gray dashed line across the chest, labeled Chest Width: ${TEE_SIZE_CHART[recommendedSize].width} cm. Side View Measurement: A thin, vertical, gray dashed line from shoulder to hem, labeled Length: ${TEE_SIZE_CHART[recommendedSize].length} cm. Crucial Negative Prompts: Do NOT include any text other than what is specified.`;
+        const { height, weight, bodyType, shoulderWidth, recommendedSize } = userData;
+
+        const bodyTypeEn = enBodyTypes[bodyType] || 'Standard build';
+        const shoulderWidthEn = enShoulderWidths[shoulderWidth] || 'Standard shoulders';
+
+        let physiqueDescription = `The mannequin's physique MUST visually represent a person with a ${bodyTypeEn} and ${shoulderWidthEn} at ${height} cm and ${weight} kg.`;
+        if (parseInt(weight) >= 95 && parseInt(height) > 180) {
+            physiqueDescription += " Emphasize a visibly large, heavy, and stocky frame. Avoid a slim or athletic build.";
+        } else if (parseInt(weight) <= 70) {
+            physiqueDescription += " Emphasize a visibly slim and slender frame. Avoid a muscular or heavy build.";
+        }
+
+        const imagePrompt = `
+A hyper-realistic 3D technical illustration of a featureless male mannequin in a split-panel view (front and side).
+${physiqueDescription}
+The mannequin wears a black, oversized, boxy-fit t-shirt and pale light-blue, baggy denim shorts.
+The background is solid pure white.
+The following text elements, and only these elements, must be rendered in a clean, bold, sans-serif font (like Helvetica or Arial):
+- Top Center: LOS SURENOS
+- Upper Left Corner (Front View):
+  - Height: ${height} cm
+  - Weight: ${weight} kg
+  - Body Type: ${bodyTypeEn}
+  - Shoulder: ${shoulderWidthEn}
+  - Size: ${recommendedSize}
+- Front View Measurement: A thin, horizontal, gray dashed line across the chest, labeled "Chest Width: ${TEE_SIZE_CHART[recommendedSize].width} cm".
+- Side View Measurement: A thin, vertical, gray dashed line from shoulder to hem, labeled "Length: ${TEE_SIZE_CHART[recommendedSize].length} cm".
+Crucial Negative Prompts: Do NOT include any Turkish characters or words. Do not add extra text, logos, watermarks, or shadows.
+`;
         const payload = {
             prompt: imagePrompt,
-            seed: 500097,
-            reference_image_url: "https://cdn.myikas.com/images/theme-images/ee1f88b6-84cb-45e6-868e-825587a1beda/image_1080.webp"
         };
         
         try {
@@ -703,7 +711,10 @@ Beden tablosuyla kıyasla, ideal ve alternatif bedenleri yukarıdaki gibi açık
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ payload })
             });
-            if (!response.ok) throw new Error(`Image API Hatası: ${response.status}`);
+            if (!response.ok) {
+                 const err = await response.json();
+                 throw new Error(err.error || `Image API Hatası: ${response.status}`);
+            }
             const result = await response.json();
             
             if (result.imageUrl) {
@@ -720,9 +731,7 @@ Beden tablosuyla kıyasla, ideal ve alternatif bedenleri yukarıdaki gibi açık
             fitPreviewLoader.innerHTML = `<p class="text-red-500 text-xs p-4">Önizleme oluşturulamadı.</p>`;
         }
     };
-    // DEĞİŞİKLİK SONU
 
-    // Analysis (HATA DÜZELTİLDİ)
     const runAnalysis = async () => {
         userData.height = heightSlider.value;
         userData.weight = weightSlider.value;
@@ -731,26 +740,25 @@ Beden tablosuyla kıyasla, ideal ve alternatif bedenleri yukarıdaki gibi açık
             userData.teeLength = teeLengthSlider.value;
         }
 
-        // HATA DÜZELTMESİ: Yükleme ekranını göstermeden ÖNCE doğrulamaları yap
-        if (userData.mode === 'wizard' && !userData.shoulderWidth) {
-            shoulderAlert.style.display = "block";
-            setTimeout(() => shoulderAlert.style.display = "none", 1800);
-            return; // Fonksiyonu durdur, adımı değiştirme.
-        }
         if (userData.mode === 'wizard' && !userData.bodyType) {
             bodyTypeAlert.style.display = "block";
             setTimeout(() => bodyTypeAlert.style.display = "none", 1800);
             return; 
+        }
+        if (userData.mode === 'wizard' && !userData.shoulderWidth) {
+            shoulderAlert.style.display = "block";
+            setTimeout(() => shoulderAlert.style.display = "none", 1800);
+            return;
         }
         
         showStep('step-loader');
 
         let result = await getGeminiSizeRecommendation();
         if (!result) {
-            let localSize = localSizeEstimate(userData.height, userData.weight, userData.bodyTypeTr);
+            let localSize = localSizeEstimate(userData.height, userData.weight, userData.bodyType);
             result = {
                 recommendedSize: localSize,
-                explanation: `${localSize} senin boy/kilo ve vücut tipine göre en mantıklı tercih. Bir beden küçük alırsan daha kısa ve daha fit oturur, bir beden büyük alırsan daha salaş, çok bol ve dökümlü olur. Göğüs genişliği/uzunluk: ${TEE_SIZE_CHART[localSize].width} cm / ${TEE_SIZE_CHART[localSize].length} cm.`
+                explanation: `${localSize} senin boy/kilo ve vücut tipine göre en mantıklı tercih.`
             };
         }
         userData.recommendedSize = result.recommendedSize;
@@ -770,7 +778,6 @@ Beden tablosuyla kıyasla, ideal ve alternatif bedenleri yukarıdaki gibi açık
 
     const resetWizard = () => {
         userData = {};
-        // DEĞİŞİKLİK: aiChatHistory ile ilgili satırlar kaldırıldı.
         showStep('step-1');
         
         const previewSection = document.getElementById('ai-fit-preview-section');
