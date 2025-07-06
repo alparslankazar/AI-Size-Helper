@@ -561,782 +561,136 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // GELİŞMİŞ BEDEN TAHMİNİ ALGORİTMASI
-    function getImprovedSizeRecommendation(height, weight, bodyType, shoulderWidth, teeWidth = null, teeLength = null) {
+    // KURAL TABANLI ÖN TAVSİYE (ASİSTANIN GÖREVİ)
+    function getPreliminaryRecommendation(height, weight, bodyType, shoulderWidth) {
         const bmi = weight / ((height / 100) * (height / 100));
-        
-        // Detaylı fizik profili oluştur
-        const physiqueProfile = createPhysiqueProfile(height, weight, bmi, bodyType, shoulderWidth);
-        
-        // Ürün gereksinimlerini hesapla
-        const productRequirements = calculateProductRequirements(physiqueProfile);
-        
-        // Eğer ölçü verisi varsa doğrula
-        if (teeWidth && teeLength) {
-            return validateWithMeasurements(productRequirements, teeWidth, teeLength);
+        let baseSize;
+
+        // 1. Katman: Temel Beden Matrisi
+        if (height < 172) {
+            if (bmi < 19) baseSize = 'S';
+            else if (bmi < 25) baseSize = 'M';
+            else baseSize = 'L';
+        } else if (height <= 182) {
+            if (bmi < 19) baseSize = 'M';
+            else if (bmi < 30) baseSize = 'L';
+            else baseSize = 'XL';
+        } else if (height <= 190) {
+            if (bmi < 22) baseSize = 'L';
+            else baseSize = 'XL';
+        } else { // > 190
+            baseSize = 'XL';
+        }
+
+        // 2. Katman: İnce Ayar Mantığı
+        const modifier = (bodyType === 'İri Yapılı' || shoulderWidth === 'Geniş Omuz') ? 1 : 
+                         (bodyType === 'İnce Yapılı' || shoulderWidth === 'Dar Omuz') ? -1 : 0;
+
+        if (modifier > 0 && baseSize === 'L' && bmi > 27) {
+            return 'XL';
+        }
+        if (modifier > 0 && baseSize === 'M' && bmi > 23) {
+            return 'L';
+        }
+        if (modifier < 0 && baseSize === 'L' && bmi < 26) {
+            return 'M';
         }
         
-        return productRequirements;
+        return baseSize;
     }
 
-    function createPhysiqueProfile(height, weight, bmi, bodyType, shoulderWidth) {
-        return {
-            height,
-            weight,
-            bmi,
-            bodyType,
-            shoulderWidth,
-            heightCategory: getHeightCategory(height),
-            weightCategory: getWeightCategory(bmi),
-            bodyFrame: getBodyFrame(bodyType, shoulderWidth),
-            chestEstimate: estimateChestWidth(height, weight, bodyType, shoulderWidth),
-            shoulderEstimate: estimateShoulderWidth(height, bodyType, shoulderWidth),
-            torsoLength: estimateTorsoLength(height),
-            fitPreference: getFitPreference(bodyType, shoulderWidth)
-        };
-    }
-
-    function getHeightCategory(height) {
-        if (height < 165) return 'very_short';
-        if (height < 170) return 'short';
-        if (height < 175) return 'average';
-        if (height < 180) return 'tall';
-        if (height < 185) return 'very_tall';
-        return 'extremely_tall';
-    }
-
-    function getWeightCategory(bmi) {
-        if (bmi < 16) return 'severely_underweight';
-        if (bmi < 18.5) return 'underweight';
-        if (bmi < 25) return 'normal';
-        if (bmi < 30) return 'overweight';
-        if (bmi < 35) return 'obese_1';
-        if (bmi < 40) return 'obese_2';
-        return 'obese_3';
-    }
-
-    function getBodyFrame(bodyType, shoulderWidth) {
-        const frameMap = {
-            'İnce Yapılı': {
-                'Dar Omuz': 'small_narrow',
-                'Normal Omuz': 'small_normal',
-                'Geniş Omuz': 'small_broad'
-            },
-            'Standart Yapılı': {
-                'Dar Omuz': 'medium_narrow',
-                'Normal Omuz': 'medium_normal',
-                'Geniş Omuz': 'medium_broad'
-            },
-            'İri Yapılı': {
-                'Dar Omuz': 'large_narrow',
-                'Normal Omuz': 'large_normal',
-                'Geniş Omuz': 'large_broad'
-            }
-        };
+    // GEMINI AI PROMPT & CALL (UZMANIN GÖREVİ)
+    const getGeminiFinalRecommendation = async (preliminaryData) => {
+        const { height, weight, bmiCategory, bodyType, shoulderWidth, preliminarySize } = preliminaryData;
         
-        return frameMap[bodyType][shoulderWidth] || 'medium_normal';
-    }
-
-    function estimateChestWidth(height, weight, bodyType, shoulderWidth) {
-        let baseChest = 0.28 * height;
-        
-        const bmi = weight / ((height / 100) * (height / 100));
-        const bmiAdjustment = (bmi - 22) * 1.2;
-        
-        const bodyTypeAdjustment = {
-            'İnce Yapılı': -3,
-            'Standart Yapılı': 0,
-            'İri Yapılı': 4
-        };
-        
-        const shoulderAdjustment = {
-            'Dar Omuz': -2,
-            'Normal Omuz': 0,
-            'Geniş Omuz': 3
-        };
-        
-        return Math.round(baseChest + bmiAdjustment + 
-                         bodyTypeAdjustment[bodyType] + 
-                         shoulderAdjustment[shoulderWidth]);
-    }
-
-    function estimateShoulderWidth(height, bodyType, shoulderWidth) {
-        let baseShoulder = 0.25 * height;
-        
-        const bodyTypeAdjustment = {
-            'İnce Yapılı': -2,
-            'Standart Yapılı': 0,
-            'İri Yapılı': 3
-        };
-        
-        const shoulderAdjustment = {
-            'Dar Omuz': -4,
-            'Normal Omuz': 0,
-            'Geniş Omuz': 6
-        };
-        
-        return Math.round(baseShoulder + 
-                         bodyTypeAdjustment[bodyType] + 
-                         shoulderAdjustment[shoulderWidth]);
-    }
-
-    function estimateTorsoLength(height) {
-        return Math.round(height * 0.535);
-    }
-
-    function getFitPreference(bodyType, shoulderWidth) {
-        if (bodyType === 'İnce Yapılı') {
-            return shoulderWidth === 'Dar Omuz' ? 'loose_fit' : 'relaxed_fit';
-        } else if (bodyType === 'İri Yapılı') {
-            return shoulderWidth === 'Geniş Omuz' ? 'very_loose_fit' : 'loose_fit';
-        }
-        return 'standard_fit';
-    }
-
-    function calculateProductRequirements(profile) {
-        const requiredWidth = profile.chestEstimate + getComfortMargin(profile.fitPreference);
-        const requiredLength = Math.max(profile.torsoLength * 0.6, 65);
-        
-        let bestSize = 'S';
-        let bestScore = -1;
-        
-        for (const [size, measurements] of Object.entries(TEE_SIZE_CHART)) {
-            const score = calculateFitScore(measurements, requiredWidth, requiredLength, profile);
-            
-            if (score > bestScore) {
-                bestScore = score;
-                bestSize = size;
-            }
-        }
-        
-        return {
-            recommendedSize: bestSize,
-            confidence: Math.min(bestScore * 100, 100),
-            measurements: TEE_SIZE_CHART[bestSize],
-            profile,
-            reasoning: generateReasoning(profile, bestSize, TEE_SIZE_CHART[bestSize])
-        };
-    }
-
-    function getComfortMargin(fitPreference) {
-        const margins = {
-            'tight_fit': 8,
-            'standard_fit': 12,
-            'relaxed_fit': 16,
-            'loose_fit': 20,
-            'very_loose_fit': 24
-        };
-        
-        return margins[fitPreference] || 12;
-    }
-
-    function calculateFitScore(measurements, requiredWidth, requiredLength, profile) {
-        let score = 0;
-        
-        if (measurements.width >= requiredWidth) {
-            const excess = measurements.width - requiredWidth;
-            if (excess >= 2 && excess <= 6) {
-                score += 0.5;
-            } else if (excess < 2) {
-                score += 0.3;
-            } else {
-                score += Math.max(0, 0.5 - (excess - 6) * 0.05);
-            }
-        } else {
-            score -= 0.3;
-        }
-        
-        if (measurements.length >= requiredLength) {
-            const excess = measurements.length - requiredLength;
-            if (excess >= 5 && excess <= 10) {
-                score += 0.5;
-            } else if (excess < 5) {
-                score += 0.3;
-            } else {
-                score += Math.max(0, 0.5 - (excess - 10) * 0.03);
-            }
-        } else {
-            score -= 0.2;
-        }
-        
-        return score;
-    }
-
-    function generateReasoning(profile, size, measurements) {
-        const reasons = [];
-        
-        if (profile.heightCategory === 'very_short' || profile.heightCategory === 'short') {
-            reasons.push(`Kısa boyunuz (${profile.height}cm) göz önünde bulunduruldu`);
-        } else if (profile.heightCategory === 'very_tall' || profile.heightCategory === 'extremely_tall') {
-            reasons.push(`Uzun boyunuz (${profile.height}cm) için uygun boy seçildi`);
-        }
-        
-        if (profile.weightCategory === 'underweight' || profile.weightCategory === 'severely_underweight') {
-            reasons.push(`Zayıf yapınız için rahat bir kesim önerildi`);
-        } else if (profile.weightCategory.includes('obese') || profile.weightCategory === 'overweight') {
-            reasons.push(`Dolgun yapınız için yeterli genişlik sağlandı`);
-        }
-        
-        if (profile.bodyFrame.includes('broad')) {
-            reasons.push(`Geniş omuz yapınız için uygun genişlik seçildi`);
-        } else if (profile.bodyFrame.includes('narrow')) {
-            reasons.push(`Dar omuz yapınız için uygun proporsiyon sağlandı`);
-        }
-        
-        return reasons.join(', ');
-    }
-
-    function validateWithMeasurements(recommendation, actualTeeWidth, actualTeeLength) {
-        const { measurements } = recommendation;
-        
-        const widthDifference = measurements.width - actualTeeWidth;
-        const lengthDifference = measurements.length - actualTeeLength;
-        
-        let adjustment = '';
-        
-        if (Math.abs(widthDifference) > 3 || Math.abs(lengthDifference) > 3) {
-            if (widthDifference > 3) {
-                adjustment = 'Mevcut tişörtünüz dar geliyorsa, önerdiğimiz beden tam size göre';
-            } else if (widthDifference < -3) {
-                adjustment = 'Mevcut tişörtünüz bol geliyorsa, önerdiğimiz beden daha iyi oturacak';
-            }
-        }
-        
-        return {
-            ...recommendation,
-            measurementComparison: { widthDifference, lengthDifference, adjustment }
-        };
-    }
-
-    // GELİŞMİŞ GEMİNİ AI ANALİZİ
-    const getAdvancedGeminiRecommendation = async (userData) => {
-        const analysisReport = createComprehensiveAnalysisReport(userData);
-        const prompt = buildAdvancedGeminiPrompt(analysisReport, userData.mode);
-        
+        const personaAndProductContext = `
+Sen, LOS SURENOS markasının baş stil danışmanısın. Bir asistan, müşteri için bir ön analiz raporu hazırladı. Senin görevin, bu raporu bir uzman gözüyle incelemek, tüm verileri değerlendirerek nihai ve en doğru beden kararını vermek ve bu kararını müşteriye açıklayan bir metin yazmak.
+- Ürün: Oversized Boxy Fit Tee, 220 GSM ağır pamuk, geniş ve modern kalıp.
+- Bedenler ve Ölçüler: S(Genişlik:60, Boy:70), M(62/72), L(64/74), XL(66/76).
+- KESİNLİKLE UYULMASI GEREKEN KURALLAR:
+  1. ASLA reklam veya marka övgüsü yapma.
+  2. SADECE S, M, L, XL bedenlerini kullan. Başka dilde veya başka bir kodla (XS, XXL vb.) asla bahsetme.
+  3. Yanıtını SADECE şu JSON formatında ver: {"recommendedSize":"L", "explanation":"..."} Başka hiçbir metin ekleme.
+`;
+        const assistantReport = `
+- **ASİSTAN RAPORU:**
+  - **Objektif Veriler:** Müşteri ${height}cm boyunda, ${weight}kg ağırlığında. Bu, Vücut Kitle İndeksi'ne (BMI) göre '${bmiCategory}' bir fizik anlamına geliyor.
+  - **Subjektif Veriler (Müşterinin Kendi Algısı):** Müşteri vücut tipini '${bodyType}', omuz genişliğini ise '${shoulderWidth}' olarak seçti.
+  - **Asistanın Ön Tavsiyesi:** Bizim kurallarımıza göre bu müşteri için **${preliminarySize}** beden uygun görünüyor.
+- **SENİN GÖREVİN (UZMAN GÖRÜŞÜ):**
+  Lütfen bu raporu incele. Asistanın ${preliminarySize} tavsiyesi sence de doğru mu? Yoksa müşterinin seçimleri, farklı bir bedenin daha iyi bir seçenek olabileceğine dair güçlü bir sinyal mi veriyor? Tüm bu verileri harmanlayarak **nihai kararını ver** ve \`recommendedSize\` olarak belirt. Ardından, bu nihai kararının arkasındaki mantığı, hem objektif verilere hem de müşterinin kendi algısına saygı gösteren kişisel bir dille \`explanation\` kısmında açıkla. Eğer müşterinin seçimi ile BMI arasında çelişki varsa, buna nazikçe değin.
+`;
         const payload = {
-            contents: [{ 
-                role: "user", 
-                parts: [{ text: prompt }] 
-            }],
+            contents: [{ role: "user", parts: [{ text: `${personaAndProductContext}\n${assistantReport}` }] }],
             generationConfig: {
                 responseMimeType: "application/json",
                 responseSchema: {
                     type: "OBJECT",
                     properties: {
-                        "recommendedSize": { 
-                            "type": "STRING", 
-                            "enum": ["S", "M", "L", "XL"] 
-                        },
-                        "confidence": { 
-                            "type": "NUMBER", 
-                            "minimum": 0, 
-                            "maximum": 100 
-                        },
-                        "explanation": { 
-                            "type": "STRING",
-                            "minLength": 50,
-                            "maxLength": 300
-                        },
-                        "fitAnalysis": {
-                            "type": "OBJECT",
-                            "properties": {
-                                "chestFit": { "type": "STRING" },
-                                "lengthFit": { "type": "STRING" },
-                                "shoulderFit": { "type": "STRING" },
-                                "overallFit": { "type": "STRING" }
-                            }
-                        },
-                        "alternativeSizes": {
-                            "type": "ARRAY",
-                            "items": {
-                                "type": "OBJECT",
-                                "properties": {
-                                    "size": { "type": "STRING" },
-                                    "reason": { "type": "STRING" }
-                                }
-                            }
-                        },
-                        "warnings": {
-                            "type": "ARRAY",
-                            "items": {
-                                "type": "STRING"
-                            }
-                        }
+                        "recommendedSize": { "type": "STRING", "enum": ["S", "M", "L", "XL"] },
+                        "explanation": { "type": "STRING" }
                     },
-                    "required": ["recommendedSize", "confidence", "explanation"]
+                    required: ["recommendedSize", "explanation"]
                 }
             }
         };
-        
-        return await callBackendAPI("/api/gemini", payload);
+        const result = await callBackendAPI("/api/gemini", payload);
+        // Gemini'den gelen metin JSON formatında olduğu için doğrudan parse ediyoruz.
+        return result ? JSON.parse(result.candidates[0].content.parts[0].text) : null;
     };
 
-    function createComprehensiveAnalysisReport(userData) {
-        const { height, weight, bodyType, shoulderWidth, teeWidth, teeLength, mode } = userData;
-        const bmi = weight / ((height / 100) * (height / 100));
-        
-        const physicalProfile = {
-            height: parseInt(height),
-            weight: parseInt(weight),
-            bmi: Math.round(bmi * 10) / 10,
-            bmiCategory: getBMICategory(bmi),
-            bodyType,
-            shoulderWidth,
-            estimatedChest: estimateChestWidth(parseInt(height), parseInt(weight), bodyType, shoulderWidth),
-            estimatedShoulder: estimateShoulderWidth(parseInt(height), bodyType, shoulderWidth),
-            bodyFrameType: getAdvancedBodyFrameType(bodyType, shoulderWidth, bmi)
-        };
-        
-        const productRequirements = {
-            minimumChestWidth: physicalProfile.estimatedChest + getMinimumComfort(bodyType),
-            idealChestWidth: physicalProfile.estimatedChest + getIdealComfort(bodyType),
-            minimumLength: getMinimumLength(parseInt(height)),
-            idealLength: getIdealLength(parseInt(height), bodyType)
-        };
-        
-        let currentGarmentAnalysis = null;
-        if (mode === 'measure' && teeWidth && teeLength) {
-            currentGarmentAnalysis = {
-                currentWidth: parseInt(teeWidth),
-                currentLength: parseInt(teeLength),
-                widthFeedback: analyzeCurrentFit(parseInt(teeWidth), physicalProfile.estimatedChest),
-                lengthFeedback: analyzeCurrentLength(parseInt(teeLength), parseInt(height), bodyType)
-            };
-        }
-        
-        return {
-            physicalProfile,
-            productRequirements,
-            currentGarmentAnalysis,
-            riskFactors: identifyRiskFactors(physicalProfile, bodyType, shoulderWidth),
-            specialConsiderations: getSpecialConsiderations(physicalProfile)
-        };
-    }
-
-    function getBMICategory(bmi) {
-        if (bmi < 16) return 'Ciddi Zayıflık';
-        if (bmi < 18.5) return 'Zayıf';
-        if (bmi < 25) return 'Normal';
-        if (bmi < 30) return 'Kilolu';
-        if (bmi < 35) return 'Obez (1. Derece)';
-        if (bmi < 40) return 'Obez (2. Derece)';
-        return 'Obez (3. Derece)';
-    }
-
-    function getAdvancedBodyFrameType(bodyType, shoulderWidth, bmi) {
-        const frameTypes = {
-            'İnce Yapılı': {
-                'Dar Omuz': bmi < 19 ? 'Çok İnce Dar Omuz' : 'İnce Dar Omuz',
-                'Normal Omuz': bmi < 19 ? 'Çok İnce Normal' : 'İnce Normal',
-                'Geniş Omuz': bmi < 19 ? 'İnce Geniş Omuz' : 'Athletic İnce'
-            },
-            'Standart Yapılı': {
-                'Dar Omuz': bmi < 25 ? 'Standart Dar' : 'Dolgun Dar',
-                'Normal Omuz': bmi < 25 ? 'İdeal Standart' : 'Dolgun Standart',
-                'Geniş Omuz': bmi < 25 ? 'Athletic Standart' : 'Güçlü Yapılı'
-            },
-            'İri Yapılı': {
-                'Dar Omuz': bmi < 30 ? 'İri Dar Omuz' : 'Ağır İri Dar',
-                'Normal Omuz': bmi < 30 ? 'Klasik İri' : 'Ağır İri',
-                'Geniş Omuz': bmi < 30 ? 'Güçlü İri' : 'Çok Ağır İri'
-            }
-        };
-        
-        return frameTypes[bodyType][shoulderWidth];
-    }
-
-    function identifyRiskFactors(profile, bodyType, shoulderWidth) {
-        const risks = [];
-        
-        if (profile.height < 160) {
-            risks.push('Çok kısa boy - standart bedenler uzun gelebilir');
-        } else if (profile.height > 190) {
-            risks.push('Çok uzun boy - standart bedenler kısa kalabilir');
-        }
-        
-        if (profile.bmi < 17) {
-            risks.push('Çok zayıf - tüm bedenler bol gelebilir');
-        } else if (profile.bmi > 35) {
-            risks.push('Ağır kilo - bedenler dar gelebilir');
-        }
-        
-        if (bodyType === 'İnce Yapılı' && profile.bmi > 27) {
-            risks.push('Vücut tipi algısı ile BMI arasında çelişki');
-        } else if (bodyType === 'İri Yapılı' && profile.bmi < 20) {
-            risks.push('Vücut tipi algısı ile BMI arasında çelişki');
-        }
-        
-        return risks;
-    }
-
-    function getSpecialConsiderations(profile) {
-        const considerations = [];
-        
-        if (profile.height < 165) {
-            considerations.push('Kısa boy için boy oranları kontrol edilmeli');
-        } else if (profile.height > 185) {
-            considerations.push('Uzun boy için yeterli boy uzunluğu kritik');
-        }
-        
-        if (profile.bmi < 18.5) {
-            considerations.push('Zayıf yapı için rahat kesim tercih edilmeli');
-        } else if (profile.bmi > 30) {
-            considerations.push('Ağır yapı için yeterli genişlik sağlanmalı');
-        }
-        
-        return considerations;
-    }
-
-    function getMinimumComfort(bodyType) {
-        const comfortMargins = {
-            'İnce Yapılı': 10,
-            'Standart Yapılı': 12,
-            'İri Yapılı': 15
-        };
-        return comfortMargins[bodyType] || 12;
-    }
-
-    function getIdealComfort(bodyType) {
-        const idealMargins = {
-            'İnce Yapılı': 16,
-            'Standart Yapılı': 18,
-            'İri Yapılı': 22
-        };
-        return idealMargins[bodyType] || 18;
-    }
-
-    function getMinimumLength(height) {
-        return Math.max(height * 0.35, 65);
-    }
-
-    function getIdealLength(height, bodyType) {
-        const baseLength = height * 0.38;
-        const typeAdjustment = {
-            'İnce Yapılı': 2,
-            'Standart Yapılı': 0,
-            'İri Yapılı': -1
-        };
-        return Math.round(baseLength + typeAdjustment[bodyType]);
-    }
-
-    function analyzeCurrentFit(currentWidth, estimatedChest) {
-        const difference = currentWidth - estimatedChest;
-        
-        if (difference < 8) return 'Mevcut tişört dar geliyor olabilir';
-        if (difference > 20) return 'Mevcut tişört çok bol geliyor olabilir';
-        if (difference >= 12 && difference <= 16) return 'Mevcut tişört ideal fit';
-        return 'Mevcut tişört kabul edilebilir fit';
-    }
-
-    function analyzeCurrentLength(currentLength, height, bodyType) {
-        const idealLength = getIdealLength(height, bodyType);
-        const difference = currentLength - idealLength;
-        
-        if (difference < -5) return 'Mevcut tişört kısa kalıyor olabilir';
-        if (difference > 8) return 'Mevcut tişört uzun geliyor olabilir';
-        if (Math.abs(difference) <= 3) return 'Mevcut tişört boy olarak ideal';
-        return 'Mevcut tişört boy olarak kabul edilebilir';
-    }
-
-    function buildAdvancedGeminiPrompt(analysisReport, mode) {
-        const basePersona = `
-🎯 UZMAN PROFIL: Sen LOS SURENOS markasının senior stil danışmanısın. 15 yıllık deneyimin var.
-
-📋 ÜRÜN SPESİFİKASYONLARI:
-- Ürün: Oversized Boxy Fit Tee (220 GSM ağır pamuk)
-- Kalıp: Modern, geniş, boxy kesim
-- Bedenler: S(60x70cm), M(62x72cm), L(64x74cm), XL(66x76cm)
-- Hedef: Rahat, modern oversize görünüm
-
-🔍 ANALİZ RAPORU:
-`;
-
-        const physicalAnalysis = `
-**FİZİKSEL PROFİL:**
-- Boy: ${analysisReport.physicalProfile.height}cm
-- Kilo: ${analysisReport.physicalProfile.weight}kg  
-- BMI: ${analysisReport.physicalProfile.bmi} (${analysisReport.physicalProfile.bmiCategory})
-- Vücut Tipi: ${analysisReport.physicalProfile.bodyType}
-- Omuz Genişliği: ${analysisReport.physicalProfile.shoulderWidth}
-- Tahmini Göğüs: ${analysisReport.physicalProfile.estimatedChest}cm
-- Vücut Çerçevesi: ${analysisReport.physicalProfile.bodyFrameType}
-`;
-
-        const requirements = `
-**ÜRÜN GEREKSİNİMLERİ:**
-- Minimum Genişlik: ${analysisReport.productRequirements.minimumChestWidth}cm
-- İdeal Genişlik: ${analysisReport.productRequirements.idealChestWidth}cm
-- Minimum Boy: ${analysisReport.productRequirements.minimumLength}cm
-- İdeal Boy: ${analysisReport.productRequirements.idealLength}cm
-`;
-
-        let currentGarmentSection = '';
-        if (analysisReport.currentGarmentAnalysis) {
-            currentGarmentSection = `
-**MEVCUT KIYAFET ANALİZİ:**
-- Mevcut Genişlik: ${analysisReport.currentGarmentAnalysis.currentWidth}cm
-- Mevcut Boy: ${analysisReport.currentGarmentAnalysis.currentLength}cm
-- Genişlik Değerlendirmesi: ${analysisReport.currentGarmentAnalysis.widthFeedback}
-- Boy Değerlendirmesi: ${analysisReport.currentGarmentAnalysis.lengthFeedback}
-`;
-        }
-
-        const riskSection = analysisReport.riskFactors.length > 0 ? `
-**RİSK FAKTÖRLERİ:**
-${analysisReport.riskFactors.map(risk => `- ${risk}`).join('\n')}
-` : '';
-
-        const considerationsSection = analysisReport.specialConsiderations.length > 0 ? `
-**ÖZEL DURUMLAR:**
-${analysisReport.specialConsiderations.map(consideration => `- ${consideration}`).join('\n')}
-` : '';
-
-        const expertTask = `
-🎯 UZMAN GÖREVİN:
-
-1. **KAPSAMLI DEĞERLENDİRME**: Tüm veriyi analiz et, çelişkileri tespit et
-2. **NİHAİ KARAR**: En uygun bedeni belirle (S/M/L/XL)
-3. **GÜVEN SKORU**: Kararının güvenilirlik yüzdesini ver (0-100)
-4. **DETAYLI AÇIKLAMA**: Kararının mantığını müşteriye açıkla
-5. **FIT ANALİZİ**: Göğüs, boy, omuz ve genel uyumu değerlendir
-6. **ALTERNATİFLER**: Varsa diğer seçenekleri ve nedenlerini belirt
-7. **UYARILAR**: Dikkat edilmesi gereken durumları belirt
-
-⚠️ MUTLAK KURALLAR:
-- SADECE S, M, L, XL kullan
-- Reklam yapma, marka övme
-- JSON formatında yanıtla
-- Kişisel ve samimi dil kullan
-- Fiziksel veriler ile algı arasındaki çelişkilere nazikçe değin
-
-${mode === 'measure' ? '📏 NOT: Müşteri mevcut ölçülerini verdi, bunu dikkate al.' : '🧙‍♂️ NOT: Müşteri wizard modunda, tahminlere dayalı karar ver.'}
-`;
-
-        return `${basePersona}${physicalAnalysis}${requirements}${currentGarmentSection}${riskSection}${considerationsSection}${expertTask}`;
-    }
-
-    // GELİŞMİŞ GÖRSEL OLUŞTURMA SİSTEMİ
-    const generateAdvancedFitPreview = async (userData) => {
+    const generateFitPreviewImage = async () => {
         const { height, weight, bodyType, shoulderWidth, recommendedSize } = userData;
+
+        const bodyTypeEn = enBodyTypes[bodyType] || 'Standard build';
+        const shoulderWidthEn = enShoulderWidths[shoulderWidth] || 'Standard shoulders';
+
+        const heightM = parseInt(height) / 100;
+        const bmi = parseInt(weight) / (heightM * heightM);
         
-        const physiqueProfile = createDetailedPhysiqueProfile(height, weight, bodyType, shoulderWidth);
-        const imagePrompt = buildAdvancedImagePrompt(physiqueProfile, recommendedSize);
+        let physiqueDescription = '';
         
+        if (parseInt(height) < 172) physiqueDescription += 'a short stature, ';
+        else if (parseInt(height) > 185) physiqueDescription += 'a tall stature, ';
+        else physiqueDescription += 'an average stature, ';
+
+        if (bmi < 19) physiqueDescription += 'and a noticeably underweight and slender body frame. Avoid any muscular or heavy appearance.';
+        else if (bmi >= 19 && bmi < 25) physiqueDescription += 'and a normal, athletic body frame. The physique should look balanced.';
+        else if (bmi >= 25 && bmi < 30) physiqueDescription += 'and a visibly overweight and stocky body frame. Emphasize a larger torso. Avoid a slim appearance.';
+        else physiqueDescription += 'and a clearly obese and heavy body frame. The physique must be large and thick. Avoid any slim or athletic appearance.';
+
+        const imagePrompt = `
+(A hyper-realistic 3D render of a male mannequin with ${physiqueDescription}:1.5), in a split-panel view (front and side).
+The t-shirt's drape and fit MUST accurately reflect how a size ${recommendedSize} garment would look on this specific body type. Show realistic fabric tension where needed, and looseness elsewhere.
+The mannequin wears a black, oversized, boxy-fit t-shirt and pale light-blue, baggy denim shorts.
+The background is solid pure white.
+The following text elements must be rendered in a clean, bold, sans-serif font:
+- Top Center: LOS SURENOS
+- Upper Left Corner (Front View): Height: ${height} cm, Weight: ${weight} kg, Body Type: ${bodyTypeEn}, Shoulder: ${shoulderWidthEn}, Size: ${recommendedSize}
+- Front View Measurement: A thin, horizontal, gray dashed line across the chest, labeled "Chest Width: ${TEE_SIZE_CHART[recommendedSize].width} cm".
+- Side View Measurement: A thin, vertical, gray dashed line from shoulder to hem, labeled "Length: ${TEE_SIZE_CHART[recommendedSize].length} cm".
+Crucial Negative Prompts: Do NOT include any Turkish characters or words. no headless mannequin, no missing limbs, no extra text, logos, watermarks, or shadows.
+`;
         const payload = {
             prompt: imagePrompt,
-            negativePrompt: buildNegativePrompt(physiqueProfile),
-            seed: generateConsistentSeed(physiqueProfile),
-            guidance_scale: 8.5,
-            num_inference_steps: 30,
-            reference_image_url: "https://cdn.myikas.com/images/theme-images/0591137d-8a0e-49da-98f0-cfb324d09223/image_1080.webp"
+            seed: 500097, // Görsel tutarlılığı için sabit seed
         };
         
-        return await callBackendAPI("/api/generate-image", payload);
+        const result = await callBackendAPI("/api/generate-image", payload);
+        
+        if (result && result.imageUrl) {
+            fitPreviewImage.src = result.imageUrl;
+            fitPreviewImage.onload = () => {
+                fitPreviewLoader.style.display = 'none';
+                fitPreviewImage.classList.remove('hidden');
+            };
+        } else {
+            showAlert(`Görsel oluşturulamadı: ${result?.error || 'Bilinmeyen bir hata oluştu.'}`);
+            fitPreviewLoader.innerHTML = `<p class="text-red-500 text-xs p-4">Önizleme oluşturulamadı.</p>`;
+        }
     };
 
-    function createDetailedPhysiqueProfile(height, weight, bodyType, shoulderWidth) {
-        const bmi = weight / ((height / 100) * (height / 100));
-        
-        return {
-            height: parseInt(height),
-            weight: parseInt(weight),
-            bmi,
-            bodyType,
-            shoulderWidth,
-            heightCategory: getDetailedHeightCategory(height),
-            weightCategory: getDetailedWeightCategory(bmi),
-            bodyFrame: getDetailedBodyFrame(bodyType, shoulderWidth, bmi),
-            torsoType: getTorsoType(bodyType, bmi),
-            limbProportions: getLimbProportions(height, weight),
-            postureType: getPostureType(bodyType, shoulderWidth),
-            visualDescriptors: getVisualDescriptors(height, weight, bmi, bodyType, shoulderWidth)
-        };
-    }
-
-    function getDetailedHeightCategory(height) {
-        if (height < 160) return { category: 'very_short', intensity: 'extreme' };
-        if (height < 165) return { category: 'very_short', intensity: 'moderate' };
-        if (height < 170) return { category: 'short', intensity: 'noticeable' };
-        if (height < 175) return { category: 'average', intensity: 'standard' };
-        if (height < 180) return { category: 'tall', intensity: 'noticeable' };
-        if (height < 185) return { category: 'very_tall', intensity: 'moderate' };
-        if (height < 190) return { category: 'very_tall', intensity: 'significant' };
-        return { category: 'extremely_tall', intensity: 'extreme' };
-    }
-
-    function getDetailedWeightCategory(bmi) {
-        if (bmi < 16) return { category: 'severely_underweight', intensity: 'extreme', description: 'very gaunt and skeletal' };
-        if (bmi < 18.5) return { category: 'underweight', intensity: 'significant', description: 'noticeably thin and lean' };
-        if (bmi < 20) return { category: 'lean', intensity: 'moderate', description: 'slim and athletic' };
-        if (bmi < 25) return { category: 'normal', intensity: 'standard', description: 'balanced and proportioned' };
-        if (bmi < 27) return { category: 'slightly_overweight', intensity: 'mild', description: 'slightly fuller' };
-        if (bmi < 30) return { category: 'overweight', intensity: 'moderate', description: 'noticeably heavier with visible softness' };
-        if (bmi < 35) return { category: 'obese_class1', intensity: 'significant', description: 'substantially overweight with prominent belly' };
-        if (bmi < 40) return { category: 'obese_class2', intensity: 'severe', description: 'very heavy with large torso and limbs' };
-        return { category: 'obese_class3', intensity: 'extreme', description: 'extremely heavy with very large proportions' };
-    }
-
-    function getDetailedBodyFrame(bodyType, shoulderWidth, bmi) {
-        const frameMatrix = {
-            'İnce Yapılı': {
-                'Dar Omuz': bmi < 20 ? 'ectomorph_narrow' : 'lean_narrow',
-                'Normal Omuz': bmi < 20 ? 'ectomorph_balanced' : 'lean_balanced',
-                'Geniş Omuz': bmi < 20 ? 'ectomorph_broad' : 'lean_broad'
-            },
-            'Standart Yapılı': {
-                'Dar Omuz': bmi < 25 ? 'mesomorph_narrow' : 'average_narrow',
-                'Normal Omuz': bmi < 25 ? 'mesomorph_balanced' : 'average_balanced',
-                'Geniş Omuz': bmi < 25 ? 'mesomorph_broad' : 'average_broad'
-            },
-            'İri Yapılı': {
-                'Dar Omuz': bmi < 30 ? 'endomorph_narrow' : 'heavy_narrow',
-                'Normal Omuz': bmi < 30 ? 'endomorph_balanced' : 'heavy_balanced',
-                'Geniş Omuz': bmi < 30 ? 'endomorph_broad' : 'heavy_broad'
-            }
-        };
-        
-        return frameMatrix[bodyType][shoulderWidth];
-    }
-
-    function getTorsoType(bodyType, bmi) {
-        if (bodyType === 'İnce Yapılı') {
-            return bmi < 19 ? 'very_narrow_torso' : 'narrow_torso';
-        } else if (bodyType === 'İri Yapılı') {
-            return bmi > 28 ? 'very_wide_torso' : 'wide_torso';
-        }
-        return bmi < 23 ? 'balanced_torso' : 'fuller_torso';
-    }
-
-    function getLimbProportions(height, weight) {
-        const bmi = weight / ((height / 100) * (height / 100));
-        
-        if (bmi < 19) return 'thin_limbs';
-        if (bmi < 25) return 'proportioned_limbs';
-        if (bmi < 30) return 'fuller_limbs';
-        return 'thick_limbs';
-    }
-
-    function getPostureType(bodyType, shoulderWidth) {
-        if (bodyType === 'İnce Yapılı' && shoulderWidth === 'Dar Omuz') {
-            return 'slouched_posture';
-        } else if (bodyType === 'İri Yapılı' && shoulderWidth === 'Geniş Omuz') {
-            return 'broad_confident_posture';
-        }
-        return 'standard_posture';
-    }
-
-    function getVisualDescriptors(height, weight, bmi, bodyType, shoulderWidth) {
-        const descriptors = [];
-        
-        if (height < 165) descriptors.push('noticeably short stature');
-        else if (height > 185) descriptors.push('tall and imposing stature');
-        
-        if (bmi < 18.5) descriptors.push('very lean and slender build');
-        else if (bmi >= 30) descriptors.push('heavy-set and substantial build');
-        else if (bmi >= 25) descriptors.push('fuller and stockier build');
-        
-        if (bodyType === 'İnce Yapılı') {
-            descriptors.push('naturally thin frame');
-        } else if (bodyType === 'İri Yapılı') {
-            descriptors.push('naturally broad and thick frame');
-        }
-        
-        if (shoulderWidth === 'Dar Omuz') {
-            descriptors.push('narrow and sloping shoulders');
-        } else if (shoulderWidth === 'Geniş Omuz') {
-            descriptors.push('wide and strong shoulders');
-        }
-        
-        return descriptors;
-    }
-
-    function buildAdvancedImagePrompt(profile, recommendedSize) {
-        const basePrompt = `Ultra-realistic 3D render of a male mannequin in a professional product photography setting.`;
-        
-        const physicalDescription = buildPhysicalDescription(profile);
-        const clothingDescription = `wearing a black, oversized, boxy-fit cotton t-shirt (size ${recommendedSize}) and light blue relaxed-fit denim shorts`;
-        const poseDescription = getPoseDescription(profile.postureType);
-        const technicalSpecs = `Split-panel view (front and side), studio lighting, white background, photorealistic rendering, high detail, 4K quality`;
-        const measurementLines = `Include thin gray measurement lines: horizontal chest line labeled "Chest: ${TEE_SIZE_CHART[recommendedSize].width}cm", vertical length line labeled "Length: ${TEE_SIZE_CHART[recommendedSize].length}cm"`;
-        const brandInfo = `"LOS SURENOS" text at top center in clean sans-serif font`;
-        
-        return `${basePrompt} ${physicalDescription} ${clothingDescription}. ${poseDescription}. ${technicalSpecs}. ${measurementLines}. ${brandInfo}.`;
-    }
-
-    function buildPhysicalDescription(profile) {
-        const parts = [];
-        
-        if (profile.heightCategory.category === 'very_short') {
-            parts.push(`A noticeably short male figure (${profile.height}cm)`);
-        } else if (profile.heightCategory.category === 'very_tall') {
-            parts.push(`A tall male figure (${profile.height}cm)`);
-        } else {
-            parts.push(`A ${profile.heightCategory.category} height male figure (${profile.height}cm)`);
-        }
-        
-        parts.push(`with ${profile.weightCategory.description}`);
-        
-        if (profile.bodyFrame.includes('narrow')) {
-            parts.push('narrow shoulders and slim torso');
-        } else if (profile.bodyFrame.includes('broad')) {
-            parts.push('broad shoulders and wide torso');
-        }
-        
-        if (profile.visualDescriptors.length > 0) {
-            parts.push(`emphasizing ${profile.visualDescriptors.join(', ')}`);
-        }
-        
-        return parts.join(' ');
-    }
-
-    function getPoseDescription(postureType) {
-        const poses = {
-            'slouched_posture': 'relaxed, slightly slouched posture',
-            'broad_confident_posture': 'confident, upright posture with shoulders back',
-            'standard_posture': 'natural, balanced posture'
-        };
-        
-        return poses[postureType] || 'natural standing pose';
-    }
-
-    function buildNegativePrompt(profile) {
-        const negatives = [
-            'headless mannequin',
-            'missing limbs',
-            'extra limbs',
-            'distorted proportions',
-            'unrealistic anatomy',
-            'blurry image',
-            'low quality',
-            'watermarks',
-            'text overlays',
-            'logos',
-            'shadows on background'
-        ];
-        
-        if (profile.weightCategory.category === 'severely_underweight') {
-            negatives.push('muscular build', 'heavy appearance', 'thick limbs');
-        } else if (profile.weightCategory.category.includes('obese')) {
-            negatives.push('thin build', 'lean appearance', 'muscular definition');
-        }
-        
-        if (profile.heightCategory.category === 'very_short') {
-            negatives.push('tall appearance', 'long limbs', 'elongated proportions');
-        } else if (profile.heightCategory.category === 'very_tall') {
-            negatives.push('short appearance', 'compact build', 'stocky proportions');
-        }
-        
-        return negatives.join(', ');
-    }
-
-    function generateConsistentSeed(profile) {
-        const seedBase = profile.height + profile.weight + 
-                         profile.bodyType.charCodeAt(0) + 
-                         profile.shoulderWidth.charCodeAt(0);
-        
-        return 500000 + (seedBase % 99999);
-    }
-
+    // TEK BİR BACKEND ÇAĞRI FONKSİYONU
     const callBackendAPI = async (endpoint, payload) => {
         try {
             const response = await fetch(endpoint, {
@@ -1356,7 +710,6 @@ ${mode === 'measure' ? '📏 NOT: Müşteri mevcut ölçülerini verdi, bunu dik
         }
     };
 
-    // ANA ANALİZ FONKSİYONU
     const runAnalysis = async () => {
         userData.height = heightSlider.value;
         userData.weight = weightSlider.value;
@@ -1372,165 +725,49 @@ ${mode === 'measure' ? '📏 NOT: Müşteri mevcut ölçülerini verdi, bunu dik
         
         showStep('step-loader');
 
-        try {
-            // Gelişmiş beden tahmini algoritması
-            const preliminaryResult = getImprovedSizeRecommendation(
-                parseInt(userData.height),
-                parseInt(userData.weight),
-                userData.bodyType,
-                userData.shoulderWidth,
-                userData.mode === 'measure' ? parseInt(userData.teeWidth) : null,
-                userData.mode === 'measure' ? parseInt(userData.teeLength) : null
-            );
+        // Asistan Raporu Hazırlığı
+        const height = parseInt(userData.height);
+        const weight = parseInt(userData.weight);
+        const bmi = weight / ((height / 100) * (height / 100));
+        let bmiCategory = 'Normal';
+        if (bmi < 19) bmiCategory = 'Zayıf';
+        else if (bmi >= 25 && bmi < 30) bmiCategory = 'Kilolu';
+        else if (bmi >= 30) bmiCategory = 'Obez';
+        
+        const preliminarySize = getPreliminaryRecommendation(height, weight, userData.bodyType, userData.shoulderWidth);
 
-            // Gemini AI uzman görüşü
-            const geminiResult = await getAdvancedGeminiRecommendation(userData);
+        const preliminaryData = {
+            height, weight, bmiCategory, 
+            bodyType: userData.bodyType, 
+            shoulderWidth: userData.shoulderWidth, 
+            preliminarySize
+        };
+        
+        // Uzman Görüşü Alma
+        let result = await getGeminiFinalRecommendation(preliminaryData);
 
-            if (geminiResult && geminiResult.recommendedSize) {
-                // Gemini sonuçlarını kullan
-                userData.recommendedSize = geminiResult.recommendedSize;
-                userData.explanation = geminiResult.explanation;
-                userData.confidence = geminiResult.confidence || preliminaryResult.confidence;
-                userData.fitAnalysis = geminiResult.fitAnalysis;
-                userData.alternativeSizes = geminiResult.alternativeSizes;
-                userData.warnings = geminiResult.warnings;
-            } else {
-                // Fallback: Gelişmiş algoritma sonuçlarını kullan
-                userData.recommendedSize = preliminaryResult.recommendedSize;
-                userData.explanation = preliminaryResult.reasoning;
-                userData.confidence = preliminaryResult.confidence;
-            }
+        if (!result) { // Gemini'den cevap gelmezse, kural tabanlıyı kullan
+            result = {
+                recommendedSize: preliminarySize,
+                explanation: `Vücut ölçülerinize göre sizin için en uygun bedenin ${preliminarySize} olduğunu düşünüyoruz. Bu beden, tişörtün üzerinizde modern ve rahat bir oversize duruş sergilemesini sağlayacaktır.`
+            };
+        }
+        
+        userData.recommendedSize = result.recommendedSize;
+        userData.explanation = result.explanation;
+        document.getElementById('result-size').textContent = result.recommendedSize;
+        document.getElementById('add-to-cart-btn').textContent = `Beden ${result.recommendedSize} Sepete Ekle`;
+        resultDescription.textContent = result.explanation;
+        
+        showStep('step-result');
 
-            // Sonuçları göster
-            updateResultUI();
-            showStep('step-result');
-
-            // Görsel oluştur (sadece wizard modunda)
-            if (userData.mode === 'wizard') {
-                await generateAdvancedFitPreview(userData);
-            } else {
-                document.getElementById('ai-fit-preview-section').style.display = 'none';
-            }
-
-        } catch (error) {
-            console.error('Analiz hatası:', error);
-            showAlert('Analiz sırasında bir hata oluştu. Lütfen tekrar deneyin.');
-            showStep('step-5');
+        if (userData.mode === 'wizard') {
+             generateFitPreviewImage();
+        } else {
+            document.getElementById('ai-fit-preview-section').style.display = 'none';
         }
     };
 
-    // SONUÇ UI GÜNCELLEMESİ
-    function updateResultUI() {
-        // Temel bilgiler
-        document.getElementById('result-size').textContent = userData.recommendedSize;
-        document.getElementById('add-to-cart-btn').textContent = `Beden ${userData.recommendedSize} Sepete Ekle`;
-        resultDescription.textContent = userData.explanation;
-        
-        // Güven skoru göster
-        if (userData.confidence) {
-            const confidenceElement = document.getElementById('confidence-score');
-            if (confidenceElement) {
-                confidenceElement.textContent = `Güven: %${Math.round(userData.confidence)}`;
-                confidenceElement.className = userData.confidence > 80 ? 'text-green-600 font-semibold' : 
-                                             userData.confidence > 60 ? 'text-yellow-600 font-semibold' : 'text-red-600 font-semibold';
-            }
-        }
-        
-        // Fit analizi göster
-        if (userData.fitAnalysis) {
-            updateFitAnalysisUI(userData.fitAnalysis);
-        }
-        
-        // Alternatif bedenler göster
-        if (userData.alternativeSizes && userData.alternativeSizes.length > 0) {
-            updateAlternativeSizesUI(userData.alternativeSizes);
-        }
-        
-        // Uyarılar göster
-        if (userData.warnings && userData.warnings.length > 0) {
-            updateWarningsUI(userData.warnings);
-        }
-    }
-
-    function updateFitAnalysisUI(fitAnalysis) {
-        const fitContainer = document.getElementById('fit-analysis-container');
-        if (fitContainer) {
-            fitContainer.innerHTML = `
-                <div class="bg-gray-50 p-4 rounded-lg mt-4">
-                    <h4 class="font-semibold mb-2">Detaylı Fit Analizi:</h4>
-                    <div class="grid grid-cols-2 gap-2 text-sm">
-                        <div><strong>Göğüs:</strong> ${fitAnalysis.chestFit}</div>
-                        <div><strong>Boy:</strong> ${fitAnalysis.lengthFit}</div>
-                        <div><strong>Omuz:</strong> ${fitAnalysis.shoulderFit}</div>
-                        <div><strong>Genel:</strong> ${fitAnalysis.overallFit}</div>
-                    </div>
-                </div>
-            `;
-        }
-    }
-
-    function updateAlternativeSizesUI(alternativeSizes) {
-        const altContainer = document.getElementById('alternative-sizes-container');
-        if (altContainer && alternativeSizes.length > 0) {
-            const altHTML = alternativeSizes.map(alt => 
-                `<div class="bg-blue-50 p-2 rounded text-sm">
-                    <strong>${alt.size}:</strong> ${alt.reason}
-                </div>`
-            ).join('');
-            
-            altContainer.innerHTML = `
-                <div class="mt-4">
-                    <h4 class="font-semibold mb-2">Alternatif Seçenekler:</h4>
-                    <div class="space-y-2">${altHTML}</div>
-                </div>
-            `;
-        }
-    }
-
-    function updateWarningsUI(warnings) {
-        const warningContainer = document.getElementById('warnings-container');
-        if (warningContainer && warnings.length > 0) {
-            const warningHTML = warnings.map(warning => 
-                `<div class="bg-yellow-50 border-l-4 border-yellow-400 p-2 text-sm">
-                    ⚠️ ${warning}
-                </div>`
-            ).join('');
-            
-            warningContainer.innerHTML = `
-                <div class="mt-4">
-                    <h4 class="font-semibold mb-2 text-yellow-700">Dikkat Edilmesi Gerekenler:</h4>
-                    <div class="space-y-2">${warningHTML}</div>
-                </div>
-            `;
-        }
-    }
-
-    // GÖRSEL OLUŞTURMA FONKSİYONU
-    const generateFitPreviewImage = async () => {
-        try {
-            fitPreviewLoader.style.display = 'flex';
-            fitPreviewImage.classList.add('hidden');
-            
-            const result = await generateAdvancedFitPreview(userData);
-            
-            if (result && result.imageUrl) {
-                fitPreviewImage.src = result.imageUrl;
-                fitPreviewImage.onload = () => {
-                    fitPreviewLoader.style.display = 'none';
-                    fitPreviewImage.classList.remove('hidden');
-                };
-            } else {
-                showAlert(`Görsel oluşturulamadı: ${result?.error || 'Bilinmeyen hata'}`);
-                fitPreviewLoader.innerHTML = `<p class="text-red-500 text-xs p-4">Önizleme oluşturulamadı.</p>`;
-            }
-        } catch (error) {
-            console.error('Görsel oluşturma hatası:', error);
-            showAlert('Görsel oluşturulurken hata oluştu.');
-            fitPreviewLoader.innerHTML = `<p class="text-red-500 text-xs p-4">Görsel oluşturulamadı.</p>`;
-        }
-    };
-
-    // RESET FONKSİYONU
     const resetWizard = () => {
         userData = {};
         showStep('step-1');
@@ -1547,16 +784,8 @@ ${mode === 'measure' ? '📏 NOT: Müşteri mevcut ölçülerini verdi, bunu dik
             fitPreviewImage.classList.add('hidden');
             fitPreviewImage.src = "";
         }
-        
-        // Sonuç konteynerlarını temizle
-        const containers = ['fit-analysis-container', 'alternative-sizes-container', 'warnings-container'];
-        containers.forEach(id => {
-            const element = document.getElementById(id);
-            if (element) element.innerHTML = '';
-        });
     };
 
-    // İNİSYALİZASYON
     lucide.createIcons();
     resetWizard();
 });
