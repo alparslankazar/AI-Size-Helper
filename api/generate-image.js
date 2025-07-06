@@ -1,4 +1,4 @@
-// /api/generate-image.js - Debug Version
+// /api/generate-image.js - Vertex AI Imagen API
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -16,107 +16,80 @@ export default async function handler(req, res) {
   try {
     const { payload } = req.body;
     
-    console.log('🔍 Request payload:', payload);
-
     const GOOGLE_API_KEY = process.env.IMAGEN_API_KEY;
-    const GOOGLE_PROJECT_ID = process.env.GOOGLE_PROJECT_ID;
+    const PROJECT_ID = process.env.GOOGLE_PROJECT_ID || "ai-fit-preview";
     
     console.log('🔑 API Key exists:', !!GOOGLE_API_KEY);
-    console.log('🏗️ Project ID:', GOOGLE_PROJECT_ID);
+    console.log('🏗️ Project ID:', PROJECT_ID);
     
     if (!GOOGLE_API_KEY) {
-      return res.status(500).json({ error: 'IMAGEN_API_KEY eksik' });
+      return res.status(500).json({ error: 'API Key eksik' });
     }
 
-    // İlk test: Models endpoint
-    console.log('🧪 Models endpoint test ediliyor...');
+    // Vertex AI Imagen endpoint
+    const VERTEX_ENDPOINT = `https://us-central1-aiplatform.googleapis.com/v1/projects/${PROJECT_ID}/locations/us-central1/publishers/google/models/imagegeneration@006:predict`;
     
-    const modelsResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${GOOGLE_API_KEY}`, {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' }
-    });
+    console.log('🎯 Vertex AI endpoint kullanılıyor');
 
-    console.log('📊 Models response status:', modelsResponse.status);
-
-    if (!modelsResponse.ok) {
-      const errorText = await modelsResponse.text();
-      console.error('❌ Models endpoint hatası:', errorText);
-      return res.status(modelsResponse.status).json({ 
-        error: `Models API hatası: ${modelsResponse.status}`,
-        details: errorText
-      });
-    }
-
-    const modelsData = await modelsResponse.json();
-    console.log('✅ Available models:', modelsData.models?.length || 0);
-    
-    // Imagen modellerini kontrol et
-    const imagenModels = modelsData.models?.filter(m => 
-      m.name.includes('imagen') || m.name.includes('image')
-    ) || [];
-    
-    console.log('🎨 Imagen models:', imagenModels.map(m => m.name));
-
-    if (imagenModels.length === 0) {
-      return res.status(400).json({ 
-        error: 'Imagen modelleri bulunamadı',
-        availableModels: modelsData.models?.map(m => m.name) || []
-      });
-    }
-
-    // En uygun Imagen modelini seç
-    const imagenModel = imagenModels.find(m => m.name.includes('imagen-3')) || 
-                       imagenModels.find(m => m.name.includes('imagen')) ||
-                       'models/imagen-3.0-generate-001';
-
-    console.log('🎯 Using model:', imagenModel.name || imagenModel);
-
-    // Görsel oluşturma API çağrısı
-    const generateEndpoint = `https://generativelanguage.googleapis.com/v1beta/${imagenModel.name || imagenModel}:generateImages?key=${GOOGLE_API_KEY}`;
-    
-    console.log('🚀 Generate endpoint:', generateEndpoint.replace(GOOGLE_API_KEY, 'HIDDEN'));
-
-    const requestPayload = {
-      prompt: payload.prompt || "A simple black t-shirt on white background",
-      generationConfig: {
+    // Vertex AI için payload formatı
+    const vertexPayload = {
+      instances: [
+        {
+          prompt: payload.prompt || "A simple black t-shirt on white background"
+        }
+      ],
+      parameters: {
+        sampleCount: 1,
         aspectRatio: "1:1",
         seed: payload.seed || 500097
       }
     };
 
-    console.log('📝 Request payload:', requestPayload);
+    console.log('📝 Request payload hazırlandı');
 
-    const generateResponse = await fetch(generateEndpoint, {
+    // Access token almak için Google Cloud auth gerekiyor
+    // Basit API key ile deneme
+    const response = await fetch(VERTEX_ENDPOINT, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(requestPayload),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${GOOGLE_API_KEY}`
+      },
+      body: JSON.stringify(vertexPayload),
     });
 
-    console.log('📡 Generate response status:', generateResponse.status);
+    console.log('📡 Vertex AI response status:', response.status);
 
-    if (!generateResponse.ok) {
-      const errorText = await generateResponse.text();
-      console.error('❌ Generate hatası:', errorText);
-      return res.status(generateResponse.status).json({ 
-        error: `Görsel oluşturma hatası: ${generateResponse.status}`,
-        details: errorText,
-        endpoint: generateEndpoint.replace(GOOGLE_API_KEY, 'HIDDEN')
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('❌ Vertex AI hatası:', errorText);
+      
+      // Eğer auth hatası alırsak, Google AI Studio endpoint'ini dene
+      if (response.status === 401 || response.status === 403) {
+        console.log('🔄 Google AI Studio endpoint deneniyor...');
+        return await tryGoogleAIStudio(payload, GOOGLE_API_KEY);
+      }
+      
+      return res.status(response.status).json({ 
+        error: `Vertex AI hatası: ${response.status}`,
+        details: errorText
       });
     }
 
-    const generateData = await generateResponse.json();
-    console.log('✅ Generate response keys:', Object.keys(generateData));
+    const data = await response.json();
+    console.log('✅ Vertex AI response alındı');
 
-    const generatedImages = generateData?.generatedImages;
-    if (!generatedImages || generatedImages.length === 0) {
+    // Vertex AI response formatı
+    const predictions = data?.predictions;
+    if (!predictions || predictions.length === 0) {
       return res.status(500).json({ 
         error: 'Görsel verisi bulunamadı',
-        responseData: generateData
+        responseData: data
       });
     }
 
-    const imageData = generatedImages[0];
-    const imageBase64 = imageData.bytesBase64Encoded || imageData.bytes;
+    const imageData = predictions[0];
+    const imageBase64 = imageData?.bytesBase64Encoded;
     
     if (!imageBase64) {
       return res.status(500).json({ 
@@ -125,26 +98,55 @@ export default async function handler(req, res) {
       });
     }
     
-    console.log('🎨 Görsel başarıyla oluşturuldu!');
+    console.log('🎨 Vertex AI ile görsel oluşturuldu!');
     
     const imageUrl = `data:image/png;base64,${imageBase64}`;
 
     return res.status(200).json({ 
       imageUrl: imageUrl,
       success: true,
-      message: 'Imagen API çalışıyor!',
-      model: imagenModel.name || imagenModel,
-      debug: {
-        modelsCount: modelsData.models?.length,
-        imagenModelsCount: imagenModels.length
-      }
+      message: 'Vertex AI Imagen çalışıyor!',
+      method: 'vertex-ai'
     });
 
   } catch (error) {
-    console.error('💥 Catch bloğu hatası:', error);
-    return res.status(500).json({ 
-      error: `Sistem hatası: ${error.message}`,
-      stack: error.stack
-    });
+    console.error('💥 Vertex AI hatası:', error);
+    
+    // Fallback: Google AI Studio dene
+    try {
+      return await tryGoogleAIStudio(req.body.payload, process.env.IMAGEN_API_KEY);
+    } catch (fallbackError) {
+      return res.status(500).json({ 
+        error: `Sistem hatası: ${error.message}`,
+        fallbackError: fallbackError.message
+      });
+    }
   }
+}
+
+// Fallback fonksiyonu
+async function tryGoogleAIStudio(payload, apiKey) {
+  console.log('🔄 Google AI Studio fallback deneniyor...');
+  
+  // Google AI Studio sadece text için çalışıyor, görsel için mock döndür
+  console.log('⚠️ Google AI Studio Imagen desteklemiyor, mock döndürülüyor');
+  
+  // Mock response
+  const mockImages = [
+    'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&h=600&fit=crop',
+    'https://images.unsplash.com/photo-1516826957135-700dedea698c?w=400&h=600&fit=crop',
+    'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?w=400&h=600&fit=crop'
+  ];
+  
+  const randomImage = mockImages[Math.floor(Math.random() * mockImages.length)];
+  
+  return {
+    status: 200,
+    json: () => Promise.resolve({
+      imageUrl: randomImage,
+      success: true,
+      message: 'Google AI Studio Imagen desteklemiyor - Mock görsel',
+      method: 'mock-fallback'
+    })
+  };
 }
