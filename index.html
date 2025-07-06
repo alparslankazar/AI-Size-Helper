@@ -274,7 +274,7 @@
             </div>
         </div>
         <div class="wizard-inner-scroll">
-            <!-- Adım 0: Yaş ve Cinsiyet (GÜNCELLENDİ) -->
+            <!-- Adım 0: Yaş ve Cinsiyet -->
             <div id="step-0" class="wizard-step active text-center">
                 <h3 class="wizard-title">Seni Tanıyalım</h3>
                 <p class="wizard-label">Doğru öneri için bu iki bilgi önemli.</p>
@@ -540,7 +540,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const showStep = (stepId) => {
         if (currentStepId === 'step-0' && stepId === 'step-1') {
             if (!userData.age) {
-                userData.age = ageSlider.value; // Slider'ın başlangıç değerini al
+                userData.age = ageSlider.value;
             }
             if (!userData.gender) {
                 genderAlert.style.display = "block"; setTimeout(() => genderAlert.style.display = "none", 1800); return;
@@ -606,10 +606,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // KURAL TABANLI ÖN TAVSİYE (ASİSTANIN GÖREVİ)
-    function getPreliminaryRecommendation(height, weight, age, gender, bodyType, shoulderWidth) {
-        let baseSize;
+    // KURAL TABANLI BEDEN HESAPLAMA
+    function getRuleBasedRecommendation(height, weight, age, gender, bodyType, shoulderWidth) {
         const ageGroup = age < 18 ? 'Genç' : 'Yetişkin';
+        let baseSize;
 
         if (gender === 'Erkek') {
             if (ageGroup === 'Yetişkin') {
@@ -668,27 +668,27 @@ document.addEventListener('DOMContentLoaded', () => {
         return sizes[finalIndex];
     }
 
-    // GEMINI AI PROMPT & CALL (UZMANIN GÖREVİ)
-    const getGeminiFinalRecommendation = async (preliminaryData) => {
-        const { height, weight, bmiCategory, bodyType, shoulderWidth, preliminarySize, gender, age } = preliminaryData;
+    // GEMINI AI YORUMCU PROMPT'U
+    const getGeminiExplanation = async (analysisData) => {
+        const { height, weight, bmiCategory, bodyType, shoulderWidth, finalSize, gender, age } = analysisData;
         
         const personaAndProductContext = `
-Sen, LOS SURENOS markasının baş stil danışmanısın. Bir asistan, müşteri için bir ön analiz raporu hazırladı. Senin görevin, bu raporu bir uzman gözüyle incelemek, tüm verileri değerlendirerek nihai ve en doğru beden kararını vermek ve bu kararını müşteriye açıklayan bir metin yazmak.
+Sen, LOS SURENOS markasının baş stil danışmanısın. Bir asistan, müşteri için bir analiz yaptı ve bedene karar verdi. Senin görevin, bu kararı müşteriye en iyi şekilde açıklayan bir metin yazmak.
 - Ürün: Oversized Boxy Fit Tee, 220 GSM ağır pamuk, geniş ve modern kalıp.
 - Bedenler ve Ölçüler: S(Genişlik:60, Boy:70), M(62/72), L(64/74), XL(66/76).
 - KESİNLİKLE UYULMASI GEREKEN KURALLAR:
   1. ASLA reklam veya marka övgüsü yapma.
   2. SADECE S, M, L, XL bedenlerini kullan. Başka dilde veya başka bir kodla (XS, XXL vb.) asla bahsetme.
-  3. Yanıtını SADECE şu JSON formatında ver: {"recommendedSize":"L", "explanation":"..."} Başka hiçbir metin ekleme.
+  3. Yanıtını SADECE şu JSON formatında ver: {"explanation":"..."} Başka hiçbir metin ekleme.
 `;
         const assistantReport = `
-- **ASİSTAN RAPORU:**
+- **ASİSTAN KARARI:**
   - **Müşteri Profili:** ${age} yaşında, ${gender}.
   - **Objektif Veriler:** Müşteri ${height}cm boyunda, ${weight}kg ağırlığında. Bu, Vücut Kitle İndeksi'ne (BMI) göre '${bmiCategory}' bir fizik anlamına geliyor.
   - **Subjektif Veriler (Müşterinin Kendi Algısı):** Müşteri vücut tipini '${bodyType}', omuz genişliğini ise '${shoulderWidth}' olarak seçti.
-  - **Asistanın Ön Tavsiyesi:** Bizim kurallarımıza göre bu müşteri için **${preliminarySize}** beden uygun görünüyor.
-- **SENİN GÖREVİN (UZMAN GÖRÜŞÜ):**
-  Lütfen bu raporu incele. Asistanın ${preliminarySize} tavsiyesi sence de doğru mu? Yoksa müşterinin seçimleri, farklı bir bedenin daha iyi bir seçenek olabileceğine dair güçlü bir sinyal mi veriyor? Tüm bu verileri harmanlayarak **nihai kararını ver** ve \`recommendedSize\` olarak belirt. Ardından, bu nihai kararının arkasındaki mantığı, hem objektif verilere hem de müşterinin kendi algısına saygı gösteren kişisel bir dille \`explanation\` kısmında açıkla. Eğer müşterinin seçimi ile BMI arasında çelişki varsa, buna nazikçe değin.
+  - **VERİLEN KARAR:** Bu müşteri için en uygun beden **${finalSize}**.
+- **SENİN GÖREVİN (YORUMCULUK):**
+  Lütfen asistanın verdiği **${finalSize}** beden kararını temel alarak, bunun neden doğru bir seçim olduğunu müşteriye açıkla. Hem objektif verilere (BMI, boy) hem de müşterinin kendi algısına (vücut tipi, omuz seçimi) saygı gösteren kişisel bir dil kullan. Eğer müşterinin seçimi ile BMI arasında çelişki varsa, buna nazikçe değin.
 `;
         const payload = {
             contents: [{ role: "user", parts: [{ text: `${personaAndProductContext}\n${assistantReport}` }] }],
@@ -696,11 +696,8 @@ Sen, LOS SURENOS markasının baş stil danışmanısın. Bir asistan, müşteri
                 responseMimeType: "application/json",
                 responseSchema: {
                     type: "OBJECT",
-                    properties: {
-                        "recommendedSize": { "type": "STRING", "enum": ["S", "M", "L", "XL"] },
-                        "explanation": { "type": "STRING" }
-                    },
-                    required: ["recommendedSize", "explanation"]
+                    properties: { "explanation": { "type": "STRING" } },
+                    required: ["explanation"]
                 }
             }
         };
@@ -745,7 +742,7 @@ Crucial Negative Prompts: Do NOT include any Turkish characters or words. no hea
 `;
         const payload = {
             prompt: imagePrompt,
-            seed: 500097,
+            seed: 12345,
         };
         
         const result = await callBackendAPI("/api/generate-image", payload);
@@ -804,34 +801,36 @@ Crucial Negative Prompts: Do NOT include any Turkish characters or words. no hea
         else if (bmi >= 25 && bmi < 30) bmiCategory = 'Kilolu';
         else if (bmi >= 30) bmiCategory = 'Obez';
         
-        const preliminarySize = getPreliminaryRecommendation(height, weight, userData.age, userData.gender, userData.bodyType, userData.shoulderWidth);
+        // 1. KARAR: Beden, kural tabanlı sistem tarafından kesin olarak hesaplanır.
+        const finalSize = getPreliminaryRecommendation(height, weight, userData.age, userData.gender, userData.bodyType, userData.shoulderWidth);
+        userData.recommendedSize = finalSize;
 
-        const preliminaryData = {
+        // 2. YORUM: Yapay zekaya, bizim verdiğimiz kararı açıklaması için rapor gönderilir.
+        const analysisData = {
             height, weight, bmiCategory, 
             bodyType: userData.bodyType, 
             shoulderWidth: userData.shoulderWidth, 
-            preliminarySize,
+            preliminarySize: finalSize, // Asistanın kararı = Nihai karar
             gender: userData.gender,
             age: userData.age
         };
         
-        let result = await getGeminiFinalRecommendation(preliminaryData);
+        let geminiResult = await getGeminiFinalRecommendation(analysisData);
 
-        if (!result) {
-            result = {
-                recommendedSize: preliminarySize,
-                explanation: `Vücut ölçülerinize göre sizin için en uygun bedenin ${preliminarySize} olduğunu düşünüyoruz. Bu beden, tişörtün üzerinizde modern ve rahat bir oversize duruş sergilemesini sağlayacaktır.`
-            };
+        if (!geminiResult || !geminiResult.explanation) {
+            userData.explanation = `Vücut ölçülerinize göre sizin için en uygun bedenin ${finalSize} olduğunu düşünüyoruz. Bu beden, tişörtün üzerinizde modern ve rahat bir oversize duruş sergilemesini sağlayacaktır.`;
+        } else {
+            userData.explanation = geminiResult.explanation;
         }
         
-        userData.recommendedSize = result.recommendedSize;
-        userData.explanation = result.explanation;
-        document.getElementById('result-size').textContent = result.recommendedSize;
-        document.getElementById('add-to-cart-btn').textContent = `Beden ${result.recommendedSize} Sepete Ekle`;
-        resultDescription.textContent = result.explanation;
+        // 3. GÖSTERİM: Sonuçlar ekrana yazdırılır.
+        document.getElementById('result-size').textContent = userData.recommendedSize;
+        document.getElementById('add-to-cart-btn').textContent = `Beden ${userData.recommendedSize} Sepete Ekle`;
+        resultDescription.textContent = userData.explanation;
         
         showStep('step-result');
 
+        // 4. GÖRSELLEŞTİRME: Nihai karara göre görsel oluşturulur.
         if (userData.mode === 'wizard') {
              generateFitPreviewImage();
         } else {
@@ -841,7 +840,6 @@ Crucial Negative Prompts: Do NOT include any Turkish characters or words. no hea
 
     const resetWizard = () => {
         userData = {};
-        // HATA DÜZELTMESİ: Başlangıçta yaş değerini ata
         userData.age = ageSlider.value;
         ageValueDisplay.textContent = ageSlider.value;
         
@@ -868,4 +866,3 @@ Crucial Negative Prompts: Do NOT include any Turkish characters or words. no hea
 
 </body>
 </html>
-
