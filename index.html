@@ -802,7 +802,7 @@ Crucial Negative Prompts: Do NOT include any Turkish characters or words. no hea
         else if (bmi >= 30) bmiCategory = 'Obez';
         
         // 1. KARAR: Beden, kural tabanlı sistem tarafından kesin olarak hesaplanır.
-        const finalSize = getPreliminaryRecommendation(height, weight, userData.age, userData.gender, userData.bodyType, userData.shoulderWidth);
+        const finalSize = getRuleBasedRecommendation(height, weight, userData.age, userData.gender, userData.bodyType, userData.shoulderWidth);
         userData.recommendedSize = finalSize;
 
         // 2. YORUM: Yapay zekaya, bizim verdiğimiz kararı açıklaması için rapor gönderilir.
@@ -810,12 +810,12 @@ Crucial Negative Prompts: Do NOT include any Turkish characters or words. no hea
             height, weight, bmiCategory, 
             bodyType: userData.bodyType, 
             shoulderWidth: userData.shoulderWidth, 
-            preliminarySize: finalSize, // Asistanın kararı = Nihai karar
+            finalSize, // Kararımızı gönderiyoruz
             gender: userData.gender,
             age: userData.age
         };
         
-        let geminiResult = await getGeminiFinalRecommendation(analysisData);
+        let geminiResult = await getGeminiExplanation(analysisData);
 
         if (!geminiResult || !geminiResult.explanation) {
             userData.explanation = `Vücut ölçülerinize göre sizin için en uygun bedenin ${finalSize} olduğunu düşünüyoruz. Bu beden, tişörtün üzerinizde modern ve rahat bir oversize duruş sergilemesini sağlayacaktır.`;
