@@ -22,7 +22,7 @@ export default async function handler(req, res) {
     }
 
     // 3. DOĞRU IMAGEN 4.0 ULTRA API URL'ini oluştur
-    const modelId = "imagen-4.0-generate-preview-06-06"; // Model, "Ultra" olarak güncellendi.
+    const modelId = "imagen-4.0-fast-generate-preview-06-06"; // Model, "Ultra" olarak güncellendi.
     const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelId}:predict?key=${apiKey}`;
 
     // 4. Google'ın bu API için beklediği payload formatı
