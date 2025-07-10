@@ -120,18 +120,6 @@
            }
        }
 
-       .measurement-card img {
-           display: block;
-           width: 100%;
-           max-width: 300px;
-           height: auto;
-           aspect-ratio: 16 / 9;
-           object-fit: contain;
-           margin: 0 auto 1rem auto;
-           border-radius: 8px;
-           background-color: var(--bg-secondary);
-       }
-
        h3.wizard-title {
            font-size: clamp(1.5rem, 4vw, 1.875rem);
            font-weight: 800;
@@ -236,8 +224,130 @@
            gap: 8px;
        }
 
+       /* Template Fit Preview Styles */
+       .template-fit-preview {
+           background: white;
+           border-radius: 12px;
+           padding: 20px;
+           border: 1px solid var(--border-color);
+           text-align: center;
+       }
+
+       .main-preview-image {
+           width: 100%;
+           max-width: 400px;
+           height: auto;
+           aspect-ratio: 1 / 1;
+           object-fit: contain;
+           border-radius: 8px;
+           background-color: var(--bg-secondary);
+           margin: 0 auto 16px auto;
+           display: block;
+       }
+
+       .size-selector-grid {
+           display: grid;
+           grid-template-columns: repeat(4, 1fr);
+           gap: 12px;
+           margin-top: 16px;
+       }
+
+       .size-button {
+           position: relative;
+           background: transparent;
+           color: var(--text-primary);
+           border: 2px solid #d1d5db;
+           border-radius: 8px;
+           padding: 12px 8px;
+           font-weight: 600;
+           font-size: 14px;
+           cursor: pointer;
+           transition: all 0.2s;
+           width: 60px;
+           height: 60px;
+           display: flex;
+           flex-direction: column;
+           align-items: center;
+           justify-content: center;
+           gap: 2px;
+       }
+
+       .size-button:hover {
+           transform: translateY(-2px);
+           box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+           border-color: #9ca3af;
+       }
+
+       .size-button.recommended {
+           border-color: var(--brand-color);
+           position: relative;
+       }
+
+       .size-button.recommended::after {
+           content: '⭐';
+           position: absolute;
+           top: -6px;
+           right: -6px;
+           background: #f59e0b;
+           border-radius: 50%;
+           width: 20px;
+           height: 20px;
+           display: flex;
+           align-items: center;
+           justify-content: center;
+           font-size: 10px;
+           border: 2px solid white;
+       }
+
+       .size-button.selected {
+           background: var(--brand-color);
+           color: white;
+           border-color: var(--brand-color);
+           transform: translateY(-2px);
+           box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+       }
+
+       .size-label {
+           font-size: 16px;
+           font-weight: 700;
+       }
+
+       .size-button-container {
+           display: flex;
+           flex-direction: column;
+           align-items: center;
+           gap: 4px;
+       }
+
+       .match-percentage {
+           font-size: 10px;
+           color: var(--text-secondary);
+           font-weight: 500;
+       }
+
+       .template-preview-title {
+           font-size: 18px;
+           font-weight: 700;
+           color: var(--text-primary);
+           margin-bottom: 8px;
+       }
+
+       .template-preview-subtitle {
+           font-size: 12px;
+           color: var(--text-secondary);
+           margin-bottom: 16px;
+       }
+
        @media (max-width:480px) {
            #wizard-content { max-width: 95vw; }
+           .size-button { 
+               width: 50px; 
+               height: 50px; 
+               padding: 8px 4px; 
+               font-size: 12px; 
+           }
+           .size-label { font-size: 14px; }
+           .match-percentage { font-size: 9px; }
        }
    </style>
 </head>
@@ -285,7 +395,7 @@
            </div>
        </div>
        <div class="wizard-inner-scroll">
-           <!-- DEĞİŞİKLİK: Adım 1 artık ilk sırada -->
+           <!-- Adım 1: Başlangıç -->
            <div id="step-1" class="wizard-step active text-center">
                <h3 class="wizard-title">Sana en uygun bedeni nasıl bulalım?</h3>
                <p class="wizard-label">İki farklı yöntemle sana özel önerimizi anında öğren.</p>
@@ -300,7 +410,7 @@
                <p class="text-xs mt-6 text-gray-500"><i data-lucide="lock" class="inline-block w-3 h-3 mr-1"></i>Bilgilerin sadece beden hesaplamak için kullanılır.</p>
            </div>
 
-           <!-- DEĞİŞİKLİK: Adım 0 artık ikinci sırada -->
+           <!-- Adım 0: Temel Bilgiler -->
            <div id="step-0" class="wizard-step text-center">
                <h3 class="wizard-title">Seni Tanıyalım</h3>
                <p class="wizard-label">Doğru öneri için bu iki bilgi önemli.</p>
@@ -390,18 +500,18 @@
 
            <!-- Adım M1 & M2 (Ölçüm) -->
            <div id="step-m1" class="wizard-step">
-               <div class="text-center measurement-card">
+               <div class="text-center">
                    <h3 class="wizard-title">Favori tişörtünün genişliği?</h3>
-                   <img src="https://placehold.co/400x300/f4f5f7/333?text=Genişlik+(En)" alt="[Tişört genişlik ölçümü görseli]">
+                   <img src="https://placehold.co/400x300/f4f5f7/333?text=Genişlik+(En)" alt="[Tişört genişlik ölçümü görseli]" class="w-full max-w-300px h-auto aspect-ratio-16/9 object-contain mx-auto mb-4 rounded-lg bg-gray-200">
                    <p id="tee-width-display" class="value-display-medium mt-4">58 cm</p>
                    <input type="range" id="tee-width-slider" min="40" max="80" value="58" class="w-full">
                    <p class="slider-label">Ölçüyü ayarlamak için kaydır</p>
                </div>
            </div>
            <div id="step-m2" class="wizard-step">
-               <div class="text-center measurement-card">
+               <div class="text-center">
                    <h3 class="wizard-title">Favori tişörtünün boyu?</h3>
-                   <img src="https://placehold.co/400x300/f4f5f7/333?text=Uzunluk+(Boy)" alt="[Tişört boy ölçümü görseli]">
+                   <img src="https://placehold.co/400x300/f4f5f7/333?text=Uzunluk+(Boy)" alt="[Tişört boy ölçümü görseli]" class="w-full max-w-300px h-auto aspect-ratio-16/9 object-contain mx-auto mb-4 rounded-lg bg-gray-200">
                    <p id="tee-length-display" class="value-display-medium mt-4">72 cm</p>
                    <input type="range" id="tee-length-slider" min="60" max="90" value="72" class="w-full">
                    <p class="slider-label">Ölçüyü ayarlamak için kaydır</p>
@@ -423,16 +533,21 @@
                <div class="bg-gray-100 rounded-lg p-4 text-sm text-left mb-3 border border-gray-200">
                    <p id="result-description"></p>
                    
-                   <div id="ai-fit-preview-section" class="mt-6 text-left">
-                       <h4 class="text-lg font-bold text-gray-800 mb-2">AI Destekli Fit Önizlemesi</h4>
-                       <div id="fit-preview-container" class="w-full aspect-square bg-gray-200 rounded-lg flex items-center justify-center border border-gray-300 overflow-hidden relative">
-                           <div id="fit-preview-loader" class="text-center flex flex-col items-center justify-center absolute inset-0">
-                               <div class="loader"></div>
-                               <p class="text-sm text-gray-600 mt-2">Önizleme oluşturuluyor...</p>
+                   <!-- Template Fit Preview Section -->
+                   <div id="template-fit-preview-section" class="mt-6">
+                       <div class="template-fit-preview">
+                           <div class="template-preview-title">Tişört Fit Önizlemesi</div>
+                           <div class="template-preview-subtitle">Farklı bedenlerde nasıl duracağını görün</div>
+                           
+                           <img id="main-preview-image" 
+                                src="" 
+                                alt="Template Fit Preview" 
+                                class="main-preview-image">
+                           
+                           <div class="size-selector-grid" id="size-selector-grid">
+                               <!-- Bu alanı JavaScript dinamik olarak doldurur -->
                            </div>
-                           <img id="fit-preview-image" src="" alt="AI Destekli Fit Önizlemesi" class="w-full h-full object-cover hidden">
                        </div>
-                       <p class="text-[11px] text-gray-500 mt-2 ml-1">Görsel, yapay zeka tarafından ölçülerinize özel olarak oluşturulmuştur.</p>
                    </div>
 
                </div>
@@ -462,18 +577,214 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-   // Çeviri haritaları
-   const enBodyTypes = {
-       'İnce Yapılı': 'Slim build',
-       'Standart Yapılı': 'Standard build',
-       'İri Yapılı': 'Heavy-set build'
+   // Template CDN Links Mapping - Tüm gerçek linkler
+   const TEMPLATE_CDN_LINKS = {
+       // SHORT (165-174 cm)
+       'kisa_zayif_S': 'https://cdn.myikas.com/images/theme-images/a293d775-fd5d-40e0-a67b-865f1b56f258/image_1080.webp',
+       'kisa_zayif_M': 'https://cdn.myikas.com/images/theme-images/e3860a1c-64cd-47cd-a93e-5edf746e6b96/image_1080.webp',
+       'kisa_zayif_L': 'https://cdn.myikas.com/images/theme-images/43e2602c-3690-4e96-9e48-659649fc39a3/image_1080.webp',
+       'kisa_zayif_XL': 'https://cdn.myikas.com/images/theme-images/d7f9a8b4-c95f-4303-9f7a-37274e86fdbd/image_1080.webp',
+       
+       'kisa_averaj_S': 'https://cdn.myikas.com/images/theme-images/0ad4ce68-d72c-4aec-b90b-de6d1bb70a65/image_1080.webp',
+       'kisa_averaj_M': 'https://cdn.myikas.com/images/theme-images/4475460d-d91e-4c66-a36c-a0efc512eff4/image_1080.webp',
+       'kisa_averaj_L': 'https://cdn.myikas.com/images/theme-images/9690a8b5-4c4f-403e-9eb8-bdb29adcb96e/image_1080.webp',
+       'kisa_averaj_XL': 'https://cdn.myikas.com/images/theme-images/c7e3d877-ced8-442c-8646-e29a65e4185c/image_1080.webp',
+       
+       'kisa_kilolu_S': 'https://cdn.myikas.com/images/theme-images/5c6f0395-0e3c-46dd-86a3-f92237b3c76c/image_1080.webp',
+       'kisa_kilolu_M': 'https://cdn.myikas.com/images/theme-images/d19f03f0-f190-4247-ae21-59caa8438483/image_1080.webp',
+       'kisa_kilolu_L': 'https://cdn.myikas.com/images/theme-images/5fc8a752-fac6-44b9-8b29-3c8a28999c69/image_1080.webp',
+       'kisa_kilolu_XL': 'https://cdn.myikas.com/images/theme-images/c5f3a992-cda6-44e7-b0e0-639e2bcbad76/image_1080.webp',
+       
+       // NORMAL (175-184 cm) 
+       'standart_zayif_S': 'https://cdn.myikas.com/images/theme-images/f6278074-0451-49ad-8a2d-0536bd68be9c/image_1080.webp',
+       'standart_zayif_M': 'https://cdn.myikas.com/images/theme-images/82fef597-de90-426e-8fb6-408c277a44e8/image_1080.webp',
+       'standart_zayif_L': 'https://cdn.myikas.com/images/theme-images/e6701570-dd36-476b-a1bf-871744550691/image_1080.webp',
+       'standart_zayif_XL': 'https://cdn.myikas.com/images/theme-images/a97da1cc-df7e-42f1-bed7-653722affa94/image_1080.webp',
+       
+       'standart_averaj_S': 'https://cdn.myikas.com/images/theme-images/5f52b28e-f2ac-4dcb-9ee4-b25ec42727e3/image_1080.webp',
+       'standart_averaj_M': 'https://cdn.myikas.com/images/theme-images/ce725246-11c0-4edd-9362-c9877518ade1/image_1080.webp',
+       'standart_averaj_L': 'https://cdn.myikas.com/images/theme-images/8b84976d-62eb-4829-9a42-c66f191be173/image_1080.webp',
+       'standart_averaj_XL': 'https://cdn.myikas.com/images/theme-images/bc5ee2e4-b747-4fb2-b312-4e8fcdcaba20/image_1080.webp',
+       
+       'standart_kilolu_S': 'https://cdn.myikas.com/images/theme-images/e11024a2-6950-448a-bffa-8e020b87d99b/image_1080.webp',
+       'standart_kilolu_M': 'https://cdn.myikas.com/images/theme-images/8c519699-0895-4635-a1d7-0f20cf58a15a/image_1080.webp',
+       'standart_kilolu_L': 'https://cdn.myikas.com/images/theme-images/1ef14bcd-e35f-40f9-8f8d-96f43281c6ca/image_1080.webp',
+       'standart_kilolu_XL': 'https://cdn.myikas.com/images/theme-images/08c2bf97-5ee5-4376-ac89-445f5a632f2a/image_1080.webp',
+       
+       // TALL (185-194 cm)
+       'uzun_zayif_S': 'https://cdn.myikas.com/images/theme-images/4ab4ac9e-7d79-48cd-943d-411cb75adc9b/image_1080.webp',
+       'uzun_zayif_M': 'https://cdn.myikas.com/images/theme-images/6edb0385-62c2-4992-8a74-61d7cda549ba/image_1080.webp',
+       'uzun_zayif_L': 'https://cdn.myikas.com/images/theme-images/bd520f45-19fb-475a-a12c-d5cc211d9a82/image_1080.webp',
+       'uzun_zayif_XL': 'https://cdn.myikas.com/images/theme-images/23ce8514-ede7-470c-9f00-d387578f1c9f/image_1080.webp',
+       
+       'uzun_averaj_S': 'https://cdn.myikas.com/images/theme-images/fbcfb6d2-986d-445a-901a-482b23c17604/image_1080.webp',
+       'uzun_averaj_M': 'https://cdn.myikas.com/images/theme-images/ffd25756-5aff-4358-955c-89a73dbdd239/image_1080.webp',
+       'uzun_averaj_L': 'https://cdn.myikas.com/images/theme-images/cecd85af-3ce0-4dac-8481-d52ad84c16f0/image_1080.webp',
+       'uzun_averaj_XL': 'https://cdn.myikas.com/images/theme-images/094de50c-7347-46fd-b52b-1089a8f9e29b/image_1080.webp',
+       
+       'uzun_kilolu_S': 'https://cdn.myikas.com/images/theme-images/ac29b773-9715-4548-a008-cf6b4b81ca39/image_1080.webp',
+       'uzun_kilolu_M': 'https://cdn.myikas.com/images/theme-images/966fa848-d9fc-4e04-87d4-4f9e0906a340/image_1080.webp',
+       'uzun_kilolu_L': 'https://cdn.myikas.com/images/theme-images/d9c4eadc-90ad-4751-96a4-868cf1af712f/image_1080.webp',
+       'uzun_kilolu_XL': 'https://cdn.myikas.com/images/theme-images/d33d3d0a-2cac-4317-9f49-6fe9b74907f8/image_1080.webp'
    };
-   const enShoulderWidths = {
-       'Dar Omuz': 'Narrow shoulders',
-       'Normal Omuz': 'Standard shoulders',
-       'Geniş Omuz': 'Broad shoulders'
+   
+   // Beden eşleşme oranları - Fallback için rastgele sistem
+   const generateRandomMatchPercentages = (recommendedSize) => {
+       const sizes = ['S', 'M', 'L', 'XL'];
+       const percentages = {};
+       
+       // Önerilen beden için 73-86% arası rastgele
+       const recommendedPercentage = Math.floor(Math.random() * (86 - 73 + 1)) + 73;
+       percentages[recommendedSize] = recommendedPercentage;
+       
+       // Kalan yüzdeyi diğer bedenlere dağıt
+       const remainingPercentage = 100 - recommendedPercentage;
+       const otherSizes = sizes.filter(size => size !== recommendedSize);
+       
+       // Rastgele dağıtım
+       let remaining = remainingPercentage;
+       otherSizes.forEach((size, index) => {
+           if (index === otherSizes.length - 1) {
+               // Son beden için kalan tüm yüzdeyi ver
+               percentages[size] = remaining;
+           } else {
+               // Rastgele bir miktar ver (en az 1%)
+               const maxForThis = remaining - (otherSizes.length - index - 1);
+               const minForThis = 1;
+               const randomAmount = Math.floor(Math.random() * (Math.max(maxForThis, minForThis) - minForThis + 1)) + minForThis;
+               percentages[size] = randomAmount;
+               remaining -= randomAmount;
+           }
+       });
+       
+       return percentages;
    };
+   
+   // HIBRIT AI SISTEMI: Beden bizim, oran ve açıklama AI'dan
+   const getAIMatchingData = async (userData, recommendedSize) => {
+       const { height, weight, age, gender, bodyType, shoulderWidth } = userData;
+       
+       const prompt = `Sen LOS SURENOS markasının uzman beden danışmanısın. Müşteriye profesyonel ama samimi bir dille rehberlik ediyorsun.
 
+DURUM RAPORU:
+- Müşteri Profili: ${age} yaşında ${gender}, ${height}cm boy, ${weight}kg kilo
+- Vücut Tipi: ${bodyType || 'Belirtilmedi'} / Omuz: ${shoulderWidth || 'Belirtilmedi'}
+- SİSTEM ÖNERİSİ: ${recommendedSize} beden (algoritma sonucu)
+- Ürün: Oversized Boxy Fit Tee (geniş ve modern kesim)
+
+GÖREV 1 - EŞLEŞME ORANLARI:
+${recommendedSize} bedeni için 70-85% arası uyum oranı belirle.
+Diğer bedenleri mesafeye göre oranla:
+- 1 beden farkı: 10-20% arası
+- 2+ beden farkı: 5% altında
+Toplam %100 olmalı.
+
+GÖREV 2 - DETAYLI AÇIKLAMA:
+Şu yapıda 3-4 cümle yaz:
+
+1. CÜMLE: "Ölçülerinize göre %X eşleşme ile ${recommendedSize} bedeni öneriyoruz." 
+2. CÜMLE: Neden bu beden uygun (boy-kilo-vücut tipi-oversize efekt)
+3. CÜMLE: "Alternatif olarak %Y eşleşme ile [EN YAKIN BEDEN] bedeni de tercih edebilirsin, ancak [size nasıl olacağını açıkla - daha dar/geniş/kısa/uzun]."
+4. CÜMLE: Son cümle için şunlardan birini seç (rastgele):
+   - "Bu bedende kendin gibi rahat hissedeceksin."
+   - "Böylece hem rahat hem şık görüneceksin."  
+   - "Bu seçimle günlük kombinlerin çok daha kolay olacak."
+   - "Oversize kesimin avantajını tam olarak yaşayacaksın."
+   - "Bu bedende özgüvenle giyinebilirsin."
+   - "Sonuçta en önemli şey kendini iyi hissetmen."
+   - "Bu seçimle hiç pişman olmayacaksın."
+   - "Böylece tarzını yansıtan mükemmel bir fit yakalayacaksın."
+
+DİL KURALLARI:
+- "Sen" dili kullan, samimi ol
+- Teknik terimler kullanma, sade açıkla  
+- Oversize kesimin avantajlarından bahset
+- Müşteriyi güvenli hissettir
+
+YANIT FORMATI (sadece JSON):
+{
+  "percentages": {"S": x, "M": y, "L": z, "XL": w},
+  "explanation": "4 cümlelik detaylı açıklama buraya"
+}`;
+
+       try {
+           // Placeholder backend call - gerçek implementasyon gerekli
+           const response = await fetch('/api/ai-matching', {
+               method: 'POST',
+               headers: { 'Content-Type': 'application/json' },
+               body: JSON.stringify({ prompt })
+           });
+           
+           if (response.ok) {
+               const result = await response.json();
+               return JSON.parse(result.response);
+           }
+       } catch (error) {
+           console.error('AI API hatası:', error);
+       }
+       
+       // Fallback: Rastgele oranlar + gelişmiş açıklama
+       const fallbackPercentages = generateRandomMatchPercentages(recommendedSize);
+       
+       // En yakın bedeni bul
+       const sizes = ['S', 'M', 'L', 'XL'];
+       const currentIndex = sizes.indexOf(recommendedSize);
+       const closestSize = currentIndex > 0 ? sizes[currentIndex - 1] : sizes[currentIndex + 1];
+       const closestPercentage = fallbackPercentages[closestSize];
+       
+       // Büyük/küçük analizi
+       const sizeComparison = sizes.indexOf(closestSize) > currentIndex ? 'daha geniş' : 'daha dar';
+       
+       // Şık son cümleler havuzu
+       const stylishEndings = [
+           'Bu bedende kendin gibi rahat hissedeceksin.',
+           'Böylece hem rahat hem şık görüneceksin.',
+           'Bu seçimle günlük kombinlerin çok daha kolay olacak.',
+           'Oversize kesimin avantajını tam olarak yaşayacaksın.',
+           'Bu bedende özgüvenle giyinebilirsin.',
+           'Sonuçta en önemli şey kendini iyi hissetmen.',
+           'Bu seçimle hiç pişman olmayacaksın.',
+           'Böylece tarzını yansıtan mükemmel bir fit yakalayacaksın.',
+           'Bu bedende her durumda rahat edeceksin.',
+           'Oversize tişörtün bu bedende tam potansiyelini gösterecek.'
+       ];
+       
+       const randomEnding = stylishEndings[Math.floor(Math.random() * stylishEndings.length)];
+       
+       const fallbackExplanation = `Ölçülerinize göre %${fallbackPercentages[recommendedSize]} eşleşme ile ${recommendedSize} bedeni öneriyoruz. ${height}cm boyunuz ve ${weight}kg kilonuz için bu beden oversize kesimin tam avantajını sağlayacak. Alternatif olarak %${closestPercentage} eşleşme ile ${closestSize} bedeni de tercih edebilirsin, ancak sana ${sizeComparison} gelebilir. ${randomEnding}`;
+       
+       return {
+           percentages: fallbackPercentages,
+           explanation: fallbackExplanation
+       };
+   };
+   
+   // Vücut tipi kategorileri (boy, kilo kategorisi belirlemek için)
+   const getBodyCategory = (height, weight) => {
+       // Boy kategorisi - Güncellenmiş aralıklar
+       let heightCategory = 'standart';
+       if (height >= 165 && height <= 174) heightCategory = 'kisa';
+       else if (height >= 175 && height <= 184) heightCategory = 'standart';
+       else if (height >= 185 && height <= 194) heightCategory = 'uzun';
+       else if (height < 165) heightCategory = 'kisa'; // 165'ten küçükler de kısa
+       else heightCategory = 'uzun'; // 194'ten büyükler de uzun
+       
+       // Kilo kategorisi (BMI bazlı)
+       const heightM = height / 100;
+       const bmi = weight / (heightM * heightM);
+       let weightCategory = 'averaj';
+       if (bmi < 20) weightCategory = 'zayif';
+       else if (bmi > 25) weightCategory = 'kilolu';
+       
+       return { heightCategory, weightCategory };
+   };
+   
+   // Template görsel URL'i oluşturma
+   const getTemplateImageUrl = (heightCategory, weightCategory, size) => {
+       const filename = `${heightCategory}_${weightCategory}_${size}`;
+       return TEMPLATE_CDN_LINKS[filename] || `https://placehold.co/600x800/f4f5f7/333?text=${filename}`;
+   };
+   
    // Element Selections
    const wizardModal = document.getElementById('size-wizard-modal');
    const steps = document.querySelectorAll('.wizard-step');
@@ -493,30 +804,30 @@ document.addEventListener('DOMContentLoaded', () => {
    const teeLengthDisplay = document.getElementById('tee-length-display');
    const bodyTypeAlert = document.getElementById('bodytype-alert');
    const shoulderAlert = document.getElementById('shoulder-alert');
-   const ageAlert = document.getElementById('age-alert');
    const genderAlert = document.getElementById('gender-alert');
    const resultDescription = document.getElementById('result-description');
-   const fitPreviewLoader = document.getElementById('fit-preview-loader');
-   const fitPreviewImage = document.getElementById('fit-preview-image');
+   const mainPreviewImage = document.getElementById('main-preview-image');
+   const sizeSelectorGrid = document.getElementById('size-selector-grid');
 
    // State Variables
    let currentStepId = 'step-1';
    let userData = {};
-   const TEE_SIZE_CHART = {
-       'S': { width: 60, length: 70 },
-       'M': { width: 62, length: 72 },
-       'L': { width: 64, length: 74 },
-       'XL': { width: 66, length: 76 }
-   };
+   let selectedPreviewSize = null;
 
    // Modal & Alert Logic
    const openModal = () => { wizardModal.classList.remove('hidden'); resetWizard(); };
    const closeModal = () => { wizardModal.classList.add('hidden');};
-   const showAlert = (message) => { document.getElementById('custom-alert-message').textContent = message; document.getElementById('custom-alert-modal').classList.remove('hidden'); };
+   const showAlert = (message) => { 
+       document.getElementById('custom-alert-message').textContent = message; 
+       document.getElementById('custom-alert-modal').classList.remove('hidden'); 
+   };
+   
    document.getElementById('open-wizard-btn').addEventListener('click', openModal);
    document.getElementById('close-wizard-btn').addEventListener('click', closeModal);
    wizardModal.addEventListener('click', (e) => e.target === wizardModal && closeModal());
-   document.getElementById('custom-alert-close-btn').addEventListener('click', () => { document.getElementById('custom-alert-modal').classList.add('hidden'); });
+   document.getElementById('custom-alert-close-btn').addEventListener('click', () => { 
+       document.getElementById('custom-alert-modal').classList.add('hidden'); 
+   });
 
    // Navigation config
    const stepConfig = {
@@ -554,14 +865,20 @@ document.addEventListener('DOMContentLoaded', () => {
                userData.age = ageSlider.value;
            }
            if (!userData.gender) {
-               genderAlert.style.display = "block"; setTimeout(() => genderAlert.style.display = "none", 1800); return;
+               genderAlert.style.display = "block"; 
+               setTimeout(() => genderAlert.style.display = "none", 1800); 
+               return;
            }
        }
        if (currentStepId === 'step-4' && stepId === 'step-5' && !userData.bodyType) {
-           bodyTypeAlert.style.display = "block"; setTimeout(() => bodyTypeAlert.style.display = "none", 1800); return;
+           bodyTypeAlert.style.display = "block"; 
+           setTimeout(() => bodyTypeAlert.style.display = "none", 1800); 
+           return;
        }
        if (currentStepId === 'step-5' && stepId.startsWith('step-loader') && !userData.shoulderWidth) {
-           shoulderAlert.style.display = "block"; setTimeout(() => shoulderAlert.style.display = "none", 1800); return;
+           shoulderAlert.style.display = "block"; 
+           setTimeout(() => shoulderAlert.style.display = "none", 1800); 
+           return;
        }
        currentStepId = stepId;
        steps.forEach(step => step.classList.remove('active'));
@@ -616,38 +933,6 @@ document.addEventListener('DOMContentLoaded', () => {
            userData[group] = card.querySelector('h4').textContent;
        });
    });
-
-   // YAŞA GÖRE GELİŞMİŞ GÖRÜNÜM SİSTEMİ
-   function getAppearanceByAge(gender, age, bmi) {
-       const ageInt = parseInt(age);
-       
-       if (gender === 'Erkek') {
-           if (ageInt >= 14 && ageInt <= 17) {
-               return 'youthful teenage features, clean-shaven face, tousled medium hair';
-           } else if (ageInt >= 18 && ageInt <= 25) {
-               if (ageInt <= 19) return 'young adult features, patchy beard, textured crop haircut';
-               else return 'young adult features, light stubble, modern quiff hairstyle';
-           } else if (ageInt >= 26 && ageInt <= 33) {
-               return 'young mature features, short trimmed beard, professional haircut';
-           } else if (ageInt >= 34 && ageInt <= 41) {
-               return 'established masculine features, well-groomed beard, sophisticated haircut';
-           } else {
-               return 'distinguished mature features, full beard, executive haircut';
-           }
-       } else { // Kadın
-           if (ageInt >= 14 && ageInt <= 17) {
-               return 'youthful teenage features, natural teen makeup, long straight brown hair';
-           } else if (ageInt >= 18 && ageInt <= 25) {
-               return 'young adult features, fresh natural makeup, shoulder-length wavy hair';
-           } else if (ageInt >= 26 && ageInt <= 33) {
-               return 'young mature features, professional makeup, sleek styled hair';
-           } else if (ageInt >= 34 && ageInt <= 41) {
-               return 'established feminine features, refined makeup, sophisticated hairstyle';
-           } else {
-               return 'distinguished mature features, elegant makeup, executive hairstyle';
-           }
-       }
-   }
 
    // KURAL TABANLI BEDEN HESAPLAMA
    function getRuleBasedRecommendation(height, weight, age, gender, bodyType, shoulderWidth) {
@@ -711,119 +996,62 @@ document.addEventListener('DOMContentLoaded', () => {
        return sizes[finalIndex];
    }
 
-   // GEMINI AI YORUMCU PROMPT'U
-   const getGeminiExplanation = async (analysisData) => {
-       const { height, weight, bmiCategory, bodyType, shoulderWidth, finalSize, gender, age } = analysisData;
+   // Template fit preview sistem
+   const createSizeSelector = (recommendedSize, heightCategory, weightCategory, matchPercentages) => {
+       const sizes = ['S', 'M', 'L', 'XL'];
        
-       const personaAndProductContext = `
-Sen, LOS SURENOS markasının baş stil danışmanısın. Bir asistan, müşteri için bir analiz yaptı ve bedene karar verdi. Senin görevin, bu kararı müşteriye en iyi şekilde açıklayan bir metin yazmak.
-- Ürün: Oversized Boxy Fit Tee, 220 GSM ağır pamuk, geniş ve modern kalıp.
-- Bedenler ve Ölçüler: S(Genişlik:60, Boy:70), M(62/72), L(64/74), XL(66/76).
-- KESİNLİKLE UYULMASI GEREKEN KURALLAR:
- 1. ASLA reklam veya marka övgüsü yapma.
- 2. SADECE S, M, L, XL bedenlerini kullan. Başka dilde veya başka bir kodla (XS, XXL vb.) asla bahsetme.
- 3. Yanıtını SADECE şu JSON formatında ver: {"explanation":"..."} Başka hiçbir metin ekleme.
-`;
-       const assistantReport = `
-- **ASİSTAN KARARI:**
- - **Müşteri Profili:** ${age} yaşında, ${gender}.
- - **Objektif Veriler:** Müşteri ${height}cm boyunda, ${weight}kg ağırlığında. Bu, Vücut Kitle İndeksi'ne (BMI) göre '${bmiCategory}' bir fizik anlamına geliyor.
- - **Subjektif Veriler (Müşterinin Kendi Algısı):** Müşteri vücut tipini '${bodyType}', omuz genişliğini ise '${shoulderWidth}' olarak seçti.
- - **VERİLEN KARAR:** Bu müşteri için en uygun beden **${finalSize}**.
-- **SENİN GÖREVİN (YORUMCULUK):**
- Lütfen asistanın verdiği **${finalSize}** beden kararını temel alarak, bunun neden doğru bir seçim olduğunu müşteriye açıkla. Hem objektif verilere (BMI, boy) hem de müşterinin kendi algısına (vücut tipi, omuz seçimi) saygı gösteren kişisel bir dil kullan. Eğer müşterinin seçimi ile BMI arasında çelişki varsa, buna nazikçe değin.
-`;
-       const payload = {
-           contents: [{ role: "user", parts: [{ text: `${personaAndProductContext}\n${assistantReport}` }] }],
-           generationConfig: {
-               responseMimeType: "application/json",
-               responseSchema: {
-                   type: "OBJECT",
-                   properties: { "explanation": { "type": "STRING" } },
-                   required: ["explanation"]
-               }
-           }
-       };
-       const result = await callBackendAPI("/api/gemini", payload);
-       return result ? JSON.parse(result.candidates[0].content.parts[0].text) : null;
-   };
-
-   const generateFitPreviewImage = async () => {
-       const { height, weight, bodyType, shoulderWidth, recommendedSize, gender, age } = userData;
-
-       const bodyTypeEn = enBodyTypes[bodyType] || 'Standard build';
-       const shoulderWidthEn = enShoulderWidths[shoulderWidth] || 'Standard shoulders';
-
-       const heightM = parseInt(height) / 100;
-       const bmi = parseInt(weight) / (heightM * heightM);
+       sizeSelectorGrid.innerHTML = '';
        
-       // Yaş ve BMI'a göre gelişmiş görünüm tanımlaması
-       const appearanceDetails = getAppearanceByAge(gender, age, bmi);
-       
-       let physiqueDetails = '';
-       if (parseInt(height) < (gender === 'Kadın' ? 165 : 172)) physiqueDetails += 'a short stature, ';
-       else if (parseInt(height) > 185) physiqueDetails += 'a tall stature, ';
-       else physiqueDetails += 'an average stature, ';
-
-       if (gender === 'Kadın') {
-           if (bmi < 19) physiqueDetails += 'and a noticeably underweight and slender body frame. Avoid any muscular or heavy appearance.';
-           else if (bmi < 22) physiqueDetails += 'and a slim, toned athletic body frame. The physique should look balanced.';
-           else if (bmi < 25) physiqueDetails += 'and a healthy, average feminine body with soft curves. Not overly athletic but not overweight.';
-           else if (bmi < 30) physiqueDetails += 'and a curvy, hourglass feminine figure with noticeably wide hips and a full bust.';
-           else physiqueDetails += 'and a plus-size, heavy-set feminine figure with a soft, rounded belly and thick thighs.';
-       } else { // Erkek
-           if (bmi < 20) physiqueDetails += 'and a noticeably thin, slender, ectomorph body frame.';
-           else if (bmi < 25) physiqueDetails += 'and an athletic, toned, mesomorph body frame with visible muscle definition.';
-           else if (bmi < 30) physiqueDetails += 'and a stocky, endomorph body frame with a fuller torso, not overly fat but with substance.';
-           else physiqueDetails += 'and a visibly large, heavy-set body frame with a large torso and thick limbs.';
-       }
-       
-       const imagePrompt = `
-A hyper-realistic 3D render of a standing adult ${gender === 'Kadın' ? 'female' : 'male'} mannequin with a natural light skin tone, realistic body details, ${appearanceDetails}. The mannequin's physique MUST visually represent a person with ${physiqueDetails} Both arms fully visible, with hands resting straight down at the sides in a relaxed, natural pose. No missing limbs, no headless figure.
-The scene shows a split-panel view: left panel is a full front view, right panel is a full side profile. The mannequin is dressed in a black oversized boxy-fit t-shirt (size ${recommendedSize}) that drapes naturally over the frame (showing realistic fabric tension and looseness), and pale light-blue baggy denim shorts. The fit and proportions of the t-shirt must accurately reflect size ${recommendedSize} on this body type.
-Background is pure solid white. The following clean, bold, sans-serif text elements must be present (no extra text, no logos, no watermarks, no shadows):
-- Top center: "LOS SURENOS"
-- Upper left corner, front view: "Height: ${height} cm, Weight: ${weight} kg, Body Type: ${bodyTypeEn}, Shoulder: ${shoulderWidthEn}, Size: ${recommendedSize}"
-- Front view: a thin, horizontal gray dashed line across the chest, labeled "Chest Width: ${TEE_SIZE_CHART[recommendedSize].width} cm"
-- Side view: a thin, vertical gray dashed line from shoulder to hem, labeled "Tshirt Length: ${TEE_SIZE_CHART[recommendedSize].length} cm"
-Crucial negatives: no Turkish words, no headless mannequin, no missing limbs, no extra text, no shadows, no logos, no watermarks.
-`;
-       const payload = {
-           prompt: imagePrompt,
-           seed: 12345,
-       };
-       
-       const result = await callBackendAPI("/api/generate-image", payload);
-       
-       if (result && result.imageUrl) {
-           fitPreviewImage.src = result.imageUrl;
-           fitPreviewImage.onload = () => {
-               fitPreviewLoader.style.display = 'none';
-               fitPreviewImage.classList.remove('hidden');
-           };
-       } else {
-           showAlert(`Görsel oluşturulamadı: ${result?.error || 'Bilinmeyen bir hata oluştu.'}`);
-           fitPreviewLoader.innerHTML = `<p class="text-red-500 text-xs p-4">Önizleme oluşturulamadı.</p>`;
-       }
-   };
-
-   const callBackendAPI = async (endpoint, payload) => {
-       try {
-           const response = await fetch(endpoint, {
-               method: "POST",
-               headers: { "Content-Type": "application/json" },
-               body: JSON.stringify({ payload })
+       sizes.forEach(size => {
+           const container = document.createElement('div');
+           container.className = 'size-button-container';
+           
+           const button = document.createElement('button');
+           button.className = `size-button ${size === recommendedSize ? 'recommended' : ''} ${size === selectedPreviewSize ? 'selected' : ''}`;
+           button.dataset.size = size;
+           
+           const sizeLabel = document.createElement('div');
+           sizeLabel.className = 'size-label';
+           sizeLabel.textContent = size;
+           
+           button.appendChild(sizeLabel);
+           
+           const matchPercentage = document.createElement('div');
+           matchPercentage.className = 'match-percentage';
+           matchPercentage.textContent = `%${matchPercentages[size]}`;
+           
+           container.appendChild(button);
+           container.appendChild(matchPercentage);
+           
+           button.addEventListener('click', () => {
+               // Önceki seçimi temizle
+               document.querySelectorAll('.size-button').forEach(btn => btn.classList.remove('selected'));
+               button.classList.add('selected');
+               selectedPreviewSize = size;
+               
+               // Ana görseli güncelle
+               const imageUrl = getTemplateImageUrl(heightCategory, weightCategory, size);
+               mainPreviewImage.src = imageUrl;
+               
+               // Sepete ekle butonunu güncelle
+               document.getElementById('add-to-cart-btn').textContent = `Beden ${size} Sepete Ekle`;
            });
-           if (!response.ok) {
-                const err = await response.json();
-                throw new Error(err.error || `API Hatası: ${response.status}`);
-           }
-           return await response.json();
-       } catch (error) {
-           console.error(`Hata (${endpoint}):`, error);
-           showAlert(`API Hatası: ${error.message}`);
-           return null;
-       }
+           
+           sizeSelectorGrid.appendChild(container);
+       });
+   };
+
+   const generateTemplatePreview = async (aiMatchingData) => {
+       const { height, weight, recommendedSize } = userData;
+       const { heightCategory, weightCategory } = getBodyCategory(parseInt(height), parseInt(weight));
+       
+       // Ana önizleme görselini ayarla (önerilen beden)
+       selectedPreviewSize = recommendedSize;
+       const initialImageUrl = getTemplateImageUrl(heightCategory, weightCategory, recommendedSize);
+       mainPreviewImage.src = initialImageUrl;
+       
+       // Beden seçici grid'i oluştur
+       createSizeSelector(recommendedSize, heightCategory, weightCategory, aiMatchingData.percentages);
    };
 
    const runAnalysis = async () => {
@@ -843,69 +1071,46 @@ Crucial negatives: no Turkish words, no headless mannequin, no missing limbs, no
 
        const height = parseInt(userData.height);
        const weight = parseInt(userData.weight);
-       const bmi = weight / ((height / 100) * (height / 100));
-       let bmiCategory = 'Normal';
-       if (bmi < 19) bmiCategory = 'Zayıf';
-       else if (bmi >= 25 && bmi < 30) bmiCategory = 'Kilolu';
-       else if (bmi >= 30) bmiCategory = 'Obez';
        
        // 1. KARAR: Beden, kural tabanlı sistem tarafından kesin olarak hesaplanır.
        const finalSize = getRuleBasedRecommendation(height, weight, userData.age, userData.gender, userData.bodyType, userData.shoulderWidth);
        userData.recommendedSize = finalSize;
 
-       // 2. YORUM: Yapay zekaya, bizim verdiğimiz kararı açıklaması için rapor gönderilir.
-       const analysisData = {
-           height, weight, bmiCategory, 
-           bodyType: userData.bodyType, 
-           shoulderWidth: userData.shoulderWidth, 
-           finalSize, // Kararımızı gönderiyoruz
-           gender: userData.gender,
-           age: userData.age
-       };
-       
-       let geminiResult = await getGeminiExplanation(analysisData);
-
-       if (!geminiResult || !geminiResult.explanation) {
-           userData.explanation = `Vücut ölçülerinize göre sizin için en uygun bedenin ${finalSize} olduğunu düşünüyoruz. Bu beden, tişörtün üzerinizde modern ve rahat bir oversize duruş sergilemesini sağlayacaktır.`;
-       } else {
-           userData.explanation = geminiResult.explanation;
-       }
+       // 2. AI HIBRIT: Oranlar ve açıklama AI'dan alınır
+       const aiMatchingData = await getAIMatchingData(userData, finalSize);
+       userData.explanation = aiMatchingData.explanation;
        
        // 3. GÖSTERİM: Sonuçlar ekrana yazdırılır.
        document.getElementById('result-size').textContent = userData.recommendedSize;
        document.getElementById('add-to-cart-btn').textContent = `Beden ${userData.recommendedSize} Sepete Ekle`;
        resultDescription.textContent = userData.explanation;
        
-       showStep('step-result');
-
-       // 4. GÖRSELLEŞTİRME: Nihai karara göre görsel oluşturulur.
-       if (userData.mode === 'wizard') {
-            generateFitPreviewImage();
-       } else {
-           document.getElementById('ai-fit-preview-section').style.display = 'none';
-       }
+       // Kısa bir gecikme simülasyonu
+       setTimeout(async () => {
+           showStep('step-result');
+           
+           // 4. GÖRSELLEŞTİRME: Template görselleri oluştur
+           if (userData.mode === 'wizard') {
+               await generateTemplatePreview(aiMatchingData);
+           } else {
+               document.getElementById('template-fit-preview-section').style.display = 'none';
+           }
+       }, 1500);
    };
 
    const resetWizard = () => {
        userData = {};
        userData.age = ageSlider.value;
        ageValueDisplay.textContent = ageSlider.value;
+       selectedPreviewSize = null;
        
        document.querySelectorAll('.visual-selector-card.selected').forEach(c => c.classList.remove('selected'));
 
        showStep('step-1');
        
-       const previewSection = document.getElementById('ai-fit-preview-section');
+       const previewSection = document.getElementById('template-fit-preview-section');
        if (previewSection) {
            previewSection.style.display = 'block';
-       }
-       if (fitPreviewLoader) {
-           fitPreviewLoader.style.display = 'flex';
-           fitPreviewLoader.innerHTML = '<div class="loader"></div><p class="text-sm text-gray-600 mt-2">Önizleme oluşturuluyor...</p>';
-       }
-       if (fitPreviewImage) {
-           fitPreviewImage.classList.add('hidden');
-           fitPreviewImage.src = "";
        }
    };
 
