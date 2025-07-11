@@ -766,25 +766,33 @@ YANIT FORMATI (sadece JSON):
        };
    };
    
-   // Vücut tipi kategorileri (boy, kilo kategorisi belirlemek için) - DÜZELTME
-   const getBodyCategory = (height, weight) => {
-       // Boy kategorisi - Güncellenmiş aralıklar
-       let heightCategory = 'standart';
-       if (height >= 165 && height <= 174) heightCategory = 'kisa';
-       else if (height >= 175 && height <= 184) heightCategory = 'standart';
-       else if (height >= 185 && height <= 194) heightCategory = 'uzun';
-       else if (height < 165) heightCategory = 'kisa'; // 165'ten küçükler de kısa
-       else heightCategory = 'uzun'; // 194'ten büyükler de uzun
-       
-       // Kilo kategorisi (BMI bazlı) - DÜZELTME: Daha geniş aralıklar
-       const heightM = height / 100;
-       const bmi = weight / (heightM * heightM);
-       let weightCategory = 'averaj';
-       if (bmi < 19) weightCategory = 'zayif';
-       else if (bmi > 27) weightCategory = 'kilolu'; // 25'ten 27'ye çıkarıldı
-       
-       return { heightCategory, weightCategory };
-   };
+  // Vücut tipi kategorileri (boy, kilo kategorisi belirlemek için) - GÜNCELLEME: Erkek/Kadın için yeni algoritma
+const getBodyCategory = (height, weight, gender = 'Erkek') => {
+    let heightCategory = 'standart';
+    if (height >= 165 && height <= 174) heightCategory = 'kisa';
+    else if (height >= 175 && height <= 184) heightCategory = 'standart';
+    else if (height >= 185 && height <= 194) heightCategory = 'uzun';
+    else if (height < 165) heightCategory = 'kisa'; // 165'ten küçükler de kısa
+    else heightCategory = 'uzun'; // 194'ten büyükler de uzun
+
+    // Kilo kategorisi
+    let weightCategory = 'averaj';
+
+    if (gender === 'Kadın') {
+        const stdWeight = height - 110; // Kadın için
+        if (weight <= stdWeight - 10) weightCategory = 'zayif';
+        else if (weight >= stdWeight + 12) weightCategory = 'kilolu';
+        else weightCategory = 'averaj';
+    } else {
+        const stdWeight = height - 100; // Erkek için
+        if (weight <= stdWeight - 12) weightCategory = 'zayif';
+        else if (weight >= stdWeight + 12) weightCategory = 'kilolu';
+        else weightCategory = 'averaj';
+    }
+
+    return { heightCategory, weightCategory };
+};
+
    
    // Template görsel URL'i oluşturma
    const getTemplateImageUrl = (heightCategory, weightCategory, size) => {
