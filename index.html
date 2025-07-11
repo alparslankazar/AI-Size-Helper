@@ -628,7 +628,7 @@ document.addEventListener('DOMContentLoaded', () => {
        'uzun_kilolu_XL': 'https://cdn.myikas.com/images/theme-images/d33d3d0a-2cac-4317-9f49-6fe9b74907f8/image_1080.webp'
    };
    
-   // Beden eşleşme oranları - DÜZELTME: Akıllı yakın beden sistemi
+   // Beden eşleşme oranları - Akıllı yakın beden sistemi
    const generateRandomMatchPercentages = (recommendedSize) => {
        const sizes = ['S', 'M', 'L', 'XL'];
        const currentIndex = sizes.indexOf(recommendedSize);
@@ -715,8 +715,8 @@ YANIT FORMATI (sadece JSON):
 }`;
 
        try {
-           // Placeholder backend call - gerçek implementasyon gerekli
-           const response = await fetch('/api/ai-matching', {
+           // SADECE BURAYI DEĞİŞTİRDİM:
+           const response = await fetch('/api/gemini', {
                method: 'POST',
                headers: { 'Content-Type': 'application/json' },
                body: JSON.stringify({ prompt })
@@ -766,22 +766,20 @@ YANIT FORMATI (sadece JSON):
        };
    };
    
-   // Vücut tipi kategorileri (boy, kilo kategorisi belirlemek için) - DÜZELTME
+   // Vücut tipi kategorileri (boy, kilo kategorisi belirlemek için)
    const getBodyCategory = (height, weight) => {
-       // Boy kategorisi - Güncellenmiş aralıklar
        let heightCategory = 'standart';
        if (height >= 165 && height <= 174) heightCategory = 'kisa';
        else if (height >= 175 && height <= 184) heightCategory = 'standart';
        else if (height >= 185 && height <= 194) heightCategory = 'uzun';
-       else if (height < 165) heightCategory = 'kisa'; // 165'ten küçükler de kısa
-       else heightCategory = 'uzun'; // 194'ten büyükler de uzun
+       else if (height < 165) heightCategory = 'kisa';
+       else heightCategory = 'uzun';
        
-       // Kilo kategorisi (BMI bazlı) - DÜZELTME: Daha geniş aralıklar
        const heightM = height / 100;
        const bmi = weight / (heightM * heightM);
        let weightCategory = 'averaj';
        if (bmi < 19) weightCategory = 'zayif';
-       else if (bmi > 27) weightCategory = 'kilolu'; // 25'ten 27'ye çıkarıldı
+       else if (bmi > 27) weightCategory = 'kilolu';
        
        return { heightCategory, weightCategory };
    };
@@ -816,7 +814,6 @@ YANIT FORMATI (sadece JSON):
    const mainPreviewImage = document.getElementById('main-preview-image');
    const sizeSelectorGrid = document.getElementById('size-selector-grid');
 
-   // State Variables
    let currentStepId = 'step-1';
    let userData = {};
    let selectedPreviewSize = null;
@@ -1031,16 +1028,11 @@ YANIT FORMATI (sadece JSON):
            container.appendChild(matchPercentage);
            
            button.addEventListener('click', () => {
-               // Önceki seçimi temizle
                document.querySelectorAll('.size-button').forEach(btn => btn.classList.remove('selected'));
                button.classList.add('selected');
                selectedPreviewSize = size;
-               
-               // Ana görseli güncelle
                const imageUrl = getTemplateImageUrl(heightCategory, weightCategory, size);
                mainPreviewImage.src = imageUrl;
-               
-               // Sepete ekle butonunu güncelle
                document.getElementById('add-to-cart-btn').textContent = `Beden ${size} Sepete Ekle`;
            });
            
@@ -1051,13 +1043,9 @@ YANIT FORMATI (sadece JSON):
    const generateTemplatePreview = async (aiMatchingData) => {
        const { height, weight, recommendedSize } = userData;
        const { heightCategory, weightCategory } = getBodyCategory(parseInt(height), parseInt(weight));
-       
-       // Ana önizleme görselini ayarla (önerilen beden)
        selectedPreviewSize = recommendedSize;
        const initialImageUrl = getTemplateImageUrl(heightCategory, weightCategory, recommendedSize);
        mainPreviewImage.src = initialImageUrl;
-       
-       // Beden seçici grid'i oluştur
        createSizeSelector(recommendedSize, heightCategory, weightCategory, aiMatchingData.percentages);
    };
 
@@ -1078,25 +1066,17 @@ YANIT FORMATI (sadece JSON):
 
        const height = parseInt(userData.height);
        const weight = parseInt(userData.weight);
-       
-       // 1. KARAR: Beden, kural tabanlı sistem tarafından kesin olarak hesaplanır.
        const finalSize = getRuleBasedRecommendation(height, weight, userData.age, userData.gender, userData.bodyType, userData.shoulderWidth);
        userData.recommendedSize = finalSize;
-
-       // 2. AI HIBRIT: Oranlar ve açıklama AI'dan alınır
        const aiMatchingData = await getAIMatchingData(userData, finalSize);
        userData.explanation = aiMatchingData.explanation;
        
-       // 3. GÖSTERİM: Sonuçlar ekrana yazdırılır.
        document.getElementById('result-size').textContent = userData.recommendedSize;
        document.getElementById('add-to-cart-btn').textContent = `Beden ${userData.recommendedSize} Sepete Ekle`;
        resultDescription.textContent = userData.explanation;
        
-       // Kısa bir gecikme simülasyonu
        setTimeout(async () => {
            showStep('step-result');
-           
-           // 4. GÖRSELLEŞTİRME: Template görselleri oluştur
            if (userData.mode === 'wizard') {
                await generateTemplatePreview(aiMatchingData);
            } else {
@@ -1110,11 +1090,8 @@ YANIT FORMATI (sadece JSON):
        userData.age = ageSlider.value;
        ageValueDisplay.textContent = ageSlider.value;
        selectedPreviewSize = null;
-       
        document.querySelectorAll('.visual-selector-card.selected').forEach(c => c.classList.remove('selected'));
-
        showStep('step-1');
-       
        const previewSection = document.getElementById('template-fit-preview-section');
        if (previewSection) {
            previewSection.style.display = 'block';
