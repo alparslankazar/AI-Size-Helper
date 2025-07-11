@@ -1,4 +1,3 @@
-// Sunucu tarafında
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Only POST requests allowed' });
@@ -25,10 +24,15 @@ module.exports = async function handler(req, res) {
     });
     const data = await response.json();
 
-    // Gemini cevabını uygun hale getir!
-    const geminiText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-    // Eğer text geliyorsa string olarak döner
+    // Kod bloğu/backtick temizliği
+    let geminiText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
     if (geminiText) {
+      geminiText = geminiText.trim();
+      if (geminiText.startsWith("```json")) {
+        geminiText = geminiText.replace(/^```json/, "").replace(/```$/, "").trim();
+      } else if (geminiText.startsWith("```")) {
+        geminiText = geminiText.replace(/^```/, "").replace(/```$/, "").trim();
+      }
       return res.status(200).json({ response: geminiText });
     }
     return res.status(500).json({ error: "Gemini response boş veya hatalı", data });
