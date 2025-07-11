@@ -628,30 +628,43 @@ document.addEventListener('DOMContentLoaded', () => {
        'uzun_kilolu_XL': 'https://cdn.myikas.com/images/theme-images/d33d3d0a-2cac-4317-9f49-6fe9b74907f8/image_1080.webp'
    };
    
-   // Beden eşleşme oranları - Fallback için rastgele sistem
+   // Beden eşleşme oranları - DÜZELTME: Akıllı yakın beden sistemi
    const generateRandomMatchPercentages = (recommendedSize) => {
        const sizes = ['S', 'M', 'L', 'XL'];
+       const currentIndex = sizes.indexOf(recommendedSize);
        const percentages = {};
        
        // Önerilen beden için 73-86% arası rastgele
        const recommendedPercentage = Math.floor(Math.random() * (86 - 73 + 1)) + 73;
        percentages[recommendedSize] = recommendedPercentage;
        
-       // Kalan yüzdeyi diğer bedenlere dağıt
+       // Kalan yüzdeyi akıllı dağıt
        const remainingPercentage = 100 - recommendedPercentage;
-       const otherSizes = sizes.filter(size => size !== recommendedSize);
        
-       // Rastgele dağıtım
-       let remaining = remainingPercentage;
+       // En yakın bedeni belirle (akıllı sistem)
+       let closestSize;
+       if (currentIndex === 0) { // S bedeni - sadece yukarı git
+           closestSize = sizes[1]; // M
+       } else if (currentIndex === sizes.length - 1) { // XL bedeni - sadece aşağı git  
+           closestSize = sizes[currentIndex - 1]; // L
+       } else { // Ortadaki bedenler - yukarı git (daha büyük beden)
+           closestSize = sizes[currentIndex + 1];
+       }
+       
+       // En yakın bedene yüksek oran ver (kalan %60-80'i)
+       const closestPercentage = Math.floor(remainingPercentage * (0.6 + Math.random() * 0.2));
+       percentages[closestSize] = closestPercentage;
+       
+       // Geriye kalan yüzdeyi diğer bedenlere dağıt
+       const finalRemaining = remainingPercentage - closestPercentage;
+       const otherSizes = sizes.filter(size => size !== recommendedSize && size !== closestSize);
+       
+       let remaining = finalRemaining;
        otherSizes.forEach((size, index) => {
            if (index === otherSizes.length - 1) {
-               // Son beden için kalan tüm yüzdeyi ver
                percentages[size] = remaining;
            } else {
-               // Rastgele bir miktar ver (en az 1%)
-               const maxForThis = remaining - (otherSizes.length - index - 1);
-               const minForThis = 1;
-               const randomAmount = Math.floor(Math.random() * (Math.max(maxForThis, minForThis) - minForThis + 1)) + minForThis;
+               const randomAmount = Math.floor(Math.random() * (remaining - (otherSizes.length - index - 1))) + 1;
                percentages[size] = randomAmount;
                remaining -= randomAmount;
            }
@@ -679,27 +692,21 @@ Diğer bedenleri mesafeye göre oranla:
 - 2+ beden farkı: 5% altında
 Toplam %100 olmalı.
 
-GÖREV 2 - DETAYLI AÇIKLAMA:
-Şu yapıda 3-4 cümle yaz:
+GÖREV 2 - KİŞİSEL DANIŞMANLIK:
+Samimi ama uzman bir arkadaş gibi yaklaş, tamamen Türkçe konuş:
 
-1. CÜMLE: "Ölçülerinize göre %X eşleşme ile ${recommendedSize} bedeni öneriyoruz." 
-2. CÜMLE: Neden bu beden uygun (boy-kilo-vücut tipi-oversize efekt)
-3. CÜMLE: "Alternatif olarak %Y eşleşme ile [EN YAKIN BEDEN] bedeni de tercih edebilirsin, ancak [size nasıl olacağını açıkla - daha dar/geniş/kısa/uzun]."
-4. CÜMLE: Son cümle için şunlardan birini seç (rastgele):
-   - "Bu bedende kendin gibi rahat hissedeceksin."
-   - "Böylece hem rahat hem şık görüneceksin."  
-   - "Bu seçimle günlük kombinlerin çok daha kolay olacak."
-   - "Oversize kesimin avantajını tam olarak yaşayacaksın."
-   - "Bu bedende özgüvenle giyinebilirsin."
-   - "Sonuçta en önemli şey kendini iyi hissetmen."
-   - "Bu seçimle hiç pişman olmayacaksın."
-   - "Böylece tarzını yansıtan mükemmel bir fit yakalayacaksın."
+"Seni analiz ettim: [GÜÇLÜ YANLARINI ÇEK]. Bu durumda [BEDEN] bedeni %X uyumla tam sana göre çünkü [3 BASIT TÜRKÇE NEDEN].
+
+İkinci seçenek [ALTERNATİF] bedeni (%Y uyum) - eğer [HANGİ DURUMDA] istersen bu da olur ama [BASIT TRADE-OFF].
+
+Tavsiyem: [SAMIMI VE PRATİK TAVSİYE - TAMAMEN TÜRKÇE]."
 
 DİL KURALLARI:
-- "Sen" dili kullan, samimi ol
-- Teknik terimler kullanma, sade açıkla  
-- Oversize kesimin avantajlarından bahset
-- Müşteriyi güvenli hissettir
+- Sadece Türkçe kullan, hiç İngilizce kelime yok
+- "Sen" dili kullan, arkadaşça konuş
+- Teknik terimler yerine günlük dil  
+- "Analiz, profil" gibi kelimeler yerine "baktım, gördüm" tarzı doğal ifadeler
+- Samimi ama bilgili bir arkadaş havası
 
 YANIT FORMATI (sadece JSON):
 {
@@ -759,7 +766,7 @@ YANIT FORMATI (sadece JSON):
        };
    };
    
-   // Vücut tipi kategorileri (boy, kilo kategorisi belirlemek için)
+   // Vücut tipi kategorileri (boy, kilo kategorisi belirlemek için) - DÜZELTME
    const getBodyCategory = (height, weight) => {
        // Boy kategorisi - Güncellenmiş aralıklar
        let heightCategory = 'standart';
@@ -769,12 +776,12 @@ YANIT FORMATI (sadece JSON):
        else if (height < 165) heightCategory = 'kisa'; // 165'ten küçükler de kısa
        else heightCategory = 'uzun'; // 194'ten büyükler de uzun
        
-       // Kilo kategorisi (BMI bazlı)
+       // Kilo kategorisi (BMI bazlı) - DÜZELTME: Daha geniş aralıklar
        const heightM = height / 100;
        const bmi = weight / (heightM * heightM);
        let weightCategory = 'averaj';
-       if (bmi < 20) weightCategory = 'zayif';
-       else if (bmi > 25) weightCategory = 'kilolu';
+       if (bmi < 19) weightCategory = 'zayif';
+       else if (bmi > 27) weightCategory = 'kilolu'; // 25'ten 27'ye çıkarıldı
        
        return { heightCategory, weightCategory };
    };
