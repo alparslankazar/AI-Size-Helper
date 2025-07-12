@@ -677,42 +677,57 @@ document.addEventListener('DOMContentLoaded', () => {
    const getAIMatchingData = async (userData, recommendedSize) => {
        const { height, weight, age, gender, bodyType, shoulderWidth } = userData;
        
-       const prompt = `Sen LOS SURENOS markasının uzman beden danışmanısın. Müşteriye profesyonel ama samimi bir dille rehberlik ediyorsun.
-
-DURUM RAPORU:
-- Müşteri Profili: ${age} yaşında ${gender}, ${height}cm boy, ${weight}kg kilo
-- Vücut Tipi: ${bodyType || 'Belirtilmedi'} / Omuz: ${shoulderWidth || 'Belirtilmedi'}
-- SİSTEM ÖNERİSİ: ${recommendedSize} beden (algoritma sonucu)
+      const prompt = `
+Kullanıcı Profili:
+- Yaş: ${age}
+- Cinsiyet: ${gender}
+- Boy: ${height} cm
+- Kilo: ${weight} kg
+- Vücut Tipi: ${bodyType || 'Belirtilmedi'}
+- Omuz: ${shoulderWidth || 'Belirtilmedi'}
+- Sistem önerisi: ${recommendedSize} beden (algoritma sonucu)
 - Ürün: Oversized Boxy Fit Tee (geniş ve modern kesim)
 
-GÖREV 1 - EŞLEŞME ORANLARI:
-${recommendedSize} bedeni için 70-85% arası uyum oranı belirle.
-Diğer bedenleri mesafeye göre oranla:
-- 1 beden farkı: 10-20% arası
-- 2+ beden farkı: 5% altında
-Toplam %100 olmalı.
+Aşağıdaki verilerle müşteriye özel bir beden öneri raporu oluşturmanı istiyorum:
 
-GÖREV 2 - KİŞİSEL DANIŞMANLIK:
-Samimi ama uzman bir arkadaş gibi yaklaş, tamamen Türkçe konuş:
+Kullanıcı Profil Analizi
+- Türkiye erkek boy ortalaması 176 cm’dir. Kullanıcının boyunu bu ortalamaya göre kaç cm kısa/uzun olduğunu ve toplam boyunu belirt.
+- Kullanıcının vücut kitle endeksini (BMI) belirt (kg / (m x m) ile hesapla).
+- Boy ve kilo değerine göre vücut tipini kısa ve sade şekilde analiz et (ör: ince yapılı, hafif kilolu, atletik vs.).
 
-"Seni analiz ettim: [GÜÇLÜ YANLARINI ÇEK]. Bu durumda [BEDEN] bedeni %X uyumla tam sana göre çünkü [3 BASIT TÜRKÇE NEDEN].
+Beden Önerisi ve Bilgilendirme
+- “Önerilen beden: [beden]”
+- “Uyum oranı: %X (Benzer profile sahip müşterilerin memnuniyet oranına göre)”
+- Neden bu bedeni önerdiğini 3-4 cümleyle teknik ve mantıklı şekilde açıkla. Boy ve kiloya bağlı olarak tişörtün gövdede ve kollarda nasıl duracağını, kısa veya uzun kalıp kalmayacağını, oversize etkisinin korunup korunmayacağını net bir dille belirt.
+- Alternatif beden olarak en yakın ikinci bedeni ve onun uyum oranını ver. Bu alternatifi seçerse nasıl bir farklılık olacağını kısa ama net bir cümleyle anlat (örn: Kol boyu kısa kalabilir, tişört vücuda daha yakın durur vs.).
 
-İkinci seçenek [ALTERNATİF] bedeni (%Y uyum) - eğer [HANGİ DURUMDA] istersen bu da olur ama [BASIT TRADE-OFF].
+DİL KURALI:
+- Açıklama “arkadaşça” ya da “pohpohlayıcı” olmamalı.
+- Net, analitik, mantıklı ve teknik bir dil kullan.
+- Gereksiz övgü, samimi cümleler, abartılı ifadeler, marka ismi veya satış cümleleri yok.
+- Çıktıyı şu iki ana başlıkta, aşağıdaki formatta blok blok hazırla.
 
-Tavsiyem: [SAMIMI VE PRATİK TAVSİYE - TAMAMEN TÜRKÇE]."
-
-DİL KURALLARI:
-- Sadece Türkçe kullan, hiç İngilizce kelime yok
-- "Sen" dili kullan, arkadaşça konuş
-- Teknik terimler yerine günlük dil  
-- "Analiz, profil" gibi kelimeler yerine "baktım, gördüm" tarzı doğal ifadeler
-- Samimi ama bilgili bir arkadaş havası
-
-YANIT FORMATI (sadece JSON):
+YANIT FORMATINDA SADECE ŞU YAPI KULLANILACAK:
 {
   "percentages": {"S": x, "M": y, "L": z, "XL": w},
-  "explanation": "4 cümlelik detaylı açıklama buraya"
-}`;
+  "explanation": "Çıktıyı aşağıdaki gibi iki başlıkta blok blok üret:
+
+Kullanıcı Profil Analizi
+Kullanıcı, Türkiye erkek boy ortalamasından [X cm uzun/kısa] ([YYY cm]).
+Vücut kitle endeksi (BMI): [YY.Y] ([kısa yorum]).
+[Kısa ve mantıklı tip yorumu.]
+
+Beden Önerisi ve Bilgilendirme
+Önerilen beden: [BEDEN]
+Uyum oranı: %XX (Benzer profile sahip müşterilerin memnuniyet oranına göre)
+
+[Açıklama: 3-4 cümle, boy ve kiloya bağlı fit bilgisi, neden bu beden seçildi, oversize etkisi korunur mu, kısa/uzun kalır mı?]
+
+Alternatif: [BEDEN] (%YY uyum)
+[Alternatif seçilirse oluşacak fit ve görünüm farkı – kısa, mantıklı ve teknik.]"
+}
+`;
+
 
        try {
            // Değişiklik burası! ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
