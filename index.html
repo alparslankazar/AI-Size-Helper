@@ -727,7 +727,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const sizes = ['S', 'M', 'L', 'XL'];
         const recIdx = sizes.indexOf(recommendedSize);
         let altBeden = sizes[recIdx === 0 ? 1 : recIdx === sizes.length - 1 ? recIdx - 1 : recIdx + 1];
-const prompt = `
+
+       const prompt = `
 Çıktıyı aşağıdaki üç başlık altında ve aşağıdaki kurallarla oluştur:
 Kullanıcı Profil Analizi
 Beden Önerisi ve Bilgilendirme
@@ -756,22 +757,17 @@ Kullanıcı Profili:
 
 Kullanıcı Profil Analizi
 
-${age} yaşındasınız, boyunuz ${height} cm ve kilonuz ${weight} kg.
-Türkiye'de ${gender.toLowerCase()} boy ortalaması ${gender === "Erkek" ? 176 : 165} cm'dir; siz bu ortalamaya göre ${height - (gender === "Erkek" ? 176 : 165) > 0 ? (height - (gender === "Erkek" ? 176 : 165)) + " cm daha uzunsunuz" : Math.abs(height - (gender === "Erkek" ? 176 : 165)) + " cm daha kısasınız"}. "${heightCategory === "standart" ? "Standart Boy" : heightCategory === "kisa" ? "Kısa Boy" : "Uzun Boy"}" kategorisindesiniz.
-Vücut kitle endeksiniz (BMI): ${bmiValue} - ${weightCategory} kategorisinde.
-Vücut tipiniz: ${bodyType || 'Standart'}, omuz yapınız: ${shoulderWidth || 'normal'}.
+${age} yaşındasınız, boyunuz ${height} cm ve kilonuz ${weight} kg. Türkiye'de ${gender.toLowerCase()} boy ortalaması ${gender === "Erkek" ? 176 : 165} cm'dir; siz bu ortalamaya göre ${height - (gender === "Erkek" ? 176 : 165) > 0 ? (height - (gender === "Erkek" ? 176 : 165)) + " cm daha uzunsunuz" : Math.abs(height - (gender === "Erkek" ? 176 : 165)) + " cm daha kısasınız"}. "${heightCategory === "standart" ? "Standart Boy" : heightCategory === "kisa" ? "Kısa Boy" : "Uzun Boy"}" kategorisindesiniz. Vücut kitle endeksiniz (BMI): ${bmiValue} - ${weightCategory} kategorisinde. Vücut tipiniz: ${bodyType || 'Standart'}, omuz yapınız: ${shoulderWidth || 'normal'}.
 
 Beden Önerisi ve Bilgilendirme
 
-Size ${recommendedSize} beden öneriyorum.
-Uyum oranı: %${percentages[recommendedSize]}
-
-${height} cm boy ve ${weight} kg ile ${recommendedSize} bedende, tişörtün kolları büyük oranda dirsek hizasında (ideal) biter. Gövde ve kol genişliği oversize etkisini tam olarak yansıtır. T-shirt uzunluğunun boyunuza göre ne çok kısa ne de çok uzun olmayacağını, vücudunuza tam olarak uygun ve dengeli duracağını belirt.
+Size ${recommendedSize} beden öneriyorum. Uyum oranı: %${percentages[recommendedSize]}
+Bu beden ile tişörtün kolları dirsek hizasında biter ve oversize görünümü tam olarak yansır. Gövde ve kol genişliği rahatlık sağlar. Tişört uzunluğu boyunuza göre dengeli olur; ne kısa ne de fazla uzun durmaz.
 
 Alternatif Beden
 
 Alternatif olarak ${altBeden} bedenini düşünebilirsiniz (%${percentages[altBeden]} uyum oranı).
-Bu bedende kollar ${altBeden === "S" || altBeden === "M" ? "dirsek hizasının üstünde" : "dirsek hizasının altında"} biter. Tişört daha ${altBeden === "S" || altBeden === "M" ? "fit" : "bol"} durur, oversize görünüm ${altBeden === "S" || altBeden === "M" ? "azalır" : "artırılır"}. Eğer alternatif beden, önerilen bedenden küçükse, t-shirt uzunluğunun boyunuza göre kısa ve gövde yapısının daha dar olacağını belirt. Alternatif beden, önerilen bedenden büyükse, t-shirt uzunluğunun boyunuza göre uzun ve gövde yapısının daha bol olacağını belirt.
+Bu bedende kollar ${altBeden === "S" || altBeden === "M" ? "dirsek hizasının üstünde" : "dirsek hizasının altında"} biter. Eğer bir küçük beden seçerseniz, tişörtün boyu kısa ve gövde oturumu daha dar olur. Eğer bir büyük beden seçerseniz, tişört boyunuzda uzun ve gövde kısmı daha bol durur.
 
 YANIT FORMATINDA SADECE ŞU YAPI KULLANILACAK:
 {
@@ -779,6 +775,7 @@ YANIT FORMATINDA SADECE ŞU YAPI KULLANILACAK:
   "explanation": "Yukarıda dikte edilen gibi, kullanıcıya direkt hitap eden sade teknik açıklama"
 }
 `;
+
 
 
         try {
