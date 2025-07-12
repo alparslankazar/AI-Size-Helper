@@ -673,41 +673,49 @@ document.addEventListener('DOMContentLoaded', () => {
        return percentages;
    };
    
-   // HIBRIT AI SISTEMI: Beden bizim, oran ve açıklama AI'dan
-   const getAIMatchingData = async (userData, recommendedSize) => {
-       const { height, weight, age, gender, bodyType, shoulderWidth } = userData;
-       
+  // HIBRIT AI SISTEMI: Beden bizim, oran ve açıklama AI'dan
+const getAIMatchingData = async (
+    userData,
+    recommendedSize,
+    heightCategory,     // örn: "kısa", "standart", "uzun"
+    weightCategory,     // örn: "zayıf", "normal", "kilolu"
+    bmi,                // float sayı, örn: 21.3
+    percentages,        // {"S": 7, "M": 13, ...}
+    altBeden            // en yakın alternatif beden (string)
+) => {
+    const { height, weight, age, gender, bodyType, shoulderWidth } = userData;
+
     const prompt = `
 Kullanıcı Profili:
 - Yaş: ${age}
 - Cinsiyet: ${gender}
 - Boy: ${height} cm
 - Kilo: ${weight} kg
-- Boy kategorisi: ${heightCategory} (örn: kısa, standart, uzun)
-- Kilo kategorisi: ${weightCategory} (örn: zayıf, normal, kilolu)
+- Boy kategorisi: ${heightCategory}
+- Kilo kategorisi: ${weightCategory}
 - Vücut Tipi: ${bodyType || 'Belirtilmedi'}
 - Omuz: ${shoulderWidth || 'Belirtilmedi'}
 - Sistem önerisi: ${recommendedSize} beden (algoritma sonucu)
-- Ürün: Oversized Boxy Fit Tee (geniş ve modern kesim)
+- Ürün: Oversized Boxy Fit Tee (sadece bu model var)
 
-Aşağıdaki verilerle müşteriye özel bir beden öneri raporu oluşturmanı istiyorum:
+Aşağıdaki verilerle müşteriye özel bir beden öneri raporu oluştur:
 
 Kullanıcı Profil Analizi
-- Türkiye erkek boy ortalaması 176 cm’dir. Kullanıcı, bu ortalamaya göre [kaç cm kısa/uzun] ve toplam boyunu belirt.
-- Vücut kitle endeksi (BMI): [sistemde hesaplanan değer]. Kilo kategorisini (zayıf/normal/kilolu) **aynen yukarıdan al**.
-- Boy ve kilo değerine göre sistemdeki vücut tipini ve fit kategorisini **aynen yukarıdan kullanarak** analizde belirt.
+- Türkiye ${gender.toLowerCase()} boy ortalaması ${gender === "Erkek" ? 176 : 165} cm’dir. Kullanıcı, bu ortalamaya göre ${height - (gender === "Erkek" ? 176 : 165) > 0 ? (height - (gender === "Erkek" ? 176 : 165)) + " cm uzun" : (height - (gender === "Erkek" ? 176 : 165)) < 0 ? Math.abs(height - (gender === "Erkek" ? 176 : 165)) + " cm kısa" : "ortalama boyda"} ve toplam boyu yukarıda belirtildi.
+- Vücut kitle endeksi (BMI): ${bmi.toFixed(1)} (${weightCategory}).
+- Boy ve kilo değerine göre sistemde belirlenen vücut tipi ve fit kategorisi: ${bodyType || 'Belirtilmedi'} / ${shoulderWidth || 'Belirtilmedi'}.
 
 Beden Önerisi ve Bilgilendirme
-- “Önerilen beden: [beden]”
-- “Uyum oranı: %X (Benzer profile sahip müşterilerin memnuniyet oranına göre)”
-- Neden bu bedeni önerdiğini 3-4 cümleyle teknik ve mantıklı şekilde açıkla. Boy ve kiloya bağlı olarak tişörtün gövdede ve kollarda nasıl duracağını, kısa veya uzun kalıp kalmayacağını, oversize etkisinin korunup korunmayacağını net bir dille belirt.
-- Alternatif beden olarak en yakın ikinci bedeni ve onun uyum oranını ver. Bu alternatifi seçerse nasıl bir farklılık olacağını kısa ama net bir cümleyle anlat (örn: Kol boyu kısa kalabilir, tişört vücuda daha yakın durur vs.).
+- Önerilen beden: ${recommendedSize}
+- Uyum oranı: %${percentages[recommendedSize]} (Benzer profile sahip müşterilerin memnuniyet oranına göre)
+- Neden bu bedeni önerdiğini teknik ve mantıklı şekilde açıkla. Boy ve kiloya bağlı olarak tişörtün gövdede ve kollarda nasıl duracağını, kısa veya uzun kalıp kalmayacağını, oversize etkisinin korunup korunmayacağını net bir dille belirt.
+- Alternatif beden olarak en yakın ikinci bedeni (${altBeden}) ve onun uyum oranını (%${percentages[altBeden]}) belirt. Bu alternatifi seçerse nasıl bir farklılık olacağını kısa ve teknik bir cümleyle ifade et (ör: Kol boyu kısa kalabilir, tişört vücuda daha yakın durur, gövde boyu uzun kalabilir vs.).
 
 DİL KURALI:
-- Açıklama “arkadaşça” ya da “pohpohlayıcı” olmamalı.
-- Net, analitik, mantıklı ve teknik bir dil kullan.
-- Gereksiz övgü, samimi cümleler, abartılı ifadeler, marka ismi veya satış cümleleri yok.
-- Çıktıyı şu iki ana başlıkta, aşağıdaki formatta blok blok hazırla.
+- Açıklama arkadaşça, övgü dolu, samimi ya da abartılı olmamalı.
+- Net, analitik ve teknik bir dil kullan.
+- Marka ismi, satış cümlesi veya gereksiz övgü ekleme.
+- Çıktı yalnızca aşağıdaki iki başlıkla ve bloklu şekilde gelsin.
 
 YANIT FORMATINDA SADECE ŞU YAPI KULLANILACAK:
 {
@@ -715,23 +723,20 @@ YANIT FORMATINDA SADECE ŞU YAPI KULLANILACAK:
   "explanation": "Çıktıyı aşağıdaki gibi iki başlıkta blok blok üret:
 
 Kullanıcı Profil Analizi
-Kullanıcı, Türkiye erkek boy ortalamasından [X cm uzun/kısa] ([YYY cm]).
-Vücut kitle endeksi (BMI): [YY.Y] ([zayıf/normal/kilolu]).
-[Vücut tipi ve fit kategorisi: (ör: ince yapılı, hafif kilolu, atletik vs.)]
+Kullanıcı, Türkiye ${gender.toLowerCase()} boy ortalamasından [X cm uzun/kısa] ([${height} cm]).
+Vücut kitle endeksi (BMI): [${bmi.toFixed(1)}] ([${weightCategory}]).
+[Vücut tipi ve fit kategorisi: örn: ince yapılı, kilolu, atletik vs.]
 
 Beden Önerisi ve Bilgilendirme
-Önerilen beden: [BEDEN]
-Uyum oranı: %XX (Benzer profile sahip müşterilerin memnuniyet oranına göre)
+Önerilen beden: [${recommendedSize}]
+Uyum oranı: %${percentages[recommendedSize]} (Benzer profile sahip müşterilerin memnuniyet oranına göre)
 
 [Açıklama: 3-4 cümle, boy ve kiloya bağlı fit bilgisi, neden bu beden seçildi, oversize etkisi korunur mu, kısa/uzun kalır mı?]
 
-Alternatif: [BEDEN] (%YY uyum)
+Alternatif: [${altBeden}] (%${percentages[altBeden]} uyum)
 [Alternatif seçilirse oluşacak fit ve görünüm farkı – kısa, mantıklı ve teknik.]"
 }
 `;
-
-
-
        try {
            // Değişiklik burası! ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
            const response = await fetch('/api/gemini', {
