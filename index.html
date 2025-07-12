@@ -579,7 +579,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- Tüm CDN Linkleri (Görsel eşleştirme için) ---
     const TEMPLATE_CDN_LINKS = {
-        // SHORT (165-174 cm)
         'kisa_zayif_S': 'https://cdn.myikas.com/images/theme-images/a293d775-fd5d-40e0-a67b-865f1b56f258/image_1080.webp',
         'kisa_zayif_M': 'https://cdn.myikas.com/images/theme-images/e3860a1c-64cd-47cd-a93e-5edf746e6b96/image_1080.webp',
         'kisa_zayif_L': 'https://cdn.myikas.com/images/theme-images/43e2602c-3690-4e96-9e48-659649fc39a3/image_1080.webp',
@@ -592,7 +591,6 @@ document.addEventListener('DOMContentLoaded', () => {
         'kisa_kilolu_M': 'https://cdn.myikas.com/images/theme-images/d19f03f0-f190-4247-ae21-59caa8438483/image_1080.webp',
         'kisa_kilolu_L': 'https://cdn.myikas.com/images/theme-images/5fc8a752-fac6-44b9-8b29-3c8a28999c69/image_1080.webp',
         'kisa_kilolu_XL': 'https://cdn.myikas.com/images/theme-images/c5f3a992-cda6-44e7-b0e0-639e2bcbad76/image_1080.webp',
-        // NORMAL (175-184 cm)
         'standart_zayif_S': 'https://cdn.myikas.com/images/theme-images/f6278074-0451-49ad-8a2d-0536bd68be9c/image_1080.webp',
         'standart_zayif_M': 'https://cdn.myikas.com/images/theme-images/82fef597-de90-426e-8fb6-408c277a44e8/image_1080.webp',
         'standart_zayif_L': 'https://cdn.myikas.com/images/theme-images/e6701570-dd36-476b-a1bf-871744550691/image_1080.webp',
@@ -605,7 +603,6 @@ document.addEventListener('DOMContentLoaded', () => {
         'standart_kilolu_M': 'https://cdn.myikas.com/images/theme-images/8c519699-0895-4635-a1d7-0f20cf58a15a/image_1080.webp',
         'standart_kilolu_L': 'https://cdn.myikas.com/images/theme-images/1ef14bcd-e35f-40f9-8f8d-96f43281c6ca/image_1080.webp',
         'standart_kilolu_XL': 'https://cdn.myikas.com/images/theme-images/08c2bf97-5ee5-4376-ac89-445f5a632f2a/image_1080.webp',
-        // TALL (185-194 cm)
         'uzun_zayif_S': 'https://cdn.myikas.com/images/theme-images/4ab4ac9e-7d79-48cd-943d-411cb75adc9b/image_1080.webp',
         'uzun_zayif_M': 'https://cdn.myikas.com/images/theme-images/6edb0385-62c2-4992-8a74-61d7cda549ba/image_1080.webp',
         'uzun_zayif_L': 'https://cdn.myikas.com/images/theme-images/bd520f45-19fb-475a-a12c-d5cc211d9a82/image_1080.webp',
@@ -619,6 +616,34 @@ document.addEventListener('DOMContentLoaded', () => {
         'uzun_kilolu_L': 'https://cdn.myikas.com/images/theme-images/d9c4eadc-90ad-4751-96a4-868cf1af712f/image_1080.webp',
         'uzun_kilolu_XL': 'https://cdn.myikas.com/images/theme-images/d33d3d0a-2cac-4317-9f49-6fe9b74907f8/image_1080.webp'
     };
+
+    // --- Açıklamayı düzgün bloklu HTML'e çeviren fonksiyon ---
+    function formatExplanationBlocks(rawExplanation) {
+        if (!rawExplanation) return '';
+        // Tüm gereksiz boşlukları ve fazla satır sonlarını temizle
+        let explanation = rawExplanation.trim()
+            .replace(/(\r\n|\r|\n){3,}/g, '\n\n') // 3 veya daha fazla satır sonunu ikiye indir
+            .replace(/(\r\n|\r|\n){2,}/g, '\n\n'); // 2+ satır sonunu yine ikiye indir
+
+        // Çift yeni satırlarla böl ve işleme al
+        const sections = explanation.split(/\n{2,}/g).map(s => s.trim()).filter(Boolean);
+        let html = '';
+        sections.forEach((section, i) => {
+            if (
+                section.toLowerCase().includes('profil analizi') ||
+                section.toLowerCase().includes('beden önerisi')
+            ) {
+                html += (i !== 0 ? '<br><br>' : '') + `<b>${section}</b>`;
+            }
+            else if (section.toLowerCase().startsWith('alternatif:')) {
+                html += `<br><br><b>${section}</b>`;
+            }
+            else {
+                html += `<br>${section}`;
+            }
+        });
+        return html.trim();
+    }
 
     // --- Rastgele oranlar ---
     const generateRandomMatchPercentages = (recommendedSize) => {
@@ -672,20 +697,6 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     const calculateBMI = (height, weight) => weight / Math.pow(height / 100, 2);
 
-    // --- Açıklamayı bloklu HTML yap (başlıklar ve cümleler arası <br>) ---
-    function formatExplanationBlocks(text) {
-        // Başlıkları bold yap ve blok aç
-        text = text.replace(/Kullanıcı Profil Analizi/g, '<b>Kullanıcı Profil Analizi</b><br><br>');
-        text = text.replace(/Beden Önerisi ve Bilgilendirme/g, '<b>Beden Önerisi ve Bilgilendirme</b><br><br>');
-        text = text.replace(/Alternatif:/g, '<br><b>Alternatif:</b> ');
-        // Noktalardan sonra yeni satır
-        text = text.replace(/\. /g, '.<br>');
-        // Blok birleşmelerini ayır
-        text = text.replace(/\n{2,}/g, '<br><br>');
-        // Eğer hiç \n yoksa da korumalı şekilde bırak
-        return text;
-    }
-
     // --- AI FONKSİYONU ---
     const getAIMatchingData = async (
         userData,
@@ -716,11 +727,13 @@ Kullanıcı Profili:
 Aşağıdaki verilerle müşteriye özel bir beden öneri raporu oluştur:
 
 Kullanıcı Profil Analizi
+
 - Türkiye ${gender.toLowerCase()} boy ortalaması ${gender === "Erkek" ? 176 : 165} cm’dir. Kullanıcı, bu ortalamaya göre ${height - (gender === "Erkek" ? 176 : 165) > 0 ? (height - (gender === "Erkek" ? 176 : 165)) + " cm uzun" : (height - (gender === "Erkek" ? 176 : 165)) < 0 ? Math.abs(height - (gender === "Erkek" ? 176 : 165)) + " cm kısa" : "ortalama boyda"} ve toplam boyu yukarıda belirtildi.
 - Vücut kitle endeksi (BMI): ${bmiValue} (${weightCategory}).
 - Boy ve kilo değerine göre sistemde belirlenen vücut tipi ve fit kategorisi: ${bodyType || 'Belirtilmedi'} / ${shoulderWidth || 'Belirtilmedi'}.
 
 Beden Önerisi ve Bilgilendirme
+
 - Önerilen beden: ${recommendedSize}
 - Uyum oranı: %${percentages[recommendedSize]} (Benzer profile sahip müşterilerin memnuniyet oranına göre)
 - Neden bu bedeni önerdiğini teknik ve mantıklı şekilde açıkla. Boy ve kiloya bağlı olarak tişörtün gövdede ve kollarda nasıl duracağını, kısa veya uzun kalıp kalmayacağını, oversize etkisinin korunup korunmayacağını net bir dille belirt.
@@ -731,23 +744,12 @@ DİL KURALI:
 - Net, analitik ve teknik bir dil kullan.
 - Marka ismi, satış cümlesi veya gereksiz övgü ekleme.
 - Çıktı yalnızca aşağıdaki iki başlıkla ve bloklu şekilde gelsin.
+- HER BÖLÜMÜN ve paragrafların ARASINA TAM OLARAK İKİ TANE ESCAPELİ YENİ SATIR '\\n\\n' KOY! Gerçek satır sonu karakteri kullanma, sadece string olarak '\\n\\n' yaz.
 
 YANIT FORMATINDA SADECE ŞU YAPI KULLANILACAK:
 {
   "percentages": {"S": x, "M": y, "L": z, "XL": w},
-  "explanation": "Aşağıdaki gibi iki ana başlık halinde, HER BÖLÜMÜN ve paragrafların ARASINA TAM OLARAK İKİ TANE ESCAPELİ YENİ SATIR '\\n\\n' KOY! Gerçek satır sonu karakteri kullanma, sadece string olarak '\\n\\n' yaz.
-
-Kullanıcı Profil Analizi\\n\\n
-Kullanıcı, Türkiye ${gender.toLowerCase()} boy ortalamasından [X cm uzun/kısa] ([${height} cm]).\\n\\n
-Vücut kitle endeksi (BMI): [${bmiValue}] ([${weightCategory}]).\\n\\n
-[Vücut tipi ve fit kategorisi: örn: ince yapılı, kilolu, atletik vs.]\\n\\n
-
-Beden Önerisi ve Bilgilendirme\\n\\n
-Önerilen beden: [${recommendedSize}]\\n\\n
-Uyum oranı: %${percentages[recommendedSize]} (Benzer profile sahip müşterilerin memnuniyet oranına göre)\\n\\n
-[Açıklama: 3-4 cümle, boy ve kiloya bağlı fit bilgisi, neden bu beden seçildi, oversize etkisi korunur mu, kısa/uzun kalır mı?]\\n\\n
-Alternatif: [${altBeden}] (%${percentages[altBeden]} uyum)\\n\\n
-[Alternatif seçilirse oluşacak fit ve görünüm farkı – kısa, mantıklı ve teknik.]"
+  "explanation": "[Kullanıcı Profil Analizi]\\n\\n[Kullanıcı, Türkiye ...] \\n\\n [Vücut kitle ...]\\n\\n [Vücut tipi ...]\\n\\n [Beden Önerisi ve Bilgilendirme]\\n\\n[Önerilen beden ...] vs."
 }
 `;
         try {
@@ -1043,10 +1045,12 @@ Alternatif: [${altBeden}] (%${percentages[altBeden]} uyum)\\n\\n
             percentages
         );
         userData.explanation = aiMatchingData.explanation;
+
+        // *** BLOKLU AÇIKLAMAYI HTML'E DÖNÜŞTÜR ***
+        resultDescription.innerHTML = formatExplanationBlocks(userData.explanation);
+
         document.getElementById('result-size').textContent = userData.recommendedSize;
         document.getElementById('add-to-cart-btn').textContent = `Beden ${userData.recommendedSize} Sepete Ekle`;
-        // FORMATLI BLOKLU YAZDIR!
-        resultDescription.innerHTML = formatExplanationBlocks(aiMatchingData.explanation);
         setTimeout(async () => {
             showStep('step-result');
             if (userData.mode === 'wizard') {
@@ -1073,6 +1077,7 @@ Alternatif: [${altBeden}] (%${percentages[altBeden]} uyum)\\n\\n
     resetWizard();
 });
 </script>
+
 
 
 
