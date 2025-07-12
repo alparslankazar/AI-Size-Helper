@@ -33,6 +33,16 @@ module.exports = async function handler(req, res) {
       } else if (geminiText.startsWith("```")) {
         geminiText = geminiText.replace(/^```/, "").replace(/```$/, "").trim();
       }
+      // === YENİ: Kontrol karakterlerini güvenli hale getir! ===
+      // Tüm satır sonu, carriage return ve kontrol karakterlerini escape et.
+      geminiText = geminiText
+        .replace(/[\u0000-\u001F]+/g, " ") // Tüm kontrol karakterleri boşluğa çevir
+        .replace(/\\n/g, "\\n")            // Eğer stringde \n varsa \\n bırak
+        .replace(/\\r/g, "\\r");           // Eğer stringde \r varsa \\r bırak
+
+      // Alternatif olarak (daha güvenli, frontend'de doğrudan parse):
+      // geminiText = JSON.stringify(geminiText);
+
       return res.status(200).json({ response: geminiText });
     }
     return res.status(500).json({ error: "Gemini response boş veya hatalı", data });
