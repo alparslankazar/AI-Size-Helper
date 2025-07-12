@@ -677,12 +677,14 @@ document.addEventListener('DOMContentLoaded', () => {
    const getAIMatchingData = async (userData, recommendedSize) => {
        const { height, weight, age, gender, bodyType, shoulderWidth } = userData;
        
-      const prompt = `
+    const prompt = `
 Kullanıcı Profili:
 - Yaş: ${age}
 - Cinsiyet: ${gender}
 - Boy: ${height} cm
 - Kilo: ${weight} kg
+- Boy kategorisi: ${heightCategory} (örn: kısa, standart, uzun)
+- Kilo kategorisi: ${weightCategory} (örn: zayıf, normal, kilolu)
 - Vücut Tipi: ${bodyType || 'Belirtilmedi'}
 - Omuz: ${shoulderWidth || 'Belirtilmedi'}
 - Sistem önerisi: ${recommendedSize} beden (algoritma sonucu)
@@ -691,9 +693,9 @@ Kullanıcı Profili:
 Aşağıdaki verilerle müşteriye özel bir beden öneri raporu oluşturmanı istiyorum:
 
 Kullanıcı Profil Analizi
-- Türkiye erkek boy ortalaması 176 cm’dir. Kullanıcının boyunu bu ortalamaya göre kaç cm kısa/uzun olduğunu ve toplam boyunu belirt.
-- Kullanıcının vücut kitle endeksini (BMI) belirt (kg / (m x m) ile hesapla).
-- Boy ve kilo değerine göre vücut tipini kısa ve sade şekilde analiz et (ör: ince yapılı, hafif kilolu, atletik vs.).
+- Türkiye erkek boy ortalaması 176 cm’dir. Kullanıcı, bu ortalamaya göre [kaç cm kısa/uzun] ve toplam boyunu belirt.
+- Vücut kitle endeksi (BMI): [sistemde hesaplanan değer]. Kilo kategorisini (zayıf/normal/kilolu) **aynen yukarıdan al**.
+- Boy ve kilo değerine göre sistemdeki vücut tipini ve fit kategorisini **aynen yukarıdan kullanarak** analizde belirt.
 
 Beden Önerisi ve Bilgilendirme
 - “Önerilen beden: [beden]”
@@ -714,8 +716,8 @@ YANIT FORMATINDA SADECE ŞU YAPI KULLANILACAK:
 
 Kullanıcı Profil Analizi
 Kullanıcı, Türkiye erkek boy ortalamasından [X cm uzun/kısa] ([YYY cm]).
-Vücut kitle endeksi (BMI): [YY.Y] ([kısa yorum]).
-[Kısa ve mantıklı tip yorumu.]
+Vücut kitle endeksi (BMI): [YY.Y] ([zayıf/normal/kilolu]).
+[Vücut tipi ve fit kategorisi: (ör: ince yapılı, hafif kilolu, atletik vs.)]
 
 Beden Önerisi ve Bilgilendirme
 Önerilen beden: [BEDEN]
@@ -727,6 +729,7 @@ Alternatif: [BEDEN] (%YY uyum)
 [Alternatif seçilirse oluşacak fit ve görünüm farkı – kısa, mantıklı ve teknik.]"
 }
 `;
+
 
 
        try {
