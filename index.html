@@ -728,7 +728,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const recIdx = sizes.indexOf(recommendedSize);
         let altBeden = sizes[recIdx === 0 ? 1 : recIdx === sizes.length - 1 ? recIdx - 1 : recIdx + 1];
 
-        const prompt = `
+      const prompt = `
 Çıktıyı aşağıdaki üç başlık altında ve aşağıdaki kurallarla oluştur:
 Kullanıcı Profil Analizi
 Beden Önerisi ve Bilgilendirme
@@ -737,6 +737,11 @@ Alternatif Beden
 Yalnızca bu üç başlık olacak, asla tekrar veya alternatif cümle yok. Her başlığın hemen ardından tam iki yeni satır bırak. Parantez ya da köşeli parantez kullanma. Başlıkları olduğu gibi bırak, aynen yaz.
 
 Sen LOS SURENOS markasının beden danışmanısın ve karşında müşterin var. Ona doğrudan "siz", "sizin" diye hitap et, samimi ama profesyonel ol.
+
+***ORANLAMA KURALI:***
+Seçilen beden için %75 ile %86 arasında bir uyum oranı belirle.
+En yakın alternatif beden için %9 ile %17 arasında bir uyum oranı belirle.
+Kalan iki beden için kalan oranı rastgele dağıt, fakat ikisi de %0 olamaz, her birine en az %1 değer ver. Tüm oranlar tam sayı ve toplamı %100 olacak.
 
 Kullanıcı Profili:
 - Yaş: ${age}
@@ -768,12 +773,14 @@ Alternatif Beden
 
 Alternatif olarak ${altBeden} bedenini düşünebilirsiniz (%${percentages[altBeden]} uyum oranı).
 Bu bedende kollar ${altBeden === "S" || altBeden === "M" ? "dirsek hizasının üstünde" : "dirsek hizasının altında"} biter. Tişört daha ${altBeden === "S" || altBeden === "M" ? "fit" : "bol"} durur, oversize görünüm ${altBeden === "S" || altBeden === "M" ? "azalır" : "artırılır"}.
+
 YANIT FORMATINDA SADECE ŞU YAPI KULLANILACAK:
 {
   "percentages": {"S": x, "M": y, "L": z, "XL": w},
   "explanation": "Yukarıda dikte edilen gibi, kullanıcıya direkt hitap eden sade teknik açıklama"
 }
 `;
+
 
         try {
             const response = await fetch('/api/gemini', {
