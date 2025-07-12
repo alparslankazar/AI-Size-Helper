@@ -619,76 +619,76 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Açıklamayı düzgün bloklu HTML'e çeviren fonksiyon ---
     function formatExplanationBlocks(rawExplanation) {
-    if (!rawExplanation) return '';
-    // Tüm başlıkları normalize et, öncesine ve sonrasına iki satır ekle
-    let explanation = rawExplanation
-        .replace(/(Kullanıcı Profil Analizi)/gi, '\n\nKullanıcı Profil Analizi\n\n')
-        .replace(/(Beden Önerisi ve Bilgilendirme)/gi, '\n\nBeden Önerisi ve Bilgilendirme\n\n')
-        .replace(/(Alternatif Beden)/gi, '\n\nAlternatif Beden\n\n')
-        .replace(/\\n\\n/g, '\n\n')
-        .replace(/(\r\n|\r|\n){3,}/g, '\n\n')
-        .replace(/(\r\n|\r|\n){2,}/g, '\n\n')
-        .trim();
+        if (!rawExplanation) return '';
+        // Başlıkları normalize et, tam bloklu yapı
+        let explanation = rawExplanation
+            .replace(/(Kullanıcı Profil Analizi)/gi, '\n\nKullanıcı Profil Analizi\n\n')
+            .replace(/(Beden Önerisi ve Bilgilendirme)/gi, '\n\nBeden Önerisi ve Bilgilendirme\n\n')
+            .replace(/(Alternatif Beden)/gi, '\n\nAlternatif Beden\n\n')
+            .replace(/\\n\\n/g, '\n\n')
+            .replace(/(\r\n|\r|\n){3,}/g, '\n\n')
+            .replace(/(\r\n|\r|\n){2,}/g, '\n\n')
+            .trim();
+        // Normalize ve başlıklara kalınlık
+        const normalize = str => str
+            .replace(/\[?\s*kullanıcı profil analizi\s*\]?/gi, "Kullanıcı Profil Analizi")
+            .replace(/\[?\s*beden önerisi ve bilgilendirme\s*\]?/gi, "Beden Önerisi ve Bilgilendirme")
+            .replace(/\[?\s*alternatif beden\s*\]?/gi, "Alternatif Beden")
+            .replace(/alternatif beden olarak/i, "Alternatif Beden")
+            .replace(/\s+/g, " ")
+            .trim();
 
-    // Çift yeni satırlarla böl ve işleme al
-    const normalize = str => str
-        .replace(/\[?\s*kullanıcı profil analizi\s*\]?/gi, "Kullanıcı Profil Analizi")
-        .replace(/\[?\s*beden önerisi ve bilgilendirme\s*\]?/gi, "Beden Önerisi ve Bilgilendirme")
-        .replace(/\[?\s*alternatif beden\s*\]?/gi, "Alternatif Beden")
-        .replace(/alternatif beden olarak/i, "Alternatif Beden")
-        .replace(/\s+/g, " ")
-        .trim();
-
-    let sections = explanation.split(/\n{2,}/g).map(s => normalize(s.trim())).filter(Boolean);
-
-    let html = '';
-    let seen = {};
-    sections.forEach((section, i) => {
-        if (
-            /^kullanıcı profil analizi$/i.test(section) ||
-            /^beden önerisi ve bilgilendirme$/i.test(section) ||
-            /^alternatif beden$/i.test(section)
-        ) {
-            if (!seen[section.toLowerCase()]) {
-                html += (i !== 0 ? '<br><br>' : '') + `<b style="font-size:1.1em;">${section}</b>`;
-                seen[section.toLowerCase()] = true;
+        let sections = explanation.split(/\n{2,}/g).map(s => normalize(s.trim())).filter(Boolean);
+        let html = '';
+        let seen = {};
+        sections.forEach((section, i) => {
+            if (
+                /^kullanıcı profil analizi$/i.test(section) ||
+                /^beden önerisi ve bilgilendirme$/i.test(section) ||
+                /^alternatif beden$/i.test(section)
+            ) {
+                if (!seen[section.toLowerCase()]) {
+                    html += (i !== 0 ? '<br><br>' : '') + `<b style="font-size:1.1em;">${section}</b>`;
+                    seen[section.toLowerCase()] = true;
+                }
             }
-        }
-        else {
-            html += `<br>${section}`;
-        }
-    });
-    return html.trim();
-}
-
-
-    // --- Rastgele oranlar ---
-    const generateRandomMatchPercentages = (recommendedSize) => {
-        const sizes = ['S', 'M', 'L', 'XL'];
-        const currentIndex = sizes.indexOf(recommendedSize);
-        const percentages = {};
-        const recommendedPercentage = Math.floor(Math.random() * (86 - 73 + 1)) + 73;
-        percentages[recommendedSize] = recommendedPercentage;
-        const remainingPercentage = 100 - recommendedPercentage;
-        let closestSize;
-        if (currentIndex === 0) closestSize = sizes[1];
-        else if (currentIndex === sizes.length - 1) closestSize = sizes[currentIndex - 1];
-        else closestSize = sizes[currentIndex + 1];
-        const closestPercentage = Math.floor(remainingPercentage * (0.6 + Math.random() * 0.2));
-        percentages[closestSize] = closestPercentage;
-        const finalRemaining = remainingPercentage - closestPercentage;
-        const otherSizes = sizes.filter(size => size !== recommendedSize && size !== closestSize);
-        let remaining = finalRemaining;
-        otherSizes.forEach((size, index) => {
-            if (index === otherSizes.length - 1) percentages[size] = remaining;
             else {
-                const randomAmount = Math.floor(Math.random() * (remaining - (otherSizes.length - index - 1))) + 1;
-                percentages[size] = randomAmount;
-                remaining -= randomAmount;
+                html += `<br>${section}`;
             }
         });
+        return html.trim();
+    }
+
+    // --- YENİ: Dağıtım algoritması asla %0 bırakmaz ---
+    function generateMatchPercentages(recommendedSize) {
+        const sizes = ['S', 'M', 'L', 'XL'];
+        const percentages = { S: 0, M: 0, L: 0, XL: 0 };
+        const mainPerc = Math.floor(Math.random() * (86 - 73 + 1)) + 73;
+        percentages[recommendedSize] = mainPerc;
+        let remaining = 100 - mainPerc;
+        const recIdx = sizes.indexOf(recommendedSize);
+        let altBeden;
+        if (recIdx === 0) altBeden = sizes[1];
+        else if (recIdx === sizes.length - 1) altBeden = sizes[recIdx - 1];
+        else altBeden = sizes[recIdx + 1];
+        const altMin = 5, otherMin = 1;
+        let altPerc = Math.max(altMin, Math.floor(remaining * (0.5 + Math.random() * 0.3)));
+        altPerc = Math.min(altPerc, remaining - 2 * otherMin);
+        percentages[altBeden] = altPerc;
+        remaining -= altPerc;
+        const otherSizes = sizes.filter(s => s !== recommendedSize && s !== altBeden);
+        if (otherSizes.length === 2) {
+            percentages[otherSizes[0]] = otherMin;
+            percentages[otherSizes[1]] = remaining - otherMin;
+        } else if (otherSizes.length === 1) {
+            percentages[otherSizes[0]] = remaining;
+        }
+        let total = Object.values(percentages).reduce((a, b) => a + b, 0);
+        if (total !== 100) {
+            percentages[recommendedSize] += (100 - total);
+        }
         return percentages;
-    };
+    }
 
     // --- Boy/kilo kategorisi & BMI ---
     const getBodyCategory = (height, weight, gender = 'Erkek') => {
@@ -728,7 +728,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const recIdx = sizes.indexOf(recommendedSize);
         let altBeden = sizes[recIdx === 0 ? 1 : recIdx === sizes.length - 1 ? recIdx - 1 : recIdx + 1];
 
-const prompt = `
+        const prompt = `
 Çıktıyı aşağıdaki üç başlık altında ve aşağıdaki kurallarla oluştur:
 Kullanıcı Profil Analizi
 Beden Önerisi ve Bilgilendirme
@@ -774,7 +774,6 @@ YANIT FORMATINDA SADECE ŞU YAPI KULLANILACAK:
   "explanation": "Yukarıda dikte edilen gibi, kullanıcıya direkt hitap eden sade teknik açıklama"
 }
 `;
-
 
         try {
             const response = await fetch('/api/gemini', {
@@ -1059,7 +1058,7 @@ YANIT FORMATINDA SADECE ŞU YAPI KULLANILACAK:
         const bmiValue = calculateBMI(height, weight).toFixed(1);
         const finalSize = getRuleBasedRecommendation(height, weight, userData.age, userData.gender, userData.bodyType, userData.shoulderWidth);
         userData.recommendedSize = finalSize;
-        const percentages = generateRandomMatchPercentages(finalSize);
+        const percentages = generateMatchPercentages(finalSize);
         const aiMatchingData = await getAIMatchingData(
             userData,
             finalSize,
@@ -1069,10 +1068,7 @@ YANIT FORMATINDA SADECE ŞU YAPI KULLANILACAK:
             percentages
         );
         userData.explanation = aiMatchingData.explanation;
-
-        // *** BLOKLU AÇIKLAMAYI HTML'E DÖNÜŞTÜR ***
         resultDescription.innerHTML = formatExplanationBlocks(userData.explanation);
-
         document.getElementById('result-size').textContent = userData.recommendedSize;
         document.getElementById('add-to-cart-btn').textContent = `Beden ${userData.recommendedSize} Sepete Ekle`;
         setTimeout(async () => {
@@ -1101,6 +1097,7 @@ YANIT FORMATINDA SADECE ŞU YAPI KULLANILACAK:
     resetWizard();
 });
 </script>
+
 
 
 
