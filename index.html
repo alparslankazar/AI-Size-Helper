@@ -752,29 +752,29 @@ Kullanıcı Profili:
 
 Kullanıcı Profil Analizi
 
-${age} yaşında, ${height} cm boyunda ve ${weight} kg olan ${gender.toLowerCase()} bir profil. Türkiye ${gender.toLowerCase()} boy ortalaması ${gender === "Erkek" ? 176 : 165} cm'dir - siz bu ortalamaya göre ${height - (gender === "Erkek" ? 176 : 165) > 0 ? (height - (gender === "Erkek" ? 176 : 165)) + " cm daha uzunsunuz" : (height - (gender === "Erkek" ? 176 : 165)) < 0 ? Math.abs(height - (gender === "Erkek" ? 176 : 165)) + " cm daha kısasınız" : "ortalama boydasınız"}.
-
-Vücut kitle endeksiniz (BMI): ${bmiValue} - bu da ${weightCategory} kategorisinde yer alıyor. ${bodyType || 'Standart'} vücut tipiniz ve ${shoulderWidth || 'normal'} omuz yapınız var.
+${age} yaşındasınız, boyunuz ${height} cm ve kilonuz ${weight} kg.
+Türkiye'de ${gender.toLowerCase()} boy ortalaması ${gender === "Erkek" ? 176 : 165} cm'dir; siz bu ortalamaya göre ${height - (gender === "Erkek" ? 176 : 165) > 0 ? (height - (gender === "Erkek" ? 176 : 165)) + " cm daha uzunsunuz" : Math.abs(height - (gender === "Erkek" ? 176 : 165)) + " cm daha kısasınız"}. "${heightCategory === "standart" ? "Standart Boy" : heightCategory === "kisa" ? "Kısa Boy" : "Uzun Boy"}" kategorisinde yer alıyorsunuz.
+Vücut kitle endeksiniz (BMI): ${bmiValue} - bu değer ${weightCategory} kategorisinde değerlendiriliyor.
+Vücut tipiniz: ${bodyType || 'Standart'}, Omuz yapınız: ${shoulderWidth || 'Normal'}.
 
 Beden Önerisi ve Bilgilendirme
 
 Size ${recommendedSize} beden öneriyorum.
 Uyum oranı: %${percentages[recommendedSize]} (Benzer vücut ölçülerine sahip müşterilerin memnuniyet oranı)
 
-${height} cm boyunuzla ${recommendedSize} bedeni seçtiğinizde tişörtün size nasıl oturacağını açıklayayım: Kolların uzunluğu, gövdenin genişliği ve boyunun ${weight} kg kilonuzla nasıl bir uyum sağlayacağını detaylı anlat. Oversize etkisinin tam olarak nasıl görüneceğini belirt.
+${height} cm boyunuz ve ${weight} kg kilonuzla, ${recommendedSize} bedeni seçerseniz tişörtün kolları büyük oranda dirsek hizasında biter. Gövde uzunluğu ve genişliği, oversize etkisini hem rahat hem de modern şekilde gösterecektir. Kollar, dirsek hizasında biterek hem rahat hareket sağlar hem de oversize görünüm korunur.
 
 Alternatif Beden
 
 Alternatif olarak ${altBeden} bedenini de düşünebilirsiniz (%${percentages[altBeden]} uyum oranı). 
-
-${altBeden} bedeni seçerseniz ne değişir: Size nasıl bir farklılık yaratacağını somut örneklerle açıkla (kolların durumu, gövde oturması, genel görünüm farkı).
-
+Bu bedeni seçerseniz, kollar ${altBeden === "S" || altBeden === "M" ? "dirsek hizasının üstünde" : "dirsek hizasının altında"} biter. Tişört gövde ve kol boyu farklılaşır; genel görünümde oversize etkisi ${altBeden === "S" || altBeden === "M" ? "azalır" : "daha fazla belirginleşir"}.
 YANIT FORMATINDA SADECE ŞU YAPI KULLANILACAK:
 {
   "percentages": {"S": x, "M": y, "L": z, "XL": w},
   "explanation": "Yukarıda dikte edilen gibi, yardımsever doğrudan kullanıcıya hitap eden samimi ama profesyonel ton"
 }
 `;
+
         try {
             const response = await fetch('/api/gemini', {
                 method: 'POST',
