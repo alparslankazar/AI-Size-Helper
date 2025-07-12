@@ -619,52 +619,48 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Açıklamayı düzgün bloklu HTML'e çeviren fonksiyon ---
     function formatExplanationBlocks(rawExplanation) {
-        if (!rawExplanation) return '';
-        // Başlıkları normalize et ve gereksiz tekrarları çıkar
-        const normalize = str => str
-            .replace(/\[?\s*kullanıcı profil analizi\s*\]?/gi, "Kullanıcı Profil Analizi")
-            .replace(/\[?\s*beden önerisi ve bilgilendirme\s*\]?/gi, "Beden Önerisi ve Bilgilendirme")
-            .replace(/\[?\s*alternatif beden\s*\]?/gi, "Alternatif Beden")
-            .replace(/alternatif beden olarak/i, "Alternatif Beden")
-            .replace(/\s+/g, " ")
-            .trim();
+    if (!rawExplanation) return '';
+    // Tüm başlıkları normalize et, öncesine ve sonrasına iki satır ekle
+    let explanation = rawExplanation
+        .replace(/(Kullanıcı Profil Analizi)/gi, '\n\nKullanıcı Profil Analizi\n\n')
+        .replace(/(Beden Önerisi ve Bilgilendirme)/gi, '\n\nBeden Önerisi ve Bilgilendirme\n\n')
+        .replace(/(Alternatif Beden)/gi, '\n\nAlternatif Beden\n\n')
+        .replace(/\\n\\n/g, '\n\n')
+        .replace(/(\r\n|\r|\n){3,}/g, '\n\n')
+        .replace(/(\r\n|\r|\n){2,}/g, '\n\n')
+        .trim();
 
-        let explanation = rawExplanation
-            .replace(/\\n\\n/g, '\n\n')  // escape'li satır sonlarını düzelt
-            .replace(/(\r\n|\r|\n){3,}/g, '\n\n')
-            .replace(/(\r\n|\r|\n){2,}/g, '\n\n')
-            .trim();
+    // Çift yeni satırlarla böl ve işleme al
+    const normalize = str => str
+        .replace(/\[?\s*kullanıcı profil analizi\s*\]?/gi, "Kullanıcı Profil Analizi")
+        .replace(/\[?\s*beden önerisi ve bilgilendirme\s*\]?/gi, "Beden Önerisi ve Bilgilendirme")
+        .replace(/\[?\s*alternatif beden\s*\]?/gi, "Alternatif Beden")
+        .replace(/alternatif beden olarak/i, "Alternatif Beden")
+        .replace(/\s+/g, " ")
+        .trim();
 
-        let sections = explanation.split(/\n{2,}/g).map(s => normalize(s.trim())).filter(Boolean);
+    let sections = explanation.split(/\n{2,}/g).map(s => normalize(s.trim())).filter(Boolean);
 
-        let html = '';
-        let seen = {};
-        sections.forEach((section, i) => {
-            if (
-                /^kullanıcı profil analizi$/i.test(section) ||
-                /^beden önerisi ve bilgilendirme$/i.test(section) ||
-                /^alternatif beden$/i.test(section)
-            ) {
-                if (!seen[section.toLowerCase()]) {
-                    html += (i !== 0 ? '<br><br>' : '') + `<b style="font-size:1.1em;">${section}</b>`;
-                    seen[section.toLowerCase()] = true;
-                }
+    let html = '';
+    let seen = {};
+    sections.forEach((section, i) => {
+        if (
+            /^kullanıcı profil analizi$/i.test(section) ||
+            /^beden önerisi ve bilgilendirme$/i.test(section) ||
+            /^alternatif beden$/i.test(section)
+        ) {
+            if (!seen[section.toLowerCase()]) {
+                html += (i !== 0 ? '<br><br>' : '') + `<b style="font-size:1.1em;">${section}</b>`;
+                seen[section.toLowerCase()] = true;
             }
-            else if (/^(kullanıcı profil analizi|beden önerisi ve bilgilendirme|alternatif beden)/i.test(section)) {
-                let header = section.match(/^(kullanıcı profil analizi|beden önerisi ve bilgilendirme|alternatif beden)/i)[0];
-                let body = section.replace(/^(kullanıcı profil analizi|beden önerisi ve bilgilendirme|alternatif beden)/i, '').trim();
-                if (!seen[header.toLowerCase()]) {
-                    html += (i !== 0 ? '<br><br>' : '') + `<b style="font-size:1.1em;">${header}</b>`;
-                    seen[header.toLowerCase()] = true;
-                }
-                if (body) html += `<br>${body}`;
-            }
-            else {
-                html += `<br>${section}`;
-            }
-        });
-        return html.trim();
-    }
+        }
+        else {
+            html += `<br>${section}`;
+        }
+    });
+    return html.trim();
+}
+
 
     // --- Rastgele oranlar ---
     const generateRandomMatchPercentages = (recommendedSize) => {
