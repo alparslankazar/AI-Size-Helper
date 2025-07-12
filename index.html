@@ -577,105 +577,116 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-   // Template CDN Links Mapping - Tüm gerçek linkler
-   const TEMPLATE_CDN_LINKS = {
-       // SHORT (165-174 cm)
-       'kisa_zayif_S': 'https://cdn.myikas.com/images/theme-images/a293d775-fd5d-40e0-a67b-865f1b56f258/image_1080.webp',
-       'kisa_zayif_M': 'https://cdn.myikas.com/images/theme-images/e3860a1c-64cd-47cd-a93e-5edf746e6b96/image_1080.webp',
-       'kisa_zayif_L': 'https://cdn.myikas.com/images/theme-images/43e2602c-3690-4e96-9e48-659649fc39a3/image_1080.webp',
-       'kisa_zayif_XL': 'https://cdn.myikas.com/images/theme-images/d7f9a8b4-c95f-4303-9f7a-37274e86fdbd/image_1080.webp',
-       
-       'kisa_averaj_S': 'https://cdn.myikas.com/images/theme-images/0ad4ce68-d72c-4aec-b90b-de6d1bb70a65/image_1080.webp',
-       'kisa_averaj_M': 'https://cdn.myikas.com/images/theme-images/4475460d-d91e-4c66-a36c-a0efc512eff4/image_1080.webp',
-       'kisa_averaj_L': 'https://cdn.myikas.com/images/theme-images/9690a8b5-4c4f-403e-9eb8-bdb29adcb96e/image_1080.webp',
-       'kisa_averaj_XL': 'https://cdn.myikas.com/images/theme-images/c7e3d877-ced8-442c-8646-e29a65e4185c/image_1080.webp',
-       
-       'kisa_kilolu_S': 'https://cdn.myikas.com/images/theme-images/5c6f0395-0e3c-46dd-86a3-f92237b3c76c/image_1080.webp',
-       'kisa_kilolu_M': 'https://cdn.myikas.com/images/theme-images/d19f03f0-f190-4247-ae21-59caa8438483/image_1080.webp',
-       'kisa_kilolu_L': 'https://cdn.myikas.com/images/theme-images/5fc8a752-fac6-44b9-8b29-3c8a28999c69/image_1080.webp',
-       'kisa_kilolu_XL': 'https://cdn.myikas.com/images/theme-images/c5f3a992-cda6-44e7-b0e0-639e2bcbad76/image_1080.webp',
-       
-       // NORMAL (175-184 cm) 
-       'standart_zayif_S': 'https://cdn.myikas.com/images/theme-images/f6278074-0451-49ad-8a2d-0536bd68be9c/image_1080.webp',
-       'standart_zayif_M': 'https://cdn.myikas.com/images/theme-images/82fef597-de90-426e-8fb6-408c277a44e8/image_1080.webp',
-       'standart_zayif_L': 'https://cdn.myikas.com/images/theme-images/e6701570-dd36-476b-a1bf-871744550691/image_1080.webp',
-       'standart_zayif_XL': 'https://cdn.myikas.com/images/theme-images/a97da1cc-df7e-42f1-bed7-653722affa94/image_1080.webp',
-       
-       'standart_averaj_S': 'https://cdn.myikas.com/images/theme-images/5f52b28e-f2ac-4dcb-9ee4-b25ec42727e3/image_1080.webp',
-       'standart_averaj_M': 'https://cdn.myikas.com/images/theme-images/ce725246-11c0-4edd-9362-c9877518ade1/image_1080.webp',
-       'standart_averaj_L': 'https://cdn.myikas.com/images/theme-images/8b84976d-62eb-4829-9a42-c66f191be173/image_1080.webp',
-       'standart_averaj_XL': 'https://cdn.myikas.com/images/theme-images/bc5ee2e4-b747-4fb2-b312-4e8fcdcaba20/image_1080.webp',
-       
-       'standart_kilolu_S': 'https://cdn.myikas.com/images/theme-images/e11024a2-6950-448a-bffa-8e020b87d99b/image_1080.webp',
-       'standart_kilolu_M': 'https://cdn.myikas.com/images/theme-images/8c519699-0895-4635-a1d7-0f20cf58a15a/image_1080.webp',
-       'standart_kilolu_L': 'https://cdn.myikas.com/images/theme-images/1ef14bcd-e35f-40f9-8f8d-96f43281c6ca/image_1080.webp',
-       'standart_kilolu_XL': 'https://cdn.myikas.com/images/theme-images/08c2bf97-5ee5-4376-ac89-445f5a632f2a/image_1080.webp',
-       
-       // TALL (185-194 cm)
-       'uzun_zayif_S': 'https://cdn.myikas.com/images/theme-images/4ab4ac9e-7d79-48cd-943d-411cb75adc9b/image_1080.webp',
-       'uzun_zayif_M': 'https://cdn.myikas.com/images/theme-images/6edb0385-62c2-4992-8a74-61d7cda549ba/image_1080.webp',
-       'uzun_zayif_L': 'https://cdn.myikas.com/images/theme-images/bd520f45-19fb-475a-a12c-d5cc211d9a82/image_1080.webp',
-       'uzun_zayif_XL': 'https://cdn.myikas.com/images/theme-images/23ce8514-ede7-470c-9f00-d387578f1c9f/image_1080.webp',
-       
-       'uzun_averaj_S': 'https://cdn.myikas.com/images/theme-images/fbcfb6d2-986d-445a-901a-482b23c17604/image_1080.webp',
-       'uzun_averaj_M': 'https://cdn.myikas.com/images/theme-images/ffd25756-5aff-4358-955c-89a73dbdd239/image_1080.webp',
-       'uzun_averaj_L': 'https://cdn.myikas.com/images/theme-images/cecd85af-3ce0-4dac-8481-d52ad84c16f0/image_1080.webp',
-       'uzun_averaj_XL': 'https://cdn.myikas.com/images/theme-images/094de50c-7347-46fd-b52b-1089a8f9e29b/image_1080.webp',
-       
-       'uzun_kilolu_S': 'https://cdn.myikas.com/images/theme-images/ac29b773-9715-4548-a008-cf6b4b81ca39/image_1080.webp',
-       'uzun_kilolu_M': 'https://cdn.myikas.com/images/theme-images/966fa848-d9fc-4e04-87d4-4f9e0906a340/image_1080.webp',
-       'uzun_kilolu_L': 'https://cdn.myikas.com/images/theme-images/d9c4eadc-90ad-4751-96a4-868cf1af712f/image_1080.webp',
-       'uzun_kilolu_XL': 'https://cdn.myikas.com/images/theme-images/d33d3d0a-2cac-4317-9f49-6fe9b74907f8/image_1080.webp'
-   };
-   
-   // Beden eşleşme oranları - DÜZELTME: Akıllı yakın beden sistemi
-   const generateRandomMatchPercentages = (recommendedSize) => {
-       const sizes = ['S', 'M', 'L', 'XL'];
-       const currentIndex = sizes.indexOf(recommendedSize);
-       const percentages = {};
-       
-       // Önerilen beden için 73-86% arası rastgele
-       const recommendedPercentage = Math.floor(Math.random() * (86 - 73 + 1)) + 73;
-       percentages[recommendedSize] = recommendedPercentage;
-       
-       // Kalan yüzdeyi akıllı dağıt
-       const remainingPercentage = 100 - recommendedPercentage;
-       
-       // En yakın bedeni belirle (akıllı sistem)
-       let closestSize;
-       if (currentIndex === 0) { // S bedeni - sadece yukarı git
-           closestSize = sizes[1]; // M
-       } else if (currentIndex === sizes.length - 1) { // XL bedeni - sadece aşağı git  
-           closestSize = sizes[currentIndex - 1]; // L
-       } else { // Ortadaki bedenler - yukarı git (daha büyük beden)
-           closestSize = sizes[currentIndex + 1];
-       }
-       
-       // En yakın bedene yüksek oran ver (kalan %60-80'i)
-       const closestPercentage = Math.floor(remainingPercentage * (0.6 + Math.random() * 0.2));
-       percentages[closestSize] = closestPercentage;
-       
-       // Geriye kalan yüzdeyi diğer bedenlere dağıt
-       const finalRemaining = remainingPercentage - closestPercentage;
-       const otherSizes = sizes.filter(size => size !== recommendedSize && size !== closestSize);
-       
-       let remaining = finalRemaining;
-       otherSizes.forEach((size, index) => {
-           if (index === otherSizes.length - 1) {
-               percentages[size] = remaining;
-           } else {
-               const randomAmount = Math.floor(Math.random() * (remaining - (otherSizes.length - index - 1))) + 1;
-               percentages[size] = randomAmount;
-               remaining -= randomAmount;
-           }
-       });
-       
-       return percentages;
-   };
-   
-  // HIBRIT AI SISTEMI: Beden bizim, oran ve açıklama AI'dan
- // --- [AI FONKSİYONU] ---
- const prompt = `
+    // --- Tüm CDN Linkleri (Görsel eşleştirme için) ---
+    const TEMPLATE_CDN_LINKS = {
+        // SHORT (165-174 cm)
+        'kisa_zayif_S': 'https://cdn.myikas.com/images/theme-images/a293d775-fd5d-40e0-a67b-865f1b56f258/image_1080.webp',
+        'kisa_zayif_M': 'https://cdn.myikas.com/images/theme-images/e3860a1c-64cd-47cd-a93e-5edf746e6b96/image_1080.webp',
+        'kisa_zayif_L': 'https://cdn.myikas.com/images/theme-images/43e2602c-3690-4e96-9e48-659649fc39a3/image_1080.webp',
+        'kisa_zayif_XL': 'https://cdn.myikas.com/images/theme-images/d7f9a8b4-c95f-4303-9f7a-37274e86fdbd/image_1080.webp',
+        'kisa_averaj_S': 'https://cdn.myikas.com/images/theme-images/0ad4ce68-d72c-4aec-b90b-de6d1bb70a65/image_1080.webp',
+        'kisa_averaj_M': 'https://cdn.myikas.com/images/theme-images/4475460d-d91e-4c66-a36c-a0efc512eff4/image_1080.webp',
+        'kisa_averaj_L': 'https://cdn.myikas.com/images/theme-images/9690a8b5-4c4f-403e-9eb8-bdb29adcb96e/image_1080.webp',
+        'kisa_averaj_XL': 'https://cdn.myikas.com/images/theme-images/c7e3d877-ced8-442c-8646-e29a65e4185c/image_1080.webp',
+        'kisa_kilolu_S': 'https://cdn.myikas.com/images/theme-images/5c6f0395-0e3c-46dd-86a3-f92237b3c76c/image_1080.webp',
+        'kisa_kilolu_M': 'https://cdn.myikas.com/images/theme-images/d19f03f0-f190-4247-ae21-59caa8438483/image_1080.webp',
+        'kisa_kilolu_L': 'https://cdn.myikas.com/images/theme-images/5fc8a752-fac6-44b9-8b29-3c8a28999c69/image_1080.webp',
+        'kisa_kilolu_XL': 'https://cdn.myikas.com/images/theme-images/c5f3a992-cda6-44e7-b0e0-639e2bcbad76/image_1080.webp',
+        // NORMAL (175-184 cm) 
+        'standart_zayif_S': 'https://cdn.myikas.com/images/theme-images/f6278074-0451-49ad-8a2d-0536bd68be9c/image_1080.webp',
+        'standart_zayif_M': 'https://cdn.myikas.com/images/theme-images/82fef597-de90-426e-8fb6-408c277a44e8/image_1080.webp',
+        'standart_zayif_L': 'https://cdn.myikas.com/images/theme-images/e6701570-dd36-476b-a1bf-871744550691/image_1080.webp',
+        'standart_zayif_XL': 'https://cdn.myikas.com/images/theme-images/a97da1cc-df7e-42f1-bed7-653722affa94/image_1080.webp',
+        'standart_averaj_S': 'https://cdn.myikas.com/images/theme-images/5f52b28e-f2ac-4dcb-9ee4-b25ec42727e3/image_1080.webp',
+        'standart_averaj_M': 'https://cdn.myikas.com/images/theme-images/ce725246-11c0-4edd-9362-c9877518ade1/image_1080.webp',
+        'standart_averaj_L': 'https://cdn.myikas.com/images/theme-images/8b84976d-62eb-4829-9a42-c66f191be173/image_1080.webp',
+        'standart_averaj_XL': 'https://cdn.myikas.com/images/theme-images/bc5ee2e4-b747-4fb2-b312-4e8fcdcaba20/image_1080.webp',
+        'standart_kilolu_S': 'https://cdn.myikas.com/images/theme-images/e11024a2-6950-448a-bffa-8e020b87d99b/image_1080.webp',
+        'standart_kilolu_M': 'https://cdn.myikas.com/images/theme-images/8c519699-0895-4635-a1d7-0f20cf58a15a/image_1080.webp',
+        'standart_kilolu_L': 'https://cdn.myikas.com/images/theme-images/1ef14bcd-e35f-40f9-8f8d-96f43281c6ca/image_1080.webp',
+        'standart_kilolu_XL': 'https://cdn.myikas.com/images/theme-images/08c2bf97-5ee5-4376-ac89-445f5a632f2a/image_1080.webp',
+        // TALL (185-194 cm)
+        'uzun_zayif_S': 'https://cdn.myikas.com/images/theme-images/4ab4ac9e-7d79-48cd-943d-411cb75adc9b/image_1080.webp',
+        'uzun_zayif_M': 'https://cdn.myikas.com/images/theme-images/6edb0385-62c2-4992-8a74-61d7cda549ba/image_1080.webp',
+        'uzun_zayif_L': 'https://cdn.myikas.com/images/theme-images/bd520f45-19fb-475a-a12c-d5cc211d9a82/image_1080.webp',
+        'uzun_zayif_XL': 'https://cdn.myikas.com/images/theme-images/23ce8514-ede7-470c-9f00-d387578f1c9f/image_1080.webp',
+        'uzun_averaj_S': 'https://cdn.myikas.com/images/theme-images/fbcfb6d2-986d-445a-901a-482b23c17604/image_1080.webp',
+        'uzun_averaj_M': 'https://cdn.myikas.com/images/theme-images/ffd25756-5aff-4358-955c-89a73dbdd239/image_1080.webp',
+        'uzun_averaj_L': 'https://cdn.myikas.com/images/theme-images/cecd85af-3ce0-4dac-8481-d52ad84c16f0/image_1080.webp',
+        'uzun_averaj_XL': 'https://cdn.myikas.com/images/theme-images/094de50c-7347-46fd-b52b-1089a8f9e29b/image_1080.webp',
+        'uzun_kilolu_S': 'https://cdn.myikas.com/images/theme-images/ac29b773-9715-4548-a008-cf6b4b81ca39/image_1080.webp',
+        'uzun_kilolu_M': 'https://cdn.myikas.com/images/theme-images/966fa848-d9fc-4e04-87d4-4f9e0906a340/image_1080.webp',
+        'uzun_kilolu_L': 'https://cdn.myikas.com/images/theme-images/d9c4eadc-90ad-4751-96a4-868cf1af712f/image_1080.webp',
+        'uzun_kilolu_XL': 'https://cdn.myikas.com/images/theme-images/d33d3d0a-2cac-4317-9f49-6fe9b74907f8/image_1080.webp'
+    };
+
+    // --- Rastgele oranlar ---
+    const generateRandomMatchPercentages = (recommendedSize) => {
+        const sizes = ['S', 'M', 'L', 'XL'];
+        const currentIndex = sizes.indexOf(recommendedSize);
+        const percentages = {};
+        const recommendedPercentage = Math.floor(Math.random() * (86 - 73 + 1)) + 73;
+        percentages[recommendedSize] = recommendedPercentage;
+        const remainingPercentage = 100 - recommendedPercentage;
+        let closestSize;
+        if (currentIndex === 0) closestSize = sizes[1];
+        else if (currentIndex === sizes.length - 1) closestSize = sizes[currentIndex - 1];
+        else closestSize = sizes[currentIndex + 1];
+        const closestPercentage = Math.floor(remainingPercentage * (0.6 + Math.random() * 0.2));
+        percentages[closestSize] = closestPercentage;
+        const finalRemaining = remainingPercentage - closestPercentage;
+        const otherSizes = sizes.filter(size => size !== recommendedSize && size !== closestSize);
+        let remaining = finalRemaining;
+        otherSizes.forEach((size, index) => {
+            if (index === otherSizes.length - 1) percentages[size] = remaining;
+            else {
+                const randomAmount = Math.floor(Math.random() * (remaining - (otherSizes.length - index - 1))) + 1;
+                percentages[size] = randomAmount;
+                remaining -= randomAmount;
+            }
+        });
+        return percentages;
+    };
+
+    // --- Boy/kilo kategorisi & BMI ---
+    const getBodyCategory = (height, weight, gender = 'Erkek') => {
+        let heightCategory = 'standart';
+        if (height < 165) heightCategory = 'kisa';
+        else if (height <= 174) heightCategory = 'kisa';
+        else if (height <= 184) heightCategory = 'standart';
+        else if (height <= 194) heightCategory = 'uzun';
+        else heightCategory = 'uzun';
+        let weightCategory = 'averaj';
+        if (gender === 'Kadın') {
+            const stdWeight = 55 + ((height - 165) * 0.6);
+            if (weight <= stdWeight - 10) weightCategory = 'zayif';
+            else if (weight >= stdWeight + 12) weightCategory = 'kilolu';
+            else weightCategory = 'averaj';
+        } else {
+            const stdWeight = height - 100;
+            if (weight <= stdWeight - 12) weightCategory = 'zayif';
+            else if (weight >= stdWeight + 12) weightCategory = 'kilolu';
+            else weightCategory = 'averaj';
+        }
+        return { heightCategory, weightCategory };
+    };
+    const calculateBMI = (height, weight) => weight / Math.pow(height / 100, 2);
+
+    // --- AI FONKSİYONU ---
+    const getAIMatchingData = async (
+        userData,
+        recommendedSize,
+        heightCategory,
+        weightCategory,
+        bmiValue,
+        percentages
+    ) => {
+        const { height, weight, age, gender, bodyType, shoulderWidth } = userData;
+        const sizes = ['S', 'M', 'L', 'XL'];
+        const recIdx = sizes.indexOf(recommendedSize);
+        let altBeden = sizes[recIdx === 0 ? 1 : recIdx === sizes.length - 1 ? recIdx - 1 : recIdx + 1];
+
+        const prompt = `
 Kullanıcı Profili:
 - Yaş: ${age}
 - Cinsiyet: ${gender}
@@ -727,425 +738,329 @@ Alternatif: [${altBeden}] (%${percentages[altBeden]} uyum)
 [Alternatif seçilirse oluşacak fit ve görünüm farkı – kısa, mantıklı ve teknik.]"
 }
 `;
-       try {
-           // Değişiklik burası! ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
-           const response = await fetch('/api/gemini', {
-               method: 'POST',
-               headers: { 'Content-Type': 'application/json' },
-               body: JSON.stringify({ prompt })
-           });
-           
-           if (response.ok) {
-               const result = await response.json();
-               return JSON.parse(result.response);
-           }
-       } catch (error) {
-           console.error('AI API hatası:', error);
-       }
-       
-       // Fallback: Rastgele oranlar + gelişmiş açıklama
-       const fallbackPercentages = generateRandomMatchPercentages(recommendedSize);
-       
-       // En yakın bedeni bul
-       const sizes = ['S', 'M', 'L', 'XL'];
-       const currentIndex = sizes.indexOf(recommendedSize);
-       const closestSize = currentIndex > 0 ? sizes[currentIndex - 1] : sizes[currentIndex + 1];
-       const closestPercentage = fallbackPercentages[closestSize];
-       
-       // Büyük/küçük analizi
-       const sizeComparison = sizes.indexOf(closestSize) > currentIndex ? 'daha geniş' : 'daha dar';
-       
-       // Şık son cümleler havuzu
-       const stylishEndings = [
-           'Bu bedende kendin gibi rahat hissedeceksin.',
-           'Böylece hem rahat hem şık görüneceksin.',
-           'Bu seçimle günlük kombinlerin çok daha kolay olacak.',
-           'Oversize kesimin avantajını tam olarak yaşayacaksın.',
-           'Bu bedende özgüvenle giyinebilirsin.',
-           'Sonuçta en önemli şey kendini iyi hissetmen.',
-           'Bu seçimle hiç pişman olmayacaksın.',
-           'Böylece tarzını yansıtan mükemmel bir fit yakalayacaksın.',
-           'Bu bedende her durumda rahat edeceksin.',
-           'Oversize tişörtün bu bedende tam potansiyelini gösterecek.'
-       ];
-       
-       const randomEnding = stylishEndings[Math.floor(Math.random() * stylishEndings.length)];
-       
-       const fallbackExplanation = `Ölçülerinize göre %${fallbackPercentages[recommendedSize]} eşleşme ile ${recommendedSize} bedeni öneriyoruz. ${height}cm boyunuz ve ${weight}kg kilonuz için bu beden oversize kesimin tam avantajını sağlayacak. Alternatif olarak %${closestPercentage} eşleşme ile ${closestSize} bedeni de tercih edebilirsin, ancak sana ${sizeComparison} gelebilir. ${randomEnding}`;
-       
-       return {
-           percentages: fallbackPercentages,
-           explanation: fallbackExplanation
-       };
-   };
-   
-  // Vücut tipi kategorileri (boy, kilo kategorisi belirlemek için) - GÜNCELLEME: Erkek/Kadın için yeni algoritma
-const getBodyCategory = (height, weight, gender = 'Erkek') => {
-    let heightCategory = 'standart';
-    if (height >= 165 && height <= 174) heightCategory = 'kisa';
-    else if (height >= 175 && height <= 184) heightCategory = 'standart';
-    else if (height >= 185 && height <= 194) heightCategory = 'uzun';
-    else if (height < 165) heightCategory = 'kisa'; // 165'ten küçükler de kısa
-    else heightCategory = 'uzun'; // 194'ten büyükler de uzun
+        try {
+            const response = await fetch('/api/gemini', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt })
+            });
+            if (response.ok) {
+                const result = await response.json();
+                return JSON.parse(result.response);
+            }
+        } catch (error) {
+            console.error('AI API hatası:', error);
+        }
+        return {
+            percentages,
+            explanation: "Otomatik fallback açıklama."
+        };
+    };
 
-    // Kilo kategorisi
-    let weightCategory = 'averaj';
+    // --- Görsel fonksiyonu ---
+    const getTemplateImageUrl = (heightCategory, weightCategory, size) => {
+        const filename = `${heightCategory}_${weightCategory}_${size}`;
+        return TEMPLATE_CDN_LINKS[filename] || `https://placehold.co/600x800/f4f5f7/333?text=${filename}`;
+    };
 
-    if (gender === 'Kadın') {
-        const stdWeight = height - 110; // Kadın için
-        if (weight <= stdWeight - 10) weightCategory = 'zayif';
-        else if (weight >= stdWeight + 12) weightCategory = 'kilolu';
-        else weightCategory = 'averaj';
-    } else {
-        const stdWeight = height - 100; // Erkek için
-        if (weight <= stdWeight - 12) weightCategory = 'zayif';
-        else if (weight >= stdWeight + 12) weightCategory = 'kilolu';
-        else weightCategory = 'averaj';
+    // --- Elementler ve State ---
+    const wizardModal = document.getElementById('size-wizard-modal');
+    const steps = document.querySelectorAll('.wizard-step');
+    const progressBar = document.getElementById('progress-bar');
+    const navPrev = document.getElementById('nav-prev');
+    const navNext = document.getElementById('nav-next');
+    const navAnalyze = document.getElementById('nav-analyze');
+    const ageSlider = document.getElementById('age-slider');
+    const ageValueDisplay = document.getElementById('age-value-display');
+    const heightSlider = document.getElementById('height-slider');
+    const heightValueDisplay = document.getElementById('height-value-display');
+    const weightSlider = document.getElementById('weight-slider');
+    const weightValueDisplay = document.getElementById('weight-value-display');
+    const teeWidthSlider = document.getElementById('tee-width-slider');
+    const teeWidthDisplay = document.getElementById('tee-width-display');
+    const teeLengthSlider = document.getElementById('tee-length-slider');
+    const teeLengthDisplay = document.getElementById('tee-length-display');
+    const bodyTypeAlert = document.getElementById('bodytype-alert');
+    const shoulderAlert = document.getElementById('shoulder-alert');
+    const genderAlert = document.getElementById('gender-alert');
+    const resultDescription = document.getElementById('result-description');
+    const mainPreviewImage = document.getElementById('main-preview-image');
+    const sizeSelectorGrid = document.getElementById('size-selector-grid');
+    let currentStepId = 'step-1';
+    let userData = {};
+    let selectedPreviewSize = null;
+
+    // --- Modal & Alert ---
+    const openModal = () => { wizardModal.classList.remove('hidden'); resetWizard(); };
+    const closeModal = () => { wizardModal.classList.add('hidden'); };
+    const showAlert = (message) => {
+        document.getElementById('custom-alert-message').textContent = message;
+        document.getElementById('custom-alert-modal').classList.remove('hidden');
+    };
+    document.getElementById('open-wizard-btn').addEventListener('click', openModal);
+    document.getElementById('close-wizard-btn').addEventListener('click', closeModal);
+    wizardModal.addEventListener('click', (e) => e.target === wizardModal && closeModal());
+    document.getElementById('custom-alert-close-btn').addEventListener('click', () => {
+        document.getElementById('custom-alert-modal').classList.add('hidden');
+    });
+
+    // --- Navigation config ---
+    const stepConfig = {
+        'step-0': { prev: 'step-1', next: (data) => data.mode === 'wizard' ? 'step-2' : 'step-m1' },
+        'step-1': { prev: null, next: null, hideNav: true },
+        'step-2': { prev: 'step-0', next: 'step-3' },
+        'step-3': { prev: 'step-2', next: (data) => data.mode === 'wizard' ? 'step-4' : null, isAnalyze: (data) => data.mode === 'measure' },
+        'step-4': { prev: 'step-3', next: 'step-5' },
+        'step-5': { prev: 'step-4', next: null, isAnalyze: true },
+        'step-m1': { prev: 'step-0', next: 'step-m2' },
+        'step-m2': { prev: 'step-m1', next: 'step-2' },
+        'step-loader': { hideNav: true },
+        'step-result': { hideNav: true }
+    };
+    const updateNavigation = (stepId) => {
+        const config = stepConfig[stepId];
+        const navContainer = document.querySelector('.wizard-nav');
+        if (!config) return;
+        if (config.hideNav) { navContainer.style.display = 'none'; return; }
+        navContainer.style.display = 'block';
+        navPrev.style.display = config.prev ? 'block' : 'none';
+        if (config.prev) navPrev.dataset.targetStep = config.prev;
+        const nextTarget = typeof config.next === 'function' ? config.next(userData) : config.next;
+        navNext.style.display = nextTarget ? 'block' : 'none';
+        if (nextTarget) navNext.dataset.targetStep = nextTarget;
+        const showAnalyze = typeof config.isAnalyze === 'function' ? config.isAnalyze(userData) : config.isAnalyze;
+        navAnalyze.style.display = showAnalyze ? 'block' : 'none';
+        if (showAnalyze) navNext.style.display = 'none';
+    };
+    const showStep = (stepId) => {
+        if (currentStepId === 'step-0' && (stepId === 'step-2' || stepId === 'step-m1')) {
+            if (!userData.age) { userData.age = ageSlider.value; }
+            if (!userData.gender) {
+                genderAlert.style.display = "block";
+                setTimeout(() => genderAlert.style.display = "none", 1800);
+                return;
+            }
+        }
+        if (currentStepId === 'step-4' && stepId === 'step-5' && !userData.bodyType) {
+            bodyTypeAlert.style.display = "block";
+            setTimeout(() => bodyTypeAlert.style.display = "none", 1800);
+            return;
+        }
+        if (currentStepId === 'step-5' && stepId.startsWith('step-loader') && !userData.shoulderWidth) {
+            shoulderAlert.style.display = "block";
+            setTimeout(() => shoulderAlert.style.display = "none", 1800);
+            return;
+        }
+        currentStepId = stepId;
+        steps.forEach(step => step.classList.remove('active'));
+        const activeStep = document.getElementById(stepId);
+        if (activeStep) activeStep.classList.add('active');
+        document.querySelector('.wizard-inner-scroll').scrollTop = 0;
+        updateProgressBar();
+        updateNavigation(stepId);
+    };
+    const updateProgressBar = () => {
+        const wizardFlow = ['step-1', 'step-0', 'step-2', 'step-3', 'step-4', 'step-5'];
+        const measureFlow = ['step-1', 'step-0', 'step-m1', 'step-m2', 'step-2', 'step-3'];
+        const currentFlow = userData.mode === 'wizard' ? wizardFlow : measureFlow;
+        const stepIndex = currentFlow.indexOf(currentStepId);
+        let progress = 0;
+        if (stepIndex !== -1) {
+            progress = ((stepIndex + 1) / currentFlow.length) * 100;
+        } else if (currentStepId === 'step-result' || currentStepId.startsWith('step-loader')) {
+            progress = 100;
+        }
+        progressBar.style.width = `${progress}%`;
+    };
+
+    // --- Stepler ve navigasyon butonları ---
+    document.querySelectorAll('.start-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            userData.mode = btn.dataset.mode;
+            showStep(btn.dataset.targetStep);
+        });
+    });
+    navPrev.addEventListener('click', () => showStep(navPrev.dataset.targetStep));
+    navNext.addEventListener('click', () => showStep(navNext.dataset.targetStep));
+    navAnalyze.addEventListener('click', () => runAnalysis());
+    document.querySelector('.restart-btn').addEventListener('click', () => resetWizard());
+
+    // --- Sliders ---
+    ageSlider.addEventListener('input', (e) => {
+        ageValueDisplay.textContent = e.target.value;
+        userData.age = e.target.value;
+    });
+    heightSlider.addEventListener('input', (e) => heightValueDisplay.textContent = `${e.target.value} cm`);
+    weightSlider.addEventListener('input', (e) => weightValueDisplay.textContent = `${e.target.value} kg`);
+    teeWidthSlider.addEventListener('input', (e) => teeWidthDisplay.textContent = `${e.target.value} cm`);
+    teeLengthSlider.addEventListener('input', (e) => teeLengthDisplay.textContent = `${e.target.value} cm`);
+
+    // --- Görsel seçiciler ---
+    document.querySelectorAll('.visual-selector-card').forEach(card => {
+        card.addEventListener('click', () => {
+            const group = card.closest('[data-group]').dataset.group;
+            document.querySelectorAll(`[data-group="${group}"] .visual-selector-card`).forEach(c => c.classList.remove('selected'));
+            card.classList.add('selected');
+            userData[group] = card.querySelector('h4').textContent;
+        });
+    });
+
+    // --- KURAL TABANLI BEDEN HESAPLAMA ---
+    function getRuleBasedRecommendation(height, weight, age, gender, bodyType, shoulderWidth) {
+        const ageGroup = age < 18 ? 'Genç' : 'Yetişkin';
+        let baseSize;
+        if (gender === 'Erkek') {
+            if (ageGroup === 'Yetişkin') {
+                if (height < 175) {
+                    if (weight < 65) baseSize = 'S';
+                    else if (weight < 78) baseSize = 'M';
+                    else baseSize = 'L';
+                } else if (height <= 185) {
+                    if (weight < 65) baseSize = 'M';
+                    else if (weight < 78) baseSize = 'L';
+                    else if (weight < 96) baseSize = 'L';
+                    else baseSize = 'XL';
+                } else { // > 185
+                    if (weight < 78) baseSize = 'L';
+                    else baseSize = 'XL';
+                }
+            } else { // Genç
+                if (height < 175) {
+                    if (weight < 60) baseSize = 'S';
+                    else if (weight < 75) baseSize = 'M';
+                    else baseSize = 'L';
+                } else if (height <= 185) {
+                    if (weight < 60) baseSize = 'S';
+                    else if (weight < 75) baseSize = 'M';
+                    else baseSize = 'L';
+                } else { // > 185
+                    if (weight < 75) baseSize = 'M';
+                    else if (weight < 85) baseSize = 'L';
+                    else baseSize = 'XL';
+                }
+            }
+        } else { // Kadın
+            if (height < 165) {
+                if (weight < 60) baseSize = 'S';
+                else if (weight < 75) baseSize = 'M';
+                else baseSize = 'L';
+            } else if (height <= 175) {
+                if (weight < 60) baseSize = 'S';
+                else if (weight < 75) baseSize = 'M';
+                else baseSize = 'L';
+            } else { // > 175
+                if (weight < 60) baseSize = 'M';
+                else if (weight < 75) baseSize = 'L';
+                else baseSize = 'XL';
+            }
+        }
+        const modifier = (bodyType === 'İri Yapılı' || shoulderWidth === 'Geniş Omuz') ? 1 :
+            (bodyType === 'İnce Yapılı' || shoulderWidth === 'Dar Omuz') ? -1 : 0;
+        const sizes = ['S', 'M', 'L', 'XL'];
+        const currentIndex = sizes.indexOf(baseSize);
+        let finalIndex = currentIndex + modifier;
+        finalIndex = Math.max(0, Math.min(sizes.length - 1, finalIndex));
+        return sizes[finalIndex];
     }
 
-    return { heightCategory, weightCategory };
-};
-const calculateBMI = (height, weight) => weight / Math.pow(height / 100, 2);
-   
-   // Template görsel URL'i oluşturma
-   const getTemplateImageUrl = (heightCategory, weightCategory, size) => {
-       const filename = `${heightCategory}_${weightCategory}_${size}`;
-       return TEMPLATE_CDN_LINKS[filename] || `https://placehold.co/600x800/f4f5f7/333?text=${filename}`;
-   };
-   
-   // Element Selections
-   const wizardModal = document.getElementById('size-wizard-modal');
-   const steps = document.querySelectorAll('.wizard-step');
-   const progressBar = document.getElementById('progress-bar');
-   const navPrev = document.getElementById('nav-prev');
-   const navNext = document.getElementById('nav-next');
-   const navAnalyze = document.getElementById('nav-analyze');
-   const ageSlider = document.getElementById('age-slider');
-   const ageValueDisplay = document.getElementById('age-value-display');
-   const heightSlider = document.getElementById('height-slider');
-   const heightValueDisplay = document.getElementById('height-value-display');
-   const weightSlider = document.getElementById('weight-slider');
-   const weightValueDisplay = document.getElementById('weight-value-display');
-   const teeWidthSlider = document.getElementById('tee-width-slider');
-   const teeWidthDisplay = document.getElementById('tee-width-display');
-   const teeLengthSlider = document.getElementById('tee-length-slider');
-   const teeLengthDisplay = document.getElementById('tee-length-display');
-   const bodyTypeAlert = document.getElementById('bodytype-alert');
-   const shoulderAlert = document.getElementById('shoulder-alert');
-   const genderAlert = document.getElementById('gender-alert');
-   const resultDescription = document.getElementById('result-description');
-   const mainPreviewImage = document.getElementById('main-preview-image');
-   const sizeSelectorGrid = document.getElementById('size-selector-grid');
+    // --- Template fit preview sistem ---
+    const createSizeSelector = (recommendedSize, heightCategory, weightCategory, matchPercentages) => {
+        const sizes = ['S', 'M', 'L', 'XL'];
+        sizeSelectorGrid.innerHTML = '';
+        sizes.forEach(size => {
+            const container = document.createElement('div');
+            container.className = 'size-button-container';
+            const button = document.createElement('button');
+            button.className = `size-button ${size === recommendedSize ? 'recommended' : ''} ${size === selectedPreviewSize ? 'selected' : ''}`;
+            button.dataset.size = size;
+            const sizeLabel = document.createElement('div');
+            sizeLabel.className = 'size-label';
+            sizeLabel.textContent = size;
+            button.appendChild(sizeLabel);
+            const matchPercentage = document.createElement('div');
+            matchPercentage.className = 'match-percentage';
+            matchPercentage.textContent = `%${matchPercentages[size]}`;
+            container.appendChild(button);
+            container.appendChild(matchPercentage);
+            button.addEventListener('click', () => {
+                document.querySelectorAll('.size-button').forEach(btn => btn.classList.remove('selected'));
+                button.classList.add('selected');
+                selectedPreviewSize = size;
+                const imageUrl = getTemplateImageUrl(heightCategory, weightCategory, size);
+                mainPreviewImage.src = imageUrl;
+                document.getElementById('add-to-cart-btn').textContent = `Beden ${size} Sepete Ekle`;
+            });
+            sizeSelectorGrid.appendChild(container);
+        });
+    };
+    const generateTemplatePreview = async (aiMatchingData) => {
+        const { height, weight, recommendedSize } = userData;
+        const { heightCategory, weightCategory } = getBodyCategory(parseInt(height), parseInt(weight), userData.gender);
+        selectedPreviewSize = recommendedSize;
+        const initialImageUrl = getTemplateImageUrl(heightCategory, weightCategory, recommendedSize);
+        mainPreviewImage.src = initialImageUrl;
+        createSizeSelector(recommendedSize, heightCategory, weightCategory, aiMatchingData.percentages);
+    };
 
-   // State Variables
-   let currentStepId = 'step-1';
-   let userData = {};
-   let selectedPreviewSize = null;
+    // --- RUN ANALYSIS ANA FONKSİYONU ---
+    const runAnalysis = async () => {
+        userData.height = heightSlider.value;
+        userData.weight = weightSlider.value;
+        if (userData.mode === 'measure') {
+            userData.teeWidth = teeWidthSlider.value;
+            userData.teeLength = teeLengthSlider.value;
+        }
+        if (userData.mode === 'wizard' && (!userData.bodyType || !userData.shoulderWidth)) {
+            showAlert("Lütfen tüm adımları eksiksiz doldurun.");
+            return;
+        }
+        showStep('step-loader');
+        const height = parseInt(userData.height);
+        const weight = parseInt(userData.weight);
+        const { heightCategory, weightCategory } = getBodyCategory(height, weight, userData.gender);
+        const bmiValue = calculateBMI(height, weight).toFixed(1);
+        const finalSize = getRuleBasedRecommendation(height, weight, userData.age, userData.gender, userData.bodyType, userData.shoulderWidth);
+        userData.recommendedSize = finalSize;
+        const percentages = generateRandomMatchPercentages(finalSize);
+        const aiMatchingData = await getAIMatchingData(
+            userData,
+            finalSize,
+            heightCategory,
+            weightCategory,
+            bmiValue,
+            percentages
+        );
+        userData.explanation = aiMatchingData.explanation;
+        document.getElementById('result-size').textContent = userData.recommendedSize;
+        document.getElementById('add-to-cart-btn').textContent = `Beden ${userData.recommendedSize} Sepete Ekle`;
+        resultDescription.textContent = userData.explanation;
+        setTimeout(async () => {
+            showStep('step-result');
+            if (userData.mode === 'wizard') {
+                await generateTemplatePreview(aiMatchingData);
+            } else {
+                document.getElementById('template-fit-preview-section').style.display = 'none';
+            }
+        }, 1500);
+    };
 
-   // Modal & Alert Logic
-   const openModal = () => { wizardModal.classList.remove('hidden'); resetWizard(); };
-   const closeModal = () => { wizardModal.classList.add('hidden');};
-   const showAlert = (message) => { 
-       document.getElementById('custom-alert-message').textContent = message; 
-       document.getElementById('custom-alert-modal').classList.remove('hidden'); 
-   };
-   
-   document.getElementById('open-wizard-btn').addEventListener('click', openModal);
-   document.getElementById('close-wizard-btn').addEventListener('click', closeModal);
-   wizardModal.addEventListener('click', (e) => e.target === wizardModal && closeModal());
-   document.getElementById('custom-alert-close-btn').addEventListener('click', () => { 
-       document.getElementById('custom-alert-modal').classList.add('hidden'); 
-   });
+    // --- RESET WIZARD ---
+    const resetWizard = () => {
+        userData = {};
+        userData.age = ageSlider.value;
+        ageValueDisplay.textContent = ageSlider.value;
+        selectedPreviewSize = null;
+        document.querySelectorAll('.visual-selector-card.selected').forEach(c => c.classList.remove('selected'));
+        showStep('step-1');
+        const previewSection = document.getElementById('template-fit-preview-section');
+        if (previewSection) previewSection.style.display = 'block';
+    };
 
-   // Navigation config
-   const stepConfig = {
-       'step-0': { prev: 'step-1', next: (data) => data.mode === 'wizard' ? 'step-2' : 'step-m1' },
-       'step-1': { prev: null, next: null, hideNav: true },
-       'step-2': { prev: 'step-0', next: 'step-3' },
-       'step-3': { prev: 'step-2', next: (data) => data.mode === 'wizard' ? 'step-4' : null, isAnalyze: (data) => data.mode === 'measure' },
-       'step-4': { prev: 'step-3', next: 'step-5' },
-       'step-5': { prev: 'step-4', next: null, isAnalyze: true },
-       'step-m1': { prev: 'step-0', next: 'step-m2' },
-       'step-m2': { prev: 'step-m1', next: 'step-2' },
-       'step-loader': { hideNav: true },
-       'step-result': { hideNav: true }
-   };
-
-   const updateNavigation = (stepId) => {
-       const config = stepConfig[stepId];
-       const navContainer = document.querySelector('.wizard-nav');
-       if (!config) return;
-       if (config.hideNav) { navContainer.style.display = 'none'; return; }
-       navContainer.style.display = 'block';
-       navPrev.style.display = config.prev ? 'block' : 'none';
-       if(config.prev) navPrev.dataset.targetStep = config.prev;
-       const nextTarget = typeof config.next === 'function' ? config.next(userData) : config.next;
-       navNext.style.display = nextTarget ? 'block' : 'none';
-       if(nextTarget) navNext.dataset.targetStep = nextTarget;
-       const showAnalyze = typeof config.isAnalyze === 'function' ? config.isAnalyze(userData) : config.isAnalyze;
-       navAnalyze.style.display = showAnalyze ? 'block' : 'none';
-       if(showAnalyze) navNext.style.display = 'none';
-   };
-   
-   const showStep = (stepId) => {
-       if (currentStepId === 'step-0' && (stepId === 'step-2' || stepId === 'step-m1')) {
-           if (!userData.age) {
-               userData.age = ageSlider.value;
-           }
-           if (!userData.gender) {
-               genderAlert.style.display = "block"; 
-               setTimeout(() => genderAlert.style.display = "none", 1800); 
-               return;
-           }
-       }
-       if (currentStepId === 'step-4' && stepId === 'step-5' && !userData.bodyType) {
-           bodyTypeAlert.style.display = "block"; 
-           setTimeout(() => bodyTypeAlert.style.display = "none", 1800); 
-           return;
-       }
-       if (currentStepId === 'step-5' && stepId.startsWith('step-loader') && !userData.shoulderWidth) {
-           shoulderAlert.style.display = "block"; 
-           setTimeout(() => shoulderAlert.style.display = "none", 1800); 
-           return;
-       }
-       currentStepId = stepId;
-       steps.forEach(step => step.classList.remove('active'));
-       const activeStep = document.getElementById(stepId);
-       if (activeStep) activeStep.classList.add('active');
-       document.querySelector('.wizard-inner-scroll').scrollTop = 0;
-       updateProgressBar();
-       updateNavigation(stepId);
-   };
-
-   const updateProgressBar = () => {
-       const wizardFlow = ['step-1', 'step-0', 'step-2', 'step-3', 'step-4', 'step-5'];
-       const measureFlow = ['step-1', 'step-0', 'step-m1', 'step-m2', 'step-2', 'step-3'];
-       const currentFlow = userData.mode === 'wizard' ? wizardFlow : measureFlow;
-       const stepIndex = currentFlow.indexOf(currentStepId);
-       let progress = 0;
-       if (stepIndex !== -1) {
-           progress = ((stepIndex + 1) / currentFlow.length) * 100;
-       } else if (currentStepId === 'step-result' || currentStepId.startsWith('step-loader')) {
-           progress = 100;
-       }
-       progressBar.style.width = `${progress}%`;
-   };
-   
-   document.querySelectorAll('.start-btn').forEach(btn => {
-       btn.addEventListener('click', () => {
-           userData.mode = btn.dataset.mode;
-           showStep(btn.dataset.targetStep);
-       });
-   });
-
-   navPrev.addEventListener('click', () => showStep(navPrev.dataset.targetStep));
-   navNext.addEventListener('click', () => showStep(navNext.dataset.targetStep));
-   navAnalyze.addEventListener('click', () => runAnalysis());
-   document.querySelector('.restart-btn').addEventListener('click', () => resetWizard());
-
-   // Sliders
-   ageSlider.addEventListener('input', (e) => {
-       ageValueDisplay.textContent = e.target.value;
-       userData.age = e.target.value;
-   });
-   heightSlider.addEventListener('input', (e) => heightValueDisplay.textContent = `${e.target.value} cm`);
-   weightSlider.addEventListener('input', (e) => weightValueDisplay.textContent = `${e.target.value} kg`);
-   teeWidthSlider.addEventListener('input', (e) => teeWidthDisplay.textContent = `${e.target.value} cm`);
-   teeLengthSlider.addEventListener('input', (e) => teeLengthDisplay.textContent = `${e.target.value} cm`);
-   
-   document.querySelectorAll('.visual-selector-card').forEach(card => {
-       card.addEventListener('click', () => {
-           const group = card.closest('[data-group]').dataset.group;
-           document.querySelectorAll(`[data-group="${group}"] .visual-selector-card`).forEach(c => c.classList.remove('selected'));
-           card.classList.add('selected');
-           userData[group] = card.querySelector('h4').textContent;
-       });
-   });
-
-   // KURAL TABANLI BEDEN HESAPLAMA
-   function getRuleBasedRecommendation(height, weight, age, gender, bodyType, shoulderWidth) {
-       const ageGroup = age < 18 ? 'Genç' : 'Yetişkin';
-       let baseSize;
-
-       if (gender === 'Erkek') {
-           if (ageGroup === 'Yetişkin') {
-               if (height < 175) {
-                   if (weight < 65) baseSize = 'S';
-                   else if (weight < 78) baseSize = 'M';
-                   else baseSize = 'L';
-               } else if (height <= 185) {
-                   if (weight < 65) baseSize = 'M';
-                   else if (weight < 78) baseSize = 'L';
-                   else if (weight < 96) baseSize = 'L';
-                   else baseSize = 'XL';
-               } else { // > 185
-                   if (weight < 78) baseSize = 'L';
-                   else baseSize = 'XL';
-               }
-           } else { // Genç
-               if (height < 175) {
-                   if (weight < 60) baseSize = 'S';
-                   else if (weight < 75) baseSize = 'M';
-                   else baseSize = 'L';
-               } else if (height <= 185) {
-                   if (weight < 60) baseSize = 'S';
-                   else if (weight < 75) baseSize = 'M';
-                   else baseSize = 'L';
-               } else { // > 185
-                   if (weight < 75) baseSize = 'M';
-                   else if (weight < 85) baseSize = 'L';
-                   else baseSize = 'XL';
-               }
-           }
-       } else { // Kadın
-           if (height < 165) {
-               if (weight < 60) baseSize = 'S';
-               else if (weight < 75) baseSize = 'M';
-               else baseSize = 'L';
-           } else if (height <= 175) {
-               if (weight < 60) baseSize = 'S';
-               else if (weight < 75) baseSize = 'M';
-               else baseSize = 'L';
-           } else { // > 175
-               if (weight < 60) baseSize = 'M';
-               else if (weight < 75) baseSize = 'L';
-               else baseSize = 'XL';
-           }
-       }
-
-       const modifier = (bodyType === 'İri Yapılı' || shoulderWidth === 'Geniş Omuz') ? 1 : 
-                        (bodyType === 'İnce Yapılı' || shoulderWidth === 'Dar Omuz') ? -1 : 0;
-       
-       const sizes = ['S', 'M', 'L', 'XL'];
-       const currentIndex = sizes.indexOf(baseSize);
-       let finalIndex = currentIndex + modifier;
-       finalIndex = Math.max(0, Math.min(sizes.length - 1, finalIndex));
-
-       return sizes[finalIndex];
-   }
-
-   // Template fit preview sistem
-   const createSizeSelector = (recommendedSize, heightCategory, weightCategory, matchPercentages) => {
-       const sizes = ['S', 'M', 'L', 'XL'];
-       
-       sizeSelectorGrid.innerHTML = '';
-       
-       sizes.forEach(size => {
-           const container = document.createElement('div');
-           container.className = 'size-button-container';
-           
-           const button = document.createElement('button');
-           button.className = `size-button ${size === recommendedSize ? 'recommended' : ''} ${size === selectedPreviewSize ? 'selected' : ''}`;
-           button.dataset.size = size;
-           
-           const sizeLabel = document.createElement('div');
-           sizeLabel.className = 'size-label';
-           sizeLabel.textContent = size;
-           
-           button.appendChild(sizeLabel);
-           
-           const matchPercentage = document.createElement('div');
-           matchPercentage.className = 'match-percentage';
-           matchPercentage.textContent = `%${matchPercentages[size]}`;
-           
-           container.appendChild(button);
-           container.appendChild(matchPercentage);
-           
-           button.addEventListener('click', () => {
-               // Önceki seçimi temizle
-               document.querySelectorAll('.size-button').forEach(btn => btn.classList.remove('selected'));
-               button.classList.add('selected');
-               selectedPreviewSize = size;
-               
-               // Ana görseli güncelle
-               const imageUrl = getTemplateImageUrl(heightCategory, weightCategory, size);
-               mainPreviewImage.src = imageUrl;
-               
-               // Sepete ekle butonunu güncelle
-               document.getElementById('add-to-cart-btn').textContent = `Beden ${size} Sepete Ekle`;
-           });
-           
-           sizeSelectorGrid.appendChild(container);
-       });
-   };
-
-   const generateTemplatePreview = async (aiMatchingData) => {
-       const { height, weight, recommendedSize } = userData;
-       const { heightCategory, weightCategory } = getBodyCategory(parseInt(height), parseInt(weight));
-       
-       // Ana önizleme görselini ayarla (önerilen beden)
-       selectedPreviewSize = recommendedSize;
-       const initialImageUrl = getTemplateImageUrl(heightCategory, weightCategory, recommendedSize);
-       mainPreviewImage.src = initialImageUrl;
-       
-       // Beden seçici grid'i oluştur
-       createSizeSelector(recommendedSize, heightCategory, weightCategory, aiMatchingData.percentages);
-   };
-
-   const runAnalysis = async () => {
-       userData.height = heightSlider.value;
-       userData.weight = weightSlider.value;
-       if (userData.mode === 'measure') {
-           userData.teeWidth = teeWidthSlider.value;
-           userData.teeLength = teeLengthSlider.value;
-       }
-
-       if (userData.mode === 'wizard' && (!userData.bodyType || !userData.shoulderWidth)) {
-           showAlert("Lütfen tüm adımları eksiksiz doldurun.");
-           return;
-       }
-       
-       showStep('step-loader');
-
-       const height = parseInt(userData.height);
-       const weight = parseInt(userData.weight);
-       
-       // 1. KARAR: Beden, kural tabanlı sistem tarafından kesin olarak hesaplanır.
-       const finalSize = getRuleBasedRecommendation(height, weight, userData.age, userData.gender, userData.bodyType, userData.shoulderWidth);
-       userData.recommendedSize = finalSize;
-
-       // 2. AI HIBRIT: Oranlar ve açıklama AI'dan alınır
-       const aiMatchingData = await getAIMatchingData(userData, finalSize);
-       userData.explanation = aiMatchingData.explanation;
-       
-       // 3. GÖSTERİM: Sonuçlar ekrana yazdırılır.
-       document.getElementById('result-size').textContent = userData.recommendedSize;
-       document.getElementById('add-to-cart-btn').textContent = `Beden ${userData.recommendedSize} Sepete Ekle`;
-       resultDescription.textContent = userData.explanation;
-       
-       // Kısa bir gecikme simülasyonu
-       setTimeout(async () => {
-           showStep('step-result');
-           
-           // 4. GÖRSELLEŞTİRME: Template görselleri oluştur
-           if (userData.mode === 'wizard') {
-               await generateTemplatePreview(aiMatchingData);
-           } else {
-               document.getElementById('template-fit-preview-section').style.display = 'none';
-           }
-       }, 1500);
-   };
-
-   const resetWizard = () => {
-       userData = {};
-       userData.age = ageSlider.value;
-       ageValueDisplay.textContent = ageSlider.value;
-       selectedPreviewSize = null;
-       
-       document.querySelectorAll('.visual-selector-card.selected').forEach(c => c.classList.remove('selected'));
-
-       showStep('step-1');
-       
-       const previewSection = document.getElementById('template-fit-preview-section');
-       if (previewSection) {
-           previewSection.style.display = 'block';
-       }
-   };
-
-   lucide.createIcons();
-   resetWizard();
+    lucide.createIcons();
+    resetWizard();
 });
 </script>
+
 
 
 </body>
