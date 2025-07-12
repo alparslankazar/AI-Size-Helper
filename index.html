@@ -618,28 +618,51 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // --- Açıklamayı düzgün bloklu HTML'e çeviren fonksiyon ---
-    function formatExplanationBlocks(rawExplanation) {
-        if (!rawExplanation) return '';
-        // Fazla boşlukları temizle
-        let explanation = rawExplanation.trim()
-            .replace(/(\r\n|\r|\n){3,}/g, '\n\n')
-            .replace(/(\r\n|\r|\n){2,}/g, '\n\n');
-        // Bloklara böl
-        const sections = explanation.split(/\n{2,}/g).map(s => s.trim()).filter(Boolean);
-        let html = '';
-        sections.forEach((section, i) => {
-            if (
-                section.toLowerCase().startsWith('kullanıcı profil analizi') ||
-                section.toLowerCase().startsWith('beden önerisi ve bilgilendirme') ||
-                section.toLowerCase().startsWith('alternatif beden')
-            ) {
-                html += (i !== 0 ? '<br><br>' : '') + `<b>${section}</b>`;
-            } else {
-                html += `<br>${section}`;
-            }
-        });
-        return html.trim();
-    }
+ function formatExplanationBlocks(rawExplanation) {
+    if (!rawExplanation) return '';
+    // Tüm özel başlıkları yakalamak için normalize et
+    const normalize = str => str
+        .replace(/alternatif[\s:]+beden/gi, "Alternatif Beden")
+        .replace(/beden önerisi[\s:]+ve bilgilendirme/gi, "Beden Önerisi ve Bilgilendirme")
+        .replace(/kullanıcı profil[\s:]+analizi/gi, "Kullanıcı Profil Analizi")
+        .trim();
+    let explanation = rawExplanation
+        .replace(/\\n\\n/g, '\n\n')  // escape'li satır sonlarını düzelt
+        .replace(/(\r\n|\r|\n){3,}/g, '\n\n')
+        .replace(/(\r\n|\r|\n){2,}/g, '\n\n')
+        .trim();
+    // Varsa blokları yakala
+    let sections = explanation.split(/\n{2,}/g).map(s => normalize(s.trim())).filter(Boolean);
+    let html = '';
+    sections.forEach((section, i) => {
+        // Başlık mı?
+        if (
+            /^kullanıcı profil analizi$/i.test(section) ||
+            /^beden önerisi ve bilgilendirme$/i.test(section) ||
+            /^alternatif beden$/i.test(section)
+        ) {
+            html += (i !== 0 ? '<br><br>' : '') + `<b style="font-size:1.1em;">${section}</b>`;
+        }
+        // Eğer başlık+içerik birleşik gelirse otomatik ayır!
+        else if (/^kullanıcı profil analizi/i.test(section)) {
+            let [header, ...body] = section.split(/(?<=analizi)/i);
+            html += (i !== 0 ? '<br><br>' : '') + `<b style="font-size:1.1em;">${header}</b><br>${body.join('').trim()}`;
+        }
+        else if (/^beden önerisi ve bilgilendirme/i.test(section)) {
+            let [header, ...body] = section.split(/(?<=bilgilendirme)/i);
+            html += (i !== 0 ? '<br><br>' : '') + `<b style="font-size:1.1em;">${header}</b><br>${body.join('').trim()}`;
+        }
+        else if (/^alternatif beden/i.test(section)) {
+            let [header, ...body] = section.split(/(?<=beden)/i);
+            html += (i !== 0 ? '<br><br>' : '') + `<b style="font-size:1.1em;">${header}</b><br>${body.join('').trim()}`;
+        }
+        else {
+            html += `<br>${section}`;
+        }
+    });
+    return html.trim();
+}
+
 
     // --- Rastgele oranlar ---
     const generateRandomMatchPercentages = (recommendedSize) => {
