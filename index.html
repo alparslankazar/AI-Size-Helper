@@ -728,15 +728,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const recIdx = sizes.indexOf(recommendedSize);
         let altBeden = sizes[recIdx === 0 ? 1 : recIdx === sizes.length - 1 ? recIdx - 1 : recIdx + 1];
 
-        const prompt = `
+const prompt = `
 Çıktıyı aşağıdaki üç başlık altında ve aşağıdaki kurallarla oluştur:
 Kullanıcı Profil Analizi
-
 Beden Önerisi ve Bilgilendirme
-
 Alternatif Beden
 
 Yalnızca bu üç başlık olacak, asla tekrar veya alternatif cümle yok. Her başlığın hemen ardından tam iki yeni satır bırak. Parantez ya da köşeli parantez kullanma. Başlıkları olduğu gibi bırak, aynen yaz.
+
+Sen LOS SURENOS markasının beden danışmanısın ve karşında müşterin var. Ona doğrudan "siz", "sizin" diye hitap et, samimi ama profesyonel ol.
 
 Kullanıcı Profili:
 - Yaş: ${age}
@@ -750,29 +750,29 @@ Kullanıcı Profili:
 - Sistem önerisi: ${recommendedSize} beden (algoritma sonucu)
 - Ürün: Oversized Boxy Fit Tee (sadece bu model var)
 
-Aşağıdaki verilerle müşteriye özel bir beden öneri raporu oluştur:
-
 Kullanıcı Profil Analizi
 
-Türkiye ${gender.toLowerCase()} boy ortalaması ${gender === "Erkek" ? 176 : 165} cm’dir. Kullanıcı, bu ortalamaya göre ${height - (gender === "Erkek" ? 176 : 165) > 0 ? (height - (gender === "Erkek" ? 176 : 165)) + " cm uzun" : (height - (gender === "Erkek" ? 176 : 165)) < 0 ? Math.abs(height - (gender === "Erkek" ? 176 : 165)) + " cm kısa" : "ortalama boyda"} ve toplam boyu yukarıda belirtildi.
+${age} yaşında, ${height} cm boyunda ve ${weight} kg olan ${gender.toLowerCase()} bir profil. Türkiye ${gender.toLowerCase()} boy ortalaması ${gender === "Erkek" ? 176 : 165} cm'dir - siz bu ortalamaya göre ${height - (gender === "Erkek" ? 176 : 165) > 0 ? (height - (gender === "Erkek" ? 176 : 165)) + " cm daha uzunsunuz" : (height - (gender === "Erkek" ? 176 : 165)) < 0 ? Math.abs(height - (gender === "Erkek" ? 176 : 165)) + " cm daha kısasınız" : "ortalama boydasınız"}.
 
-Vücut kitle endeksi (BMI): ${bmiValue} (${weightCategory}).
-
-Boy ve kilo değerine göre sistemde belirlenen vücut tipi ve fit kategorisi: ${bodyType || 'Belirtilmedi'} / ${shoulderWidth || 'Belirtilmedi'}.
+Vücut kitle endeksiniz (BMI): ${bmiValue} - bu da ${weightCategory} kategorisinde yer alıyor. ${bodyType || 'Standart'} vücut tipiniz ve ${shoulderWidth || 'normal'} omuz yapınız var.
 
 Beden Önerisi ve Bilgilendirme
 
-Önerilen beden: ${recommendedSize}
-Uyum oranı: %${percentages[recommendedSize]} (Benzer profile sahip müşterilerin memnuniyet oranına göre)
-Neden bu bedeni önerdiğini teknik ve mantıklı şekilde açıkla. Boy ve kiloya bağlı olarak tişörtün gövdede ve kollarda nasıl duracağını, kısa veya uzun kalıp kalmayacağını, oversize etkisinin korunup korunmayacağını net bir dille belirt.
+Size ${recommendedSize} beden öneriyorum.
+Uyum oranı: %${percentages[recommendedSize]} (Benzer vücut ölçülerine sahip müşterilerin memnuniyet oranı)
+
+${height} cm boyunuzla ${recommendedSize} bedeni seçtiğinizde tişörtün size nasıl oturacağını açıklayayım: Kolların uzunluğu, gövdenin genişliği ve boyunun ${weight} kg kilonuzla nasıl bir uyum sağlayacağını detaylı anlat. Oversize etkisinin tam olarak nasıl görüneceğini belirt.
 
 Alternatif Beden
 
-Alternatif beden olarak en yakın ikinci bedeni (${altBeden}) ve onun uyum oranını (%${percentages[altBeden]}) belirt. Bu alternatifi seçerse nasıl bir farklılık olacağını kısa ve teknik bir cümleyle ifade et (ör: Kol boyu kısa kalabilir, tişört vücuda daha yakın durur, gövde boyu uzun kalabilir vs.).
+Alternatif olarak ${altBeden} bedenini de düşünebilirsiniz (%${percentages[altBeden]} uyum oranı). 
+
+${altBeden} bedeni seçerseniz ne değişir: Size nasıl bir farklılık yaratacağını somut örneklerle açıkla (kolların durumu, gövde oturması, genel görünüm farkı).
+
 YANIT FORMATINDA SADECE ŞU YAPI KULLANILACAK:
 {
   "percentages": {"S": x, "M": y, "L": z, "XL": w},
-  "explanation": "Yukarıda dikte edilen gibi, tam ve bloklu çıktı"
+  "explanation": "Yukarıda dikte edilen gibi, yardımsever doğrudan kullanıcıya hitap eden samimi ama profesyonel ton"
 }
 `;
         try {
